@@ -22,6 +22,7 @@ São duas coisas diferentes:
 | `config/ui.php` | As poucas decisões que mudam de projeto para projeto |
 | `src/UiServiceProvider.php` | Registra os componentes e a configuração (descoberto sozinho pelo Laravel) |
 | `src/Icons.php` | A lista de ícones do Lucide, usada pelo `<x-ui.icon>` |
+| `src/Money.php`, `src/DateShortcuts.php` | O valor em reais do `<x-ui.money>` e os atalhos do `<x-ui.date-range>` |
 | `tests/js` | Testes das funções puras (`npm test`) |
 
 Fica **fora** do pacote o que é de cada projeto: as telas, os itens do menu, o
@@ -246,6 +247,8 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.4.3** — `x-ui.money` e `x-ui.date-range` deixam de depender de classes do
+  projeto: `Targos\Ui\Money` e `Targos\Ui\DateShortcuts` passam a vir no pacote.
 - **1.4.2** — `x-ui.stat-card`: `info` (ícone de informação com dica, no canto)
   e `trend` (gráfico no pé do card, encostado na base e nas laterais).
   `x-ui.chart` ganha `sparkline`.

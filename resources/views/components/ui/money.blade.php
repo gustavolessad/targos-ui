@@ -20,10 +20,10 @@
      * e os eventos que outras telas escutam (a prévia das parcelas). O JS
      * (resources/js/ui/money.js) o esconde e mostra por cima o campo com
      * "R$", que se digita como calculadora (1.500,00). Sem JS, o nativo
-     * aparece sozinho. Formatar valor em reais: App\Support\Money.
+     * aparece sozinho. Formatar valor em reais: Targos\Ui\Money.
      */
-    $valor = \App\Support\Money::normalize(old($name, $value));
-    $exibido = $valor !== null ? \App\Support\Money::format($valor) : '';
+    $valor = \Targos\Ui\Money::normalize(old($name, $value));
+    $exibido = $valor !== null ? \Targos\Ui\Money::format($valor) : '';
     $temErro = $errors->has($name);
 
     $tamanhos = [

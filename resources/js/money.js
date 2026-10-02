@@ -1,6 +1,6 @@
 /*
  * O valor em reais (<x-ui.money>) e o único lugar do navegador que sabe
- * formatar reais. No servidor, o par é App\Support\Money.
+ * formatar reais. No servidor, o par é Targos\Ui\Money.
  *
  * O `<input type="number">` nativo continua sendo o campo do formulário
  * (`1500.00`); aqui ele fica visualmente escondido (sr-only, para a

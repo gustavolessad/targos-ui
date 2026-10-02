@@ -23,7 +23,7 @@
      * (resources/js/ui/date-range.js) os esconde e mostra um botão com o
      * intervalo e o calendário de dois cliques. "Aplicar" grava os dois.
      *
-     * Os atalhos vêm prontos do servidor (App\Support\Dates\DateShortcuts),
+     * Os atalhos vêm prontos do servidor (Targos\Ui\DateShortcuts),
      * com o "hoje" do sistema.
      */
     $iso = fn ($data): ?string => $data instanceof \DateTimeInterface ? $data->format('Y-m-d') : (is_string($data) ? $data : null);
@@ -36,7 +36,7 @@
     $maximo = $valida($iso($max));
     $texto = $inicio && $fim ? $exibir($inicio).' até '.$exibir($fim) : '';
 
-    $atalhos = \App\Support\Dates\DateShortcuts::for(
+    $atalhos = \Targos\Ui\DateShortcuts::for(
         $shortcuts,
         $minimo ? \Carbon\CarbonImmutable::parse($minimo) : null,
         $maximo ? \Carbon\CarbonImmutable::parse($maximo) : null,

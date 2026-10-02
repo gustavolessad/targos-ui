@@ -194,6 +194,7 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.2.4** — Itens do menu lateral com `px-3 py-2.5`.
 - **1.2.3** — Itens do menu lateral mais altos (`p-3`) e com ícone maior
   (`size-5`), no item simples e no título do grupo.
 - **1.2.2** — Documentação: o pacote é sempre instalado pelo Git; saem as

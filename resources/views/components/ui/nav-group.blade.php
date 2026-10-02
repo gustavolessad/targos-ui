@@ -24,7 +24,7 @@
 {{-- `data-inicial`: o grupo que já nasce aberto não anima ao carregar a página (nav.js). --}}
 <details @if ($aberto) open data-inicial @endif class="group/grupo">
     {{-- Mesmas cores do nav-item em repouso, para o grupo não destoar dos links. --}}
-    <summary class="group flex cursor-pointer list-none items-center gap-3 rounded-lg p-3
+    <summary class="group flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2.5
                     text-sm font-medium text-neutral-900 transition hover:bg-neutral-100
                     hover:text-neutral-950 dark:text-white dark:hover:bg-white/5
                     dark:hover:text-white [&::-webkit-details-marker]:hidden">
@@ -46,7 +46,7 @@
         principais, cor um pouco mais fraca (o ativo fica de fora: segue
         bem escuro; o hover volta a escurecer).
 
-        Mais baixos que os itens do nível de cima (`py-2` contra o `p-3`
+        Mais baixos que os itens do nível de cima (`py-2` contra o `py-2.5`
         deles): a lista aberta fica compacta e se lê como parte do grupo.
 
         Ao abrir, entram descendo de leve (`animate-descer`); o grupo

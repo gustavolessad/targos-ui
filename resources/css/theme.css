@@ -39,6 +39,29 @@
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * A barra lateral recolhida: `recolhida:hidden`, `recolhida:w-16`.
+ *
+ * Quem decide é o `data-sidebar="recolhida"` no <html>, que o botão da
+ * barra superior liga e desliga (sidebar.js).
+ *
+ * Só a partir do `lg`, que é onde a barra fixa existe — abaixo disso ela
+ * é gaveta, e gaveta não encolhe. Pelo mesmo motivo ficam de fora a
+ * gaveta em si e o menu flutuante do grupo, que mostram os itens
+ * inteiros mesmo com a barra fixa recolhida.
+ *
+ * O `[data-sidebar]` entra na conta da especificidade de propósito (sem
+ * `:where`): `recolhida:w-16` tem de vencer o `w-64` e o `lg:ps-64` do
+ * mesmo elemento, qualquer que seja a ordem em que saiam no CSS.
+ */
+@custom-variant recolhida {
+    @media (width >= 64rem) {
+        [data-sidebar='recolhida'] &:not(:where([data-offcanvas] *, [data-barra-flutuante] *)) {
+            @slot;
+        }
+    }
+}
+
 @theme {
     /*
      * A entrada de tudo que abre por cima da tela — select, multiselect,

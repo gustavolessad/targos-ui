@@ -291,6 +291,21 @@ No `components/admin/sidebar.blade.php` do projeto:
 `match` é o nome da rota que deixa o item aceso (`clients.*` vale para todas as
 rotas de clientes).
 
+### Barra lateral recolhível
+
+O botão na ponta esquerda da barra superior encolhe o menu para uma coluna de
+ícones. Já vem no modelo do layout. No `components/admin/sidebar.blade.php`,
+ponha o logo reduzido no slot `symbol`:
+
+```blade
+<x-slot:symbol>
+    <a href="{{ route('dashboard') }}"><x-brand.symbol /></a>
+</x-slot:symbol>
+```
+
+Para esconder ou ajustar algo seu quando a barra está recolhida, use a variante
+`recolhida:` (`recolhida:hidden`, por exemplo).
+
 ---
 
 ## 4. Personalizar

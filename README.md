@@ -125,6 +125,23 @@ essa cada projeto aplica no próprio arquivo.
 A barra lateral é desenhada duas vezes pelo layout (fixa no computador, gaveta
 no celular): o que tiver `id` dentro dela precisa de um por desenho.
 
+### Barra lateral recolhível
+
+O `<x-ui.sidebar-toggle drawer="menu-painel" />`, no slot `start` da barra
+superior, encolhe a barra lateral para uma coluna de ícones (no celular, abre
+a gaveta). A escolha fica guardada no navegador e é aplicada antes da primeira
+pintura pelo `<x-ui.theme-script />`.
+
+- Os componentes do menu já sabem se recolher. O que é do layout do projeto
+  é a largura: `w-64 recolhida:w-16` na barra e `lg:ps-64 recolhida:ps-16` no
+  conteúdo (o modelo `layouts/panel` já vem assim).
+- O slot `symbol` do `x-ui.sidebar` recebe o logo reduzido.
+- Recolhida, o nome de cada item aparece numa dica à direita, e o grupo abre
+  um menu com os itens dele ao passar o mouse.
+- A variante `recolhida:` serve a qualquer classe (`recolhida:hidden`,
+  `recolhida:justify-center`) no que o projeto puser dentro da barra. Para
+  ganhar a dica, o elemento declara `data-barra-dica="Nome"`.
+
 O topo de cada tela é o `<x-ui.page-header title="…" back="…" :breadcrumbs="[…]">`,
 com as ações no slot.
 
@@ -176,6 +193,7 @@ Do mais leve ao mais pesado:
 | `data-copiar="texto"` | Copia e avisa com um toast; dispara o evento `ui:copiado` |
 | `data-imprimir` | Abre a impressão do navegador |
 | `data-troca-tema` | Alterna claro e escuro |
+| `data-recolhe-barra` | Recolhe e expande a barra lateral |
 
 No JavaScript, `window.mostrarToast(tipo, texto)` mostra um aviso sem recarregar
 a página.
@@ -194,6 +212,11 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.3.0** — Barra lateral recolhível: `x-ui.sidebar-toggle`, variante
+  `recolhida:`, slot `symbol` no `x-ui.sidebar`, dica com o nome do item e
+  menu flutuante do grupo. O layout do projeto ganha as classes de largura
+  (veja o modelo `layouts/panel`); quem liga os módulos um a um no `app.js`
+  acrescenta `ligarBarraLateral()`.
 - **1.2.4** — Itens do menu lateral com `px-3 py-2.5`.
 - **1.2.3** — Itens do menu lateral mais altos (`p-3`) e com ícone maior
   (`size-5`), no item simples e no título do grupo.

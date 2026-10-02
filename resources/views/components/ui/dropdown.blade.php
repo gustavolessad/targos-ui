@@ -12,9 +12,10 @@
 
 @php
     /*
-     * Para onde a lista abre. Embaixo do botão, salvo quando ele está
-     * no pé da tela — aí `side="top"` evita que ela nasça fora da
-     * janela e force a rolagem.
+     * O lado para onde a lista prefere abrir. Embaixo do botão, por
+     * padrão. Quando ela não cabe desse lado e do outro há mais espaço
+     * — o botão no pé da janela —, o dropdown.js a vira sozinho ao
+     * abrir; `side` não precisa prever onde o botão vai estar.
      */
     $lados = [
         'bottom' => 'top-full mt-1.5',

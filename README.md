@@ -203,6 +203,10 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.1.2** — O menu do dropdown vira para cima quando não cabe embaixo (e
+  o contrário); o painel do select e do calendário fica inteiro na janela
+  quando não cabe em nenhum dos lados.
+- **1.1.1** — Guia de uso (`GUIA.md`).
 - **1.1.0** — Layouts e login passam a ser modelos publicáveis
   (`ui-templates`); saem os componentes `x-ui.layouts.panel` e
   `x-ui.layouts.guest` e a chave `font_url`. Entram `x-ui.topbar`,

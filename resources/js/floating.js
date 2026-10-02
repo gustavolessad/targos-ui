@@ -12,12 +12,47 @@
  * mais espaço. Para cima ele se prende pelo `bottom`: quando a busca
  * encolhe a lista, ele encolhe em direção ao campo, e não se solta dele.
  *
+ * Quando não cabe inteiro em nenhum dos lados (janela baixa, calendário
+ * alto), fica encostado na borda da janela, por cima do campo: cobrir o
+ * campo atrapalha menos do que nascer cortado.
+ *
  * O z-index fica acima de modal e gaveta (60) e abaixo do toast (70).
  */
 /*
  * `larguraPropria`: o painel mantém a largura dele (o calendário), em vez
  * de copiar a do campo (o select).
  */
+/* O quanto o painel fica longe da borda da janela. */
+const MARGEM = 8;
+
+/**
+ * Onde o painel fica na vertical, em pixels da janela.
+ *
+ * `topo` e `base` são as bordas do campo; `altura`, a do painel;
+ * `janela`, a altura da janela. Devolve `{ top }` ou `{ bottom }` —
+ * a outra borda fica solta.
+ */
+export function encaixeVertical({ topo, base, altura, janela, folga }) {
+    const abaixo = janela - base;
+    const paraCima = abaixo < altura + folga * 2 && topo > abaixo;
+
+    if (paraCima) {
+        // Sem espaço nem em cima: desce até caber, encostado no alto da janela.
+        if (topo - folga - altura < MARGEM) {
+            return { top: MARGEM };
+        }
+
+        return { bottom: janela - topo + folga };
+    }
+
+    // Sem espaço nem embaixo: sobe até caber, sem passar do alto da janela.
+    if (base + folga + altura > janela - MARGEM) {
+        return { top: Math.max(MARGEM, Math.min(base + folga, janela - altura - MARGEM)) };
+    }
+
+    return { top: base + folga };
+}
+
 function painelFlutuante(ancora, painel, { larguraPropria = false } = {}) {
     const origem = painel.parentElement;
     const vizinho = painel.nextSibling;
@@ -36,16 +71,16 @@ function painelFlutuante(ancora, painel, { larguraPropria = false } = {}) {
 
         painel.style.left = `${esquerda}px`;
 
-        const abaixo = window.innerHeight - caixa.bottom;
-        const paraCima = abaixo < painel.offsetHeight + folga * 2 && caixa.top > abaixo;
+        const lugar = encaixeVertical({
+            topo: caixa.top,
+            base: caixa.bottom,
+            altura: painel.offsetHeight,
+            janela: window.innerHeight,
+            folga,
+        });
 
-        if (paraCima) {
-            painel.style.top = 'auto';
-            painel.style.bottom = `${window.innerHeight - caixa.top + folga}px`;
-        } else {
-            painel.style.bottom = 'auto';
-            painel.style.top = `${caixa.bottom + folga}px`;
-        }
+        painel.style.top = 'top' in lugar ? `${lugar.top}px` : 'auto';
+        painel.style.bottom = 'bottom' in lugar ? `${lugar.bottom}px` : 'auto';
     };
 
     // Captura: a rolagem de qualquer contêiner (a gaveta, a página) move o campo.

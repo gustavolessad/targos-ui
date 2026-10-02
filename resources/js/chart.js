@@ -94,6 +94,25 @@ export function tracejar(series, tipo) {
     };
 }
 
+
+/**
+ * A escala da miniatura, justa nos dados: do zero (ou do menor
+ * negativo) ao maior valor de todas as séries. Sem isso o ApexCharts
+ * arredonda o topo para um número "redondo" e sobra espaço vazio em
+ * cima. `null` quando não há valor acima de zero (fica a automática).
+ */
+export function escalaJusta(series) {
+    const valores = (Array.isArray(series) ? series : [])
+        .flatMap((serie) => serie?.data ?? [])
+        .filter((valor) => valor !== null && valor !== undefined)
+        .map(Number)
+        .filter(Number.isFinite);
+
+    const maior = Math.max(0, ...valores);
+
+    return maior > 0 ? { min: Math.min(0, ...valores), max: maior } : null;
+}
+
 /** Junta dois objetos de opções; o segundo vence, nível a nível. Listas são trocadas inteiras. */
 export function mesclar(base, extra) {
     const saida = { ...base };
@@ -199,8 +218,17 @@ function opcoes(config, localidade) {
 
     const comEixo = {
         stroke: { curve: 'smooth', width: ['line', 'area'].includes(config.type) ? 2.5 : 0, ...(tracos ? { dashArray: tracos } : {}) },
+        /*
+         * No ApexCharts o `fill` também pinta o traço das linhas: a
+         * tracejada de um `area` herdaria o degradê e ficaria quase
+         * transparente. Ela leva cor cheia.
+         */
         fill: config.type === 'area'
-            ? { type: 'gradient', gradient: { opacityFrom: 0.35, opacityTo: 0.02, stops: [0, 95] } }
+            ? {
+                type: tracos ? tracos.map((traco) => (traco ? 'solid' : 'gradient')) : 'gradient',
+                opacity: tracos ? tracos.map(() => 1) : 1,
+                gradient: { opacityFrom: 0.35, opacityTo: 0.02, stops: [0, 95] },
+            }
             : { opacity: 1 },
         plotOptions: { bar: { borderRadius: 6, borderRadiusApplication: 'end', columnWidth: '55%' } },
         grid: { strokeDashArray: 4, padding: { left: 8, right: 8 } },
@@ -245,7 +273,9 @@ function opcoes(config, localidade) {
         chart: { sparkline: { enabled: true } },
         stroke: { width: tracos ? tracos.map((traco) => (traco ? 1.5 : 2)) : 2 },
         markers: { size: 0, hover: { size: 4 } },
+        // Os 4px de cima são para o traço e o ponto do hover não serem cortados no valor máximo.
         grid: { padding: { left: 0, right: 0, top: 4, bottom: 0 } },
+        ...(escalaJusta(config.series) ? { yaxis: escalaJusta(config.series) } : {}),
         tooltip: {
             x: { show: true },
             y: { title: { formatter: variasSeries ? (nome) => `${nome}:` : () => '' } },

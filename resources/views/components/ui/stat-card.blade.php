@@ -19,11 +19,17 @@
     'color' => 'neutral',
     /** Para onde o card leva, quando leva a algum lugar. */
     'href' => null,
-    /** Uma linha pequena abaixo do número — "Original: R$ 1.000,00". */
+    /**
+     * O que vem abaixo do número. Um texto ("Original: R$ 1.000,00") ou
+     * uma lista de informações, cada uma um texto ou
+     * `['icon' => 'file-check', 'text' => 'Com nota R$ 500,00']` — lado a
+     * lado, separadas pelo espaço, e o ícone diz o que cada uma é.
+     */
     'hint' => null,
     /**
-     * O tamanho do número: `md` (o das listagens) ou `lg`, maior e mais
-     * pesado, para o card que é o assunto da tela — os do dashboard.
+     * O tamanho do número principal: `sm` (um pouco menor, para cards
+     * apertados), `md` (o padrão) ou `lg` (maior, para o número que é o
+     * assunto da tela). Só o número muda; o resto do card fica igual.
      */
     'size' => 'md',
     /**
@@ -37,7 +43,7 @@
     /** Como os valores do gráfico aparecem na dica: `money`, `percent` ou, sem nada, número. */
     'trendFormat' => null,
     /** A altura do gráfico, em pixels. */
-    'trendHeight' => 88,
+    'trendHeight' => 140,
     /**
      * A comparação: outra lista de números, ponto a ponto com `trend` —
      * o período anterior. Aparece tracejada e cinza, atrás da principal:
@@ -63,7 +69,11 @@
         default => 'text-neutral-900 dark:text-white',
     };
 
-    $classesDoTamanho = $size === 'lg' ? 'text-3xl font-bold tracking-tight' : 'text-2xl font-semibold';
+    $classesDoTamanho = match ($size) {
+        'sm' => 'text-2xl font-bold tracking-tight',
+        'lg' => 'text-4xl font-bold tracking-tight',
+        default => 'text-3xl font-bold tracking-tight',
+    };
 
     // O gráfico na cor do número; o card sem cor usa a de ação.
     $corDoGrafico = in_array($color, ['danger', 'warning', 'success', 'info'], true) ? $color : 'primary';
@@ -83,9 +93,17 @@
          * outra tela, e não o topo desta.
          */
         'rounded-xl border border-neutral-300 bg-white p-4',
+        // Coluna: numa grade, o card estica até a altura da linha, e o gráfico fica no pé.
+        'flex flex-col',
+        /*
+         * Item de grade não encolhe abaixo do próprio conteúdo, e o SVG do
+         * gráfico sai com a largura de quando foi desenhado: sem o
+         * `min-w-0`, o card ficava preso nela e vazava da tela estreita.
+         */
+        'min-w-0',
         'dark:border-neutral-800 dark:bg-neutral-900',
         // Só o que é clicável reage ao mouse.
-        'block transition hover:border-neutral-300 dark:hover:border-neutral-700' => $href !== null,
+        'transition hover:border-neutral-300 dark:hover:border-neutral-700' => $href !== null,
     ];
 @endphp
 
@@ -94,13 +112,9 @@
     {{ $attributes->class($classes) }}>
     <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-            <p class="truncate text-sm text-neutral-500 dark:text-neutral-400">{{ $label }}</p>
+            <p class="truncate text-sm font-medium text-neutral-900 dark:text-white">{{ $label }}</p>
 
             <p class="mt-1 {{ $classesDoTamanho }} {{ $classesDoNumero }}">{{ $value }}</p>
-
-            @if ($hint)
-                <p class="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
-            @endif
         </div>
 
         @if ($info !== null)
@@ -122,13 +136,38 @@
         @endif
     </div>
 
+    @if ((is_array($hint) && $hint !== []) || (is_string($hint) && $hint !== ''))
+        {{--
+            Com gráfico, as informações ficam logo abaixo do número, e o
+            gráfico no pé. Sem gráfico, elas vão para o pé do card: numa
+            grade que estica o card, o número fica em cima e elas embaixo,
+            alinhadas com as dos cards vizinhos.
+        --}}
+        <div @class(['min-w-0', 'mt-2' => $trend !== null, 'mt-auto pt-3' => $trend === null])>
+            @if (is_array($hint))
+                <ul class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    @foreach ($hint as $item)
+                        <li class="flex min-w-0 items-center gap-1.5">
+                            @if (is_array($item) && ($item['icon'] ?? null))
+                                <x-ui.icon :name="$item['icon']" class="size-3.5 text-neutral-400 dark:text-neutral-500" />
+                            @endif
+                            <span class="truncate">{{ is_array($item) ? ($item['text'] ?? '') : $item }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="truncate text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+            @endif
+        </div>
+    @endif
+
     @if ($trend !== null)
         {{--
             Margens negativas do tamanho do padding do card (`p-4`): o
             gráfico encosta na base e nas laterais. O canto de baixo do
             desenho acompanha o do card — um ponto a menos, pela borda.
         --}}
-        <div class="-mx-4 -mb-4 mt-3 [&_svg]:rounded-b-[11px]" data-tendencia>
+        <div class="-mx-4 -mb-4 mt-auto pt-3 [&_svg]:rounded-b-[11px]" data-tendencia>
             <x-ui.chart type="area" sparkline :height="$trendHeight"
                         :series="$seriesDoGrafico"
                         :labels="array_values($trendLabels)"

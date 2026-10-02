@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { formatador, mesclar, tracejar } from '../../resources/js/chart.js';
+import { escalaJusta, formatador, mesclar, tracejar } from '../../resources/js/chart.js';
 
 // O espaço entre "R$" e o número é o não separável, que o Intl escreve.
 const limpo = (texto) => texto.replace(/ /g, ' ');
@@ -63,4 +63,10 @@ test('tracejar: no area, a tracejada vira linha e ganha o traço', () => {
         { name: 'Período anterior', data: [1, 1], type: 'line' },
     ]);
     assert.deepEqual(tracos, [0, 4]);
+});
+
+test('escalaJusta: do zero ao maior valor de todas as séries, ignorando os vazios', () => {
+    assert.deepEqual(escalaJusta([{ data: [0, 100, null] }, { data: [0, 250], dashed: true }]), { min: 0, max: 250 });
+    assert.deepEqual(escalaJusta([{ data: [-20, 80] }]), { min: -20, max: 80 });
+    assert.equal(escalaJusta([{ data: [0, 0, null] }]), null);
 });

@@ -11,16 +11,26 @@
      * vale `config('ui.falsy')` — desligado por padrão (ver o checkbox).
      */
     'falsy' => null,
+    /*
+     * O `id` do interruptor. Sem ele, sai do nome (`items[0][active]` →
+     * `items-0-active`). Passe um quando a mesma tela repete o nome —
+     * uma linha de tabela por formulário —, para cada rótulo ligar o seu.
+     */
+    'id' => null,
 ])
 
 @php
+    // `items[0][active]` no HTML é `items.0.active` para old() e para os erros.
+    $chave = \Targos\Ui\FieldName::key($name);
+    $id ??= \Targos\Ui\FieldName::id($name);
+
     /*
      * Desligado não vem no formulário (ver abaixo), então `old($name)` não
      * distingue "desligado" de "tela nova": quem diz que o formulário voltou
      * é a sessão. Voltou sem o campo = a pessoa desligou, e assim fica — o
      * padrão da tela religaria um interruptor desligado de propósito.
      */
-    $ligado = $remember && session()->hasOldInput() ? (bool) old($name) : (bool) $checked;
+    $ligado = $remember && session()->hasOldInput() ? (bool) old($chave) : (bool) $checked;
 
     $falsy ??= (bool) config('ui.falsy', false);
 @endphp
@@ -44,13 +54,14 @@
                 <input type="hidden" name="{{ $name }}" value="0" @if ($form) form="{{ $form }}" @endif>
             @endif
 
+            {{-- O `id` é o da prop: um `id` solto nos atributos não pode sair duplicado no campo. --}}
             <input type="checkbox"
-                   id="{{ $name }}"
+                   id="{{ $id }}"
                    name="{{ $name }}"
                    value="{{ $value }}"
                    @checked($ligado)
                    @if ($form) form="{{ $form }}" @endif
-                   {{ $attributes->class(['peer sr-only']) }}>
+                   {{ $attributes->except('id')->class(['peer sr-only']) }}>
 
             <span class="h-6 w-11 rounded-full bg-neutral-300 transition-colors
                          peer-checked:bg-primary-600
@@ -64,17 +75,17 @@
         </label>
 
         @if ($label)
-            <label for="{{ $name }}" class="cursor-pointer text-sm text-neutral-700 select-none dark:text-neutral-300">
+            <label for="{{ $id }}" class="cursor-pointer text-sm text-neutral-700 select-none dark:text-neutral-300">
                 {{ $label }}
             </label>
         @endif
     </div>
 
-    @error($name)
+    @error($chave)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
     @enderror
 
-    @if ($hint && ! $errors->has($name))
+    @if ($hint && ! $errors->has($chave))
         <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
     @endif
 </div>

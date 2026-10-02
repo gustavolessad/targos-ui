@@ -39,6 +39,20 @@
     ];
 
     $tag = $href ? 'a' : 'div';
+
+    /*
+     * Os slots opcionais: `actions`, os botões à direita do título, e
+     * `footer`, o rodapé com fundo próprio — o "Salvar" do bloco, o
+     * "Ver todos" da lista.
+     *
+     * Pelo conteúdo, não só pela presença: o slot cujo conteúdo é um
+     * `@can` que não passou chega vazio, e não deve deixar cabeçalho
+     * nem rodapé sem nada dentro. O slot pode ser texto puro — o
+     * `@slot('footer', 'texto')` —, e aí vale o texto.
+     */
+    $temConteudo = fn ($slot) => $slot instanceof \Illuminate\View\ComponentSlot ? $slot->hasActualContent() : filled($slot);
+    $temAcoes = isset($actions) && $temConteudo($actions);
+    $temRodape = isset($footer) && $temConteudo($footer);
 @endphp
 
 <{{ $tag }} @if ($href) href="{{ $href }}" @endif {{ $attributes->class([
@@ -46,7 +60,25 @@
     $tons[$tone] ?? $tons['raised'],
     'shadow-lg' => $elevated,
 ]) }}>
-    @if ($title || $subtitle)
+    @if ($temAcoes)
+        {{--
+            As ações na linha do título, encostadas à direita. O título
+            pode quebrar linha; os botões, não (`shrink-0`).
+        --}}
+        <div class="flex items-center justify-between gap-4 border-b border-neutral-300 px-5 py-4 dark:border-neutral-800">
+            <div class="min-w-0">
+                @if ($title)
+                    <h2 class="font-semibold text-neutral-900 dark:text-white">{{ $title }}</h2>
+                @endif
+
+                @if ($subtitle)
+                    <p class="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{{ $subtitle }}</p>
+                @endif
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">{{ $actions }}</div>
+        </div>
+    @elseif ($title || $subtitle)
         <div class="border-b border-neutral-300 px-5 py-4 dark:border-neutral-800">
             @if ($title)
                 <h2 class="font-semibold text-neutral-900 dark:text-white">{{ $title }}</h2>
@@ -64,4 +96,19 @@
         alinha. Fora de um flex, não muda nada.
     --}}
     <div @class(['flex-1', $respiros[$padding] ?? $respiros['md'], $bodyClass])>{{ $slot }}</div>
+@if ($temRodape)
+
+    {{--
+        O rodapé tem o respiro do corpo, para o conteúdo dos dois se
+        alinhar. O canto é o do card menos a borda (16 − 1 px): com o
+        mesmo raio, o fundo cinza deixaria uma fresta clara na curva.
+
+        O `@if` na margem é de propósito: sem rodapé, o card sai com o
+        mesmo HTML de antes, sem linha em branco a mais.
+    --}}
+    <div @class([
+        'rounded-b-[15px] border-t border-neutral-300 bg-neutral-50 dark:border-neutral-800 dark:bg-white/5',
+        $respiros[$padding] ?? $respiros['md'],
+    ])>{{ $footer }}</div>
+@endif
 </{{ $tag }}>

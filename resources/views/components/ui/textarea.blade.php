@@ -15,12 +15,22 @@
     'rows' => 3,
     /** `xs`, `sm`, `md` ou `lg`, com as medidas do campo de texto comum. */
     'size' => 'md',
+    /*
+     * O `id` do campo. Sem ele, sai do nome (`items[0][obs]` →
+     * `items-0-obs`). Passe um quando dois formulários da mesma tela têm
+     * o mesmo campo, para o rótulo de um não apontar para o do outro.
+     */
+    'id' => null,
 ])
 
 @php
+    // `items[0][obs]` no HTML é `items.0.obs` para old() e para os erros.
+    $chave = \Targos\Ui\FieldName::key($name);
+    $id ??= \Targos\Ui\FieldName::id($name);
+
     // `old()` vence o valor passado, como no campo de texto comum.
-    $valorAtual = old($name, $value);
-    $temErro = $errors->has($name);
+    $valorAtual = old($chave, $value);
+    $temErro = $errors->has($chave);
 
     $tamanhos = [
         'xs' => 'px-2.5 py-1 text-xs',
@@ -33,17 +43,18 @@
 <div class="group">
     @if ($label)
         <x-ui.field-label :label="$label"
-                          :for="$name"
+                          :for="$id"
                           :required="$required"
                           :info="$info"
                           class="mb-1.5" />
     @endif
 
-    <textarea id="{{ $name }}"
+    {{-- O `id` é o da prop: um `id` solto nos atributos não pode sair duplicado no campo. --}}
+    <textarea id="{{ $id }}"
               name="{{ $name }}"
               rows="{{ $rows }}"
               @required($required)
-              {{ $attributes->class([
+              {{ $attributes->except('id')->class([
                   'block w-full rounded-lg border text-neutral-900',
                   $tamanhos[$size] ?? $tamanhos['md'],
                   'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
@@ -55,7 +66,7 @@
               ]) }}>{{ $valorAtual }}</textarea>
 
     @if ($temErro)
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($name) }}</p>
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
     @elseif ($hint)
         <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
     @endif

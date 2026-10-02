@@ -36,9 +36,32 @@ function montar(raiz) {
         campo.setAttribute('aria-hidden', 'true');
     });
     gatilho.hidden = false;
+    // O `id` do início pode vir de fora (prop `id`), com qualquer caractere: daí o escape.
     gatilho.id = `${inicio.id}-periodo`;
-    raiz.querySelector(`label[for="${inicio.id}"]`)?.setAttribute('for', gatilho.id);
+    raiz.querySelector(`label[for="${CSS.escape(inicio.id)}"]`)?.setAttribute('for', gatilho.id);
     painel.setAttribute('aria-label', 'Escolher período');
+
+    /*
+     * O `autofocus` vem no início, que é o que aparece sem JS. Escondidos
+     * os nativos, quem recebe o foco é o gatilho — inclusive no modal,
+     * que procura `[autofocus]` ao abrir e acharia o nativo primeiro.
+     */
+    if (inicio.autofocus) {
+        inicio.autofocus = false;
+        gatilho.autofocus = true;
+
+        if (document.activeElement === inicio) {
+            gatilho.focus();
+        }
+    }
+
+    /*
+     * Desligado ou só leitura, o calendário não abre: "Aplicar" gravaria
+     * nos nativos por fora da trava. Lido na hora, e não ao montar,
+     * porque outro script pode desligar os campos depois. (Desligado, o
+     * gatilho já nasce `disabled`; só leitura, ele continua focável.)
+     */
+    const travado = () => [inicio, fim].some((campo) => campo.disabled || campo.readOnly);
 
     // --- O conteúdo do painel: atalhos (se houver), calendário e rodapé ---
 
@@ -128,13 +151,13 @@ function montar(raiz) {
     gatilho.addEventListener('click', () => {
         if (painelAberto.aberto) {
             fechar();
-        } else {
+        } else if (! travado()) {
             abrir();
         }
     });
 
     gatilho.addEventListener('keydown', (evento) => {
-        if (evento.key === 'ArrowDown' && ! painelAberto.aberto) {
+        if (evento.key === 'ArrowDown' && ! painelAberto.aberto && ! travado()) {
             evento.preventDefault();
             abrir();
             calendario.focar();

@@ -36,6 +36,13 @@
      * marcar é confirmar.
      */
     'color' => 'primary',
+    /** O texto de apoio embaixo da caixa, quando não há erro. Não aparece no `bare`. */
+    'hint' => null,
+    /*
+     * O `id` da caixa. Sem ele, sai do nome e do valor (`items[0][active]`
+     * com valor 1 → `items-0-active-1`); no `bare`, sem ele não há `id`.
+     */
+    'id' => null,
 ])
 
 @php
@@ -45,14 +52,33 @@
      */
     $tamanhos = ['xs' => 'size-3.5', 'sm' => 'size-4', 'md' => 'size-5', 'lg' => 'size-6'];
 
+    // Numa lista (`nome[]`), cada caixa é um item, e não o campo inteiro.
+    $lista = $name !== null && str_ends_with($name, '[]');
+
+    // `items[0][active]` no HTML é `items.0.active` para old() e para os erros; `tags[]` é `tags`.
+    $chave = $name === null ? null : \Targos\Ui\FieldName::key($name);
+
     /*
      * Um `id` por caixa, com o valor junto.
      *
-     * `Str::slug` porque o valor vira parte do atributo: um "P / Preto"
-     * com barra e espaço não é `id` válido, e o `<label for>` não o
-     * acharia.
+     * `FieldName::id` tira os colchetes do nome (`items[0][active]` →
+     * `items-0-active`); o `Str::slug` cuida do valor, porque ele vira
+     * parte do atributo: um "P / Preto" com barra e espaço não é `id`
+     * válido, e o `<label for>` não o acharia. Num nome simples, sai o
+     * mesmo `id` de sempre (`ativo-1`).
      */
-    $id = \Illuminate\Support\Str::slug($name.'-'.(string) $value) ?: $name;
+    $nomeNoId = \Targos\Ui\FieldName::id((string) $name);
+    $idDaCaixa = $id ?? (\Illuminate\Support\Str::slug($nomeNoId.'-'.(string) $value) ?: $nomeNoId);
+
+    /*
+     * O erro aparece embaixo da caixa só quando ela é o campo inteiro.
+     * Numa lista, o erro é do grupo e a tela o mostra uma vez: repetido
+     * em cada caixa, seria o mesmo aviso dez vezes.
+     *
+     * `isset`: a caixa nunca dependeu de `$errors`, que fora de uma
+     * requisição web pode não existir.
+     */
+    $temErro = $chave !== null && ! $lista && isset($errors) && $errors->has($chave);
 
     /*
      * As duas cores por extenso, não montadas com interpolação: o
@@ -90,21 +116,33 @@
     $falsy ??= (bool) config('ui.falsy', false);
 
     $marcado = match (true) {
-        $name === null || str_ends_with($name, '[]') => $checked,
+        $name === null || $lista => $checked,
         // O formulário voltou com erro: desmarcada não vem no envio, então "não veio" é desmarcada (e não o padrão).
-        session()->hasOldInput() => (bool) old($name),
+        session()->hasOldInput() => (bool) old($chave),
         default => $checked,
     };
 @endphp
 
 @if ($bare)
+    {{-- Na célula, `id` só quando a tela pede: a caixa solta nunca teve um. --}}
     <input type="checkbox"
+           @if ($id !== null) id="{{ $id }}" @endif
            @if ($name) name="{{ $name }}" @endif
            value="{{ $value }}"
            @checked($marcado)
            @if ($form) form="{{ $form }}" @endif
-           {{ $attributes->class([...$classes, 'shrink-0']) }}>
+           {{ $attributes->except('id')->class([...$classes, 'shrink-0']) }}>
 @else
+    {{--
+        A mensagem embaixo pede um envelope em volta da linha — e só
+        quando há mensagem. Sem erro nem dica, a caixa sai com a mesma
+        marcação de sempre, e as telas que a põem numa grade ou numa
+        linha de caixas não mudam.
+    --}}
+    @if ($temErro || $hint)
+        <div>
+    @endif
+
     <div class="flex items-center">
         @if ($falsy)
             {{--
@@ -118,18 +156,27 @@
         @endif
 
         <input type="checkbox"
-               id="{{ $id }}"
+               id="{{ $idDaCaixa }}"
                name="{{ $name }}"
                value="{{ $value }}"
                @checked($marcado)
                @if ($form) form="{{ $form }}" @endif
-               {{ $attributes->class($classes) }}>
+               {{ $attributes->except('id')->class($classes) }}>
 
         @if ($label)
-            <label for="{{ $id }}"
+            <label for="{{ $idDaCaixa }}"
                    class="ms-2 cursor-pointer text-sm text-neutral-700 select-none dark:text-neutral-300">
                 {{ $label }}
             </label>
         @endif
     </div>
+
+    @if ($temErro || $hint)
+        @if ($temErro)
+            <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
+        @else
+            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+        @endif
+        </div>
+    @endif
 @endif

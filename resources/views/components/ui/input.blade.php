@@ -4,6 +4,12 @@
      * painel, que só estreita o que está à vista.
      */
     'name' => null,
+    /*
+     * O `id` do campo, quando o que vem do nome não serve — dois
+     * formulários iguais na mesma tela (o modal de criar e o de
+     * editar). Sem ele, é o nome sem colchetes (`items-0-price`).
+     */
+    'id' => null,
     'label' => null,
     'type' => 'text',
     'value' => null,
@@ -18,6 +24,21 @@
     'info' => null,
     'required' => false,
     'mask' => null,
+    /*
+     * Avisar ao sair do campo que o valor não passa: CPF, CNPJ e
+     * documento pelo dígito verificador, telefone pelo DDD e pelo 9 do
+     * celular, CEP pelos 8 dígitos. Só com `mask`, e só aviso — quem
+     * recusa é o servidor (resources/js/masks.js).
+     */
+    'validate' => false,
+    /*
+     * Enviar o valor sem pontuação (`52998224725`, não `529.982.247-25`).
+     *
+     * O campo que se vê perde o `name` e um escondido ao lado o leva,
+     * com o que o JavaScript copia a cada tecla. Só com `mask`: sem
+     * máscara não há pontuação a tirar.
+     */
+    'unmasked' => false,
     'size' => 'md',
     /*
      * O arredondamento do campo no tamanho `cell`. Na tabela ele é
@@ -68,7 +89,7 @@
      * tela — os campos do cartão.
      */
     // `credentials[client_id]` no HTML é `credentials.client_id` para old() e para os erros.
-    $chave = $name === null ? null : trim(str_replace(['[]', '[', ']'], ['', '.', ''], $name), '.');
+    $chave = $name === null ? null : \Targos\Ui\FieldName::key($name);
 
     $valorAtual = $name === null || ! $keepsInput ? $value : old($chave, $value);
 
@@ -83,6 +104,34 @@
     $valorAtual = is_array($valorAtual) ? null : $valorAtual;
 
     $temErro = $name !== null && $errors->has($chave);
+
+    // `items[0][price]` → `items-0-price`: `id` com colchete não serve ao `for` nem ao seletor.
+    $idDoCampo = $id ?? ($name !== null ? \Targos\Ui\FieldName::id($name) : null);
+
+    /*
+     * Sem pontuação no envio: o escondido fica com o `name` e o `id` do
+     * campo, e o visível passa a `{id}-mascarado` — é ele que o rótulo
+     * nomeia, porque é nele que se digita.
+     *
+     * Os dois nascem com o valor limpo; o JavaScript formata o visível
+     * ao ligar. O CNPJ (e o documento) sobe para maiúsculas, como a
+     * máscara o mostra.
+     */
+    $semPontuacao = $unmasked && $mask && $name !== null;
+    $idVisivel = $semPontuacao ? $idDoCampo.'-mascarado' : $idDoCampo;
+    $valorLimpo = null;
+
+    if ($semPontuacao && $valorAtual !== null) {
+        $valorLimpo = preg_replace('/[^0-9A-Za-z]/', '', (string) $valorAtual);
+        $valorLimpo = in_array($mask, ['cnpj', 'documento'], true) ? strtoupper($valorLimpo) : $valorLimpo;
+    }
+
+    /*
+     * O escondido segue o visível no que decide o envio: desligado não
+     * vai, e `form` o leva para o mesmo formulário.
+     */
+    $escondidoDesligado = (bool) $attributes->get('disabled', false);
+    $formDoCampo = $attributes->get('form');
 
     /*
      * O tamanho é prop, não classe passada de fora: duas classes de
@@ -115,11 +164,15 @@
 
 @if ($naCelula)
     {{-- Só o campo: quem o rotula é o cabeçalho da coluna. --}}
+    {{-- Na célula, o `id` só vem quando a tela o pede: o rótulo é o cabeçalho, não um `for`. --}}
     <input type="{{ $type }}"
-           @if ($name) name="{{ $name }}" @endif
-           value="{{ $valorAtual }}"
+           @if ($semPontuacao) id="{{ $idVisivel }}" @elseif ($id !== null) id="{{ $id }}" @endif
+           @if ($name && ! $semPontuacao) name="{{ $name }}" @endif
+           value="{{ $semPontuacao ? $valorLimpo : $valorAtual }}"
            @required($required)
            @if ($mask) data-mascara="{{ $mask }}" @endif
+           @if ($mask && $validate) data-mascara-valida @endif
+           @if ($semPontuacao) data-mascara-destino="{{ $idDoCampo }}" @endif
            {{ $attributes->class([
                /*
                 * A borda aparece sempre, não só no hover: numa tabela
@@ -134,6 +187,15 @@
                $tamanhos['cell'],
                $width ?? 'w-full',
            ]) }}>
+
+    @if ($semPontuacao)
+        <input type="hidden"
+               id="{{ $idDoCampo }}"
+               name="{{ $name }}"
+               value="{{ $valorLimpo }}"
+               @disabled($escondidoDesligado)
+               @if ($formDoCampo) form="{{ $formDoCampo }}" @endif>
+    @endif
 @else
     @php
         // A caixa marcada manda no campo desde o primeiro desenho.
@@ -150,7 +212,7 @@
             <div class="mb-1.5 flex items-center justify-between gap-3">
                 @if ($label)
                     <x-ui.field-label :label="$label"
-                                      :for="$name"
+                                      :for="$idVisivel"
                                       :required="$required"
                                       :info="$info" />
                 @endif
@@ -180,11 +242,14 @@
         @endif
 
         <input type="{{ $type }}"
-               @if ($name) id="{{ $name }}" name="{{ $name }}" @endif
-               value="{{ $caixaMarcada ? $toggleValue : $valorAtual }}"
+               @if ($idVisivel !== null) id="{{ $idVisivel }}" @endif
+               @if ($name && ! $semPontuacao) name="{{ $name }}" @endif
+               value="{{ $caixaMarcada ? $toggleValue : ($semPontuacao ? $valorLimpo : $valorAtual) }}"
                @required($required)
                @disabled($caixaMarcada)
                @if ($mask) data-mascara="{{ $mask }}" @endif
+               @if ($mask && $validate) data-mascara-valida @endif
+               @if ($semPontuacao) data-mascara-destino="{{ $idDoCampo }}" @endif
                @if ($comCaixa) data-campo-valor="{{ $toggleValue }}" @endif
                {{ $attributes->class([
                    'block w-full rounded-lg border text-neutral-900',
@@ -197,6 +262,20 @@
                    'border-neutral-300 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-700' => ! $temErro,
                    'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
                ]) }}>
+
+        @if ($semPontuacao)
+            {{--
+                O que vai no envio. Desligado junto com o visível — pela
+                caixa ao lado do rótulo ou pelo `disabled` da tela —,
+                porque campo desligado não é enviado.
+            --}}
+            <input type="hidden"
+                   id="{{ $idDoCampo }}"
+                   name="{{ $name }}"
+                   value="{{ $valorLimpo }}"
+                   @disabled($caixaMarcada || $escondidoDesligado)
+                   @if ($formDoCampo) form="{{ $formDoCampo }}" @endif>
+        @endif
 
         @if ($temErro)
             <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>

@@ -27,9 +27,31 @@ function montar(raiz) {
     nativo.setAttribute('aria-hidden', 'true');
     campo.hidden = false;
 
+    // O `id` do nativo pode vir de fora (prop `id`), com qualquer caractere: daí o escape.
     texto.id = `${nativo.id}-texto`;
-    raiz.querySelector(`label[for="${nativo.id}"]`)?.setAttribute('for', texto.id);
+    raiz.querySelector(`label[for="${CSS.escape(nativo.id)}"]`)?.setAttribute('for', texto.id);
     painel.setAttribute('aria-label', 'Escolher data');
+
+    /*
+     * O `autofocus` vem no nativo, que é o que aparece sem JS. Escondido
+     * ele, quem recebe o foco é o campo visível — inclusive o do modal,
+     * que procura `[autofocus]` ao abrir e acharia o nativo primeiro.
+     */
+    if (nativo.autofocus) {
+        nativo.autofocus = false;
+        texto.autofocus = true;
+
+        if (document.activeElement === nativo) {
+            texto.focus();
+        }
+    }
+
+    /*
+     * Desligado ou só leitura, o calendário não abre: escolher nele
+     * gravaria no nativo por fora da trava. Lido na hora, e não ao
+     * montar, porque outro script pode desligar o campo depois.
+     */
+    const travado = () => nativo.disabled || nativo.readOnly;
 
     const grade = document.createElement('div');
     const rodape = document.createElement('div');
@@ -71,7 +93,7 @@ function montar(raiz) {
     const painelAberto = painelDoCalendario(campo, raiz, painel, () => fechar());
 
     const abrir = () => {
-        if (painelAberto.aberto) {
+        if (painelAberto.aberto || travado()) {
             return;
         }
 
@@ -90,14 +112,14 @@ function montar(raiz) {
     botao.addEventListener('click', () => {
         if (painelAberto.aberto) {
             fechar();
-        } else {
+        } else if (! travado()) {
             abrir();
             calendario.focar();
         }
     });
 
     texto.addEventListener('keydown', (evento) => {
-        if ((evento.key === 'ArrowDown' || evento.key === 'Enter') && ! painelAberto.aberto) {
+        if ((evento.key === 'ArrowDown' || evento.key === 'Enter') && ! painelAberto.aberto && ! travado()) {
             evento.preventDefault();
             abrir();
             calendario.focar();

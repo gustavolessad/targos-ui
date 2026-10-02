@@ -22,7 +22,7 @@ São duas coisas diferentes:
 | `config/ui.php` | As poucas decisões que mudam de projeto para projeto |
 | `src/UiServiceProvider.php` | Registra os componentes e a configuração (descoberto sozinho pelo Laravel) |
 | `src/Icons.php` | A lista de ícones do Lucide, usada pelo `<x-ui.icon>` |
-| `src/Money.php`, `src/DateShortcuts.php` | O valor em reais do `<x-ui.money>` e os atalhos do `<x-ui.date-range>` |
+| `src/Money.php`, `src/DateShortcuts.php`, `src/FieldName.php` | O valor em reais do `<x-ui.money>` (e as 4 casas do `<x-ui.percent>`), os atalhos do `<x-ui.date-range>` e o nome de campo nas três formas (HTML, `old()`, id) |
 | `tests/js` | Testes das funções puras (`npm test`) |
 
 Fica **fora** do pacote o que é de cada projeto: as telas, os itens do menu, o
@@ -176,7 +176,10 @@ Do mais leve ao mais pesado:
    | Chave | O que decide |
    |---|---|
    | `falsy` | Se checkbox e interruptor enviam "0" quando desmarcados (padrão: não) |
-   | `toast` | As chaves de sessão que viram toast, por tipo |
+   | `toast` | As chaves de sessão que viram toast, por tipo (`sucesso`, `info`, `aviso`, `erro`) |
+   | `toast_seconds` | Quantos segundos cada tipo de toast fica na tela; `null`, até o X (padrão: sucesso e info 5, aviso e erro até o X) |
+   | `pagination` | As quantidades do seletor "Por página" e o parâmetro da URL (`PerPage::resolve`) |
+   | `select` | Quantas opções cada busca do `x-ui.select :source` traz |
 
 3. **Props e classes.** Variante e tamanho são props; classes de posicionamento
    (margem, largura) passam direto no componente.
@@ -191,6 +194,43 @@ Do mais leve ao mais pesado:
 
 6. **Mudar o pacote.** O que serve a mais de um projeto vira prop ou
    configuração aqui, e sai numa versão nova.
+
+## Abas
+
+```blade
+<x-ui.tabs :tabs="['geral' => 'Geral', 'variacoes' => 'Variações']"
+           :fields="['geral' => ['name', 'sku'], 'variacoes' => ['variants']]">
+    <x-slot:geral>…</x-slot:geral>
+    <x-slot:variacoes>…</x-slot:variacoes>
+</x-ui.tabs>
+```
+
+| Prop | O que é |
+|---|---|
+| `tabs` | `chave => rótulo`; cada painel é um slot com o nome da chave |
+| `active` | A aba aberta; sem ela, a da URL (`?aba=`) |
+| `hidden` | As abas que existem mas não aparecem |
+| `fields` | Os campos de cada aba: `chave => [nomes ou prefixos]`. Conta os erros de validação de cada aba (`variants` conta `variants.0.sku`) e mostra o número num selo vermelho ao lado do rótulo |
+| `links` | `chave => URL`: as abas viram links para outras telas. Não há painéis nem campo escondido; o slot é o conteúdo da tela, desenhado abaixo da barra. A aba ativa é a de `active` ou, sem ela, a da URL atual |
+| `form` | O `id` do formulário, quando as abas ficam fora dele |
+
+Quando o formulário volta com erro e a aba aberta não tem nenhum, abre a
+primeira aba que tem (a não ser que a tela passe `active`). No teclado, as
+setas trocam de aba, e Home e End vão às pontas. Cada troca dispara `ui:aba`
+no `document`, com `detail: { grupo, aba }`.
+
+## Cartão
+
+O `<x-ui.card>` aceita os slots `actions` (botões à direita do título, na
+mesma linha) e `footer` (rodapé com fundo próprio e o mesmo respiro do corpo):
+
+```blade
+<x-ui.card title="Endereço">
+    <x-slot:actions><x-ui.button size="sm" variant="secondary">Editar</x-ui.button></x-slot:actions>
+    …
+    <x-slot:footer><x-ui.button>Salvar</x-ui.button></x-slot:footer>
+</x-ui.card>
+```
 
 ## Gráficos
 
@@ -222,7 +262,7 @@ ApexCharts fica em `elemento.grafico`.
 | Atributo | O que faz |
 |---|---|
 | `data-abre-modal="id"` / `data-fecha-modal` | Abre e fecha um `<x-ui.modal>` |
-| `data-abre-offcanvas="id"` | Abre um `<x-ui.offcanvas>` |
+| `data-abre-offcanvas="id"` / `data-fecha-offcanvas` | Abre e fecha um `<x-ui.offcanvas>`; com `:open="true"`, a gaveta já abre ao carregar, como o modal |
 | `data-abre-menu="id"` | Abre um menu (`data-menu`) |
 | `data-monta-menu="nome"` + `data-menu-valores` | Monta o menu na primeira abertura, copiando o `<template data-modelo-menu="nome">` da página (vêm de `x-ui.dropdown template` e `x-ui.dropdown-template`; veja o GUIA) |
 | `data-mostra-se="chave"` | No modelo do menu, o elemento só fica se a linha tiver a chave |
@@ -233,8 +273,188 @@ ApexCharts fica em `elemento.grafico`.
 | `data-troca-tema` | Alterna claro e escuro |
 | `data-recolhe-barra` | Recolhe e expande a barra lateral |
 
-No JavaScript, `window.mostrarToast(tipo, texto)` mostra um aviso sem recarregar
-a página.
+## Valor em reais, número e percentual
+
+```blade
+<x-ui.money name="amount" label="Valor" required />
+<x-ui.money name="items[0][cost]" label="Custo unitário" :value="$item->cost" :scale="4" />
+<x-ui.money name="shipping" label="Frete" allow-zero />
+<x-ui.money name="adjustment" label="Ajuste" :min="false" />
+```
+
+| Prop do `x-ui.money` | O que é |
+|---|---|
+| `scale` | As casas do valor enviado: 2 (padrão) ou 4. A tela mostra sempre 2. Com 4, o valor do banco (`3.9505`) volta intacto se ninguém digitar, e o que se digita grava `3.9500` |
+| `allow-zero` | "0" digitado vale R$ 0,00 e grava `0.00`; o `min` padrão vira 0 |
+| `min` | O menor valor. Sem ele: 0,01, ou 0 com `allow-zero`. Abaixo de zero, ou `:min="false"` (sem limite), o campo aceita negativo: o "-" troca o sinal e -1.500,00 grava `-1500.00` |
+| `id` | O id do campo. Padrão: o nome sem colchetes (`items-0-cost`); o campo visível é `{id}-texto` |
+
+```blade
+<x-ui.number name="installments" label="Parcelas" :min="1" :max="48" />
+<x-ui.number name="items[0][qty]" size="cell" :min="0" />
+```
+
+`x-ui.number` é o inteiro: campo de texto com teclado numérico e os botões − e
++ à direita (as setas ↑ e ↓ fazem o mesmo). Aceita só dígitos, e o "-" no
+começo quando não há `min` ou ele é negativo. Ao sair do campo, o valor volta
+para dentro de `min`/`max`, e o vazio vira o `min`. Props: `min`, `max`
+(sem padrão), `step` (quanto o − e o + andam; padrão 1), `size` (`xs` a `lg`,
+ou `cell`: só o campo, para tabela), `width`, `id`, `placeholder`, `hint`,
+`info`, `required`. Os atributos soltos, `class` inclusive, vão para o
+`<input>`.
+
+```blade
+<x-ui.percent name="fee" label="Taxa" :value="$plan->fee" />
+<x-ui.percent name="markup" label="Margem" min="-50" max="50" />
+```
+
+`x-ui.percent` digita-se como o valor em reais, em centésimos: "325" vira
+3,25% e envia `3.2500`. A tela mostra 2 casas; o formulário recebe 4 e, se
+ninguém digitar, leva de volta o valor do banco intacto. Props: `value` (como
+o banco guarda: `'3.2500'` ou `3.25`), `max` (teto, padrão 100: o dígito que
+passaria dele não entra), `min` (piso, padrão 0; abaixo de zero ou
+`:min="false"`, o "-" troca o sinal), `id`, `size`, `placeholder`, `hint`,
+`info`, `required`. Colar aceita "3,25", "3.25", "3" e "3.2500".
+
+## Máscaras
+
+```blade
+<x-ui.input name="cpf" label="CPF" mask="cpf" />
+<x-ui.input name="document" label="CPF ou CNPJ" mask="documento" validate />
+<x-ui.input name="cnpj" label="CNPJ" mask="cnpj" validate unmasked />
+<x-ui.input name="phone" label="Telefone" mask="telefone" validate unmasked />
+```
+
+Máscaras: `cpf`, `cnpj` (aceita o CNPJ alfanumérico da Receita, de 2026),
+`documento` (CPF até o 11º caractere; CNPJ a partir do 12º, ou assim que
+aparece uma letra), `telefone` (fixo ou celular, cresce com o que se digita),
+`cep`, `cartao`, `validade`, `cvv`, ou um padrão próprio (`9` é dígito, `A` é
+letra ou dígito, o resto é literal).
+
+`validate` avisa ao sair do campo quando o valor não passa: CPF e CNPJ pelo
+dígito verificador, telefone pelo DDD (11 a 99) e pelo 9 do celular, CEP pelos
+8 dígitos. O aviso aparece embaixo do campo, no lugar do erro do servidor, e
+sai na tecla seguinte. É só aviso: campo vazio não é acusado (obrigatório é do
+`required` e do servidor) e não há `setCustomValidity`. Valide no servidor
+também.
+
+`unmasked` envia o valor sem pontuação (`52998224725`, `12ABC34501DE35`). O
+campo que se vê perde o `name` e passa a ter o id `{id}-mascarado`, e um
+`<input type="hidden">` com o `name` e o `id` do campo leva o valor limpo
+(o CNPJ em maiúsculas). `old()`, o erro e o `hint` continuam pelo `name`.
+**Depende do JavaScript**: sem ele, o escondido vai com o valor que veio do
+servidor, e o que se digita não é enviado.
+
+Fora do Blade, os atributos são `data-mascara="<nome>"`, `data-mascara-valida`
+e `data-mascara-destino="<id do hidden>"`. As regras estão em funções puras
+que recebem o valor limpo: `validarCpf`, `validarCnpj`, `validarTelefone` e
+`validarCep`. `mensagemInvalida(mascara, valor)` devolve a mensagem ou `null`,
+e `valorLimpo(valor, mascara)` devolve o valor sem pontuação.
+
+## Nomes com colchete, `id` próprio e atributos no campo
+
+Todo campo (`input`, `money`, `number`, `percent`, `date`, `date-range`,
+`select`, `textarea`, `toggle`, `checkbox`, `radio-group`) aceita nome de
+lista, o das linhas repetidas:
+
+```blade
+<x-ui.date name="items[0][due]" label="Vencimento" />
+```
+
+O `old()` e o erro de validação são lidos por `items.0.due`, como o Laravel os
+nomeia (`Targos\Ui\FieldName::key`), e o `id` sai `items-0-due`
+(`FieldName::id`). Num nome simples o `id` continua sendo o próprio nome.
+
+**`id`.** Todos têm a prop `id`, para quando dois formulários da mesma tela têm
+o mesmo campo (o modal de criar e o de editar). O rótulo aponta para ele:
+
+```blade
+<x-ui.select name="uf" id="novo-uf" label="UF" :options="$ufs" />
+```
+
+- No `date-range`, o `id` é o do início, e o fim fica com `{id}-fim`.
+- No `checkbox`, sem `id` ele sai do nome e do valor (`items-0-active-1`). No
+  `bare` só há `id` quando é passado.
+- No `radio-group`, o `id` vai no contorno das opções.
+
+**Atributos no campo nativo.** Em `money`, `date` e `date-range`, `form`,
+`disabled`, `readonly`, `autofocus`, `tabindex` e `autocomplete` vão para o
+`<input>` escondido que leva o valor (no `date-range`, para os dois; o
+`autofocus` só para o início). O resto (`class`, `data-*`, `on*`, `aria-*`,
+`style`) continua no envelope, e o `onchange` posto nele segue recebendo o
+evento dos nativos. Desligado ou só leitura, o calendário não abre e o campo
+digitável fica desligado também.
+
+```blade
+<x-ui.date name="due" label="Vencimento" form="form-pagamento" disabled />
+<x-ui.date-range start="de" end="ate" form="filtros" onchange="filtrar()" />
+```
+
+**`checkbox`** mostra o erro de validação embaixo e aceita `hint`. Numa lista
+(`name="tags[]"`) o erro não se repete em cada caixa: a tela o mostra uma vez
+para o grupo (`@error('tags')`).
+
+**`radio-group`** aceita `required` (vai em cada rádio, e o rótulo ganha o
+`*`), `info` (o ícone de explicação ao lado do rótulo) e `disabled` (os valores
+que não se escolhem, à vista mas apagados; `true` desliga o grupo inteiro).
+
+```blade
+<x-ui.radio-group name="forma" label="Forma de pagamento" required
+                  :options="['pix' => 'Pix', 'boleto' => 'Boleto']" :disabled="['boleto']" />
+```
+
+## No JavaScript
+
+### Requisições sem recarregar
+
+```js
+import { requisicaoJson, mensagemDe, mostrarErros } from '@targos-ui';
+
+try {
+    const cliente = await requisicaoJson('/clientes', { method: 'POST', body: { nome } });
+} catch (erro) {
+    if (erro.name === 'AbortError') return;
+
+    const semCampo = mostrarErros(formulario, erro.erros ?? {});
+    window.mostrarToast('erro', semCampo[0] ?? mensagemDe(erro));
+}
+```
+
+`requisicaoJson(url, { method, body, headers, signal })` pede JSON, manda o
+cookie da sessão e, fora do GET/HEAD, o token do CSRF (`X-XSRF-TOKEN`, lido do
+cookie `XSRF-TOKEN`). `body` é um objeto (vai como JSON) ou um `FormData` (vai
+como está, para arquivos). Devolve o JSON da resposta, ou `null` no 204.
+
+Qualquer outra resposta vira `ErroDeRequisicao`, com `status` (0 sem rede),
+`mensagem` em português, `erros` (os do 422, no formato do Laravel) e
+`correlationId`. Sessão vencida (401/419), sem permissão (403), não encontrado
+(404) e excesso de tentativas (429) têm mensagem própria; nos outros vale o
+`message` do servidor. Um 2xx que não seja JSON também é erro ("Resposta
+inesperada do servidor."). O cancelamento pelo `signal` volta como `AbortError`.
+
+`mensagemDe(erro)` dá o texto para mostrar de qualquer erro e acrescenta
+`(código XXXXXX)` quando o servidor mandou `correlation_id`.
+
+`mostrarErros(formulario, erros)` escreve cada erro embaixo do campo com aquele
+nome (aceita `items.0.price` ou `items[0][price]`) e devolve as mensagens cujo
+campo não existe no formulário; `limparErros(formulario)` tira o que o
+JavaScript escreveu. Para um campo só: `mostrarErroNoCampo(campo, texto)` e
+`limparErroDoCampo(campo)`.
+
+### Confirmação
+
+```js
+if (await confirmar('Remover este item?', { perigo: true })) {
+    // …
+}
+```
+
+`confirmar(texto, { perigo })` faz a pergunta no mesmo modal do
+`data-confirmar` (o `<x-ui.confirm>` precisa estar na página) e devolve
+`true` no "Confirmar" e `false` em qualquer outra saída. Uma pergunta por vez:
+chamada com outra aberta, volta `false` na hora. Também está em
+`window.confirmar`, como `window.mostrarToast(tipo, texto)`, que mostra um
+aviso sem recarregar a página.
 
 ## Convenções
 
@@ -250,6 +470,25 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.6.0** — O que um ERP pede dos campos, sem prop de projeto:
+  - todo campo aceita nome com colchete (`items[0][price]`: `old()` e erro por
+    `items.0.price`, id `items-0-price`, via `Targos\Ui\FieldName`) e a prop `id`;
+  - `x-ui.number` (inteiro com − e +) e `x-ui.percent` (4 casas, digitado em
+    centésimos); `x-ui.money` ganha `scale` (4 casas para custo), `allow-zero` e
+    negativo pelo `min`; `money`, `date` e `date-range` levam `form`, `disabled`,
+    `readonly`, `autofocus`, `tabindex` e `autocomplete` ao campo nativo;
+  - máscaras: `documento` (CPF ou CNPJ), `validate` (dígito verificador no blur)
+    e `unmasked` (envia sem pontuação);
+  - `x-ui.tabs`: `fields` (selo de erros por aba e abertura na aba do problema),
+    `links` (abas de navegação), teclado, evento `ui:aba`; o campo escondido
+    deixa de sair com `form=""`;
+  - `x-ui.checkbox` mostra erro e aceita `hint`; `x-ui.radio-group` ganha
+    `required`, `info` e `disabled`; `x-ui.card` ganha os slots `actions` e
+    `footer`; `x-ui.offcanvas :open` e `window.fecharOffcanvas`;
+  - toast `info`, `config('ui.toast_seconds')` e `x-ui.toast :code`;
+  - no JavaScript: `requisicaoJson`, `mensagemDe`, `ErroDeRequisicao`
+    (fetch.js), `mostrarErros` e cia. (errors.js), `confirmar()` por promessa.
+    Quem liga os módulos um a um acrescenta `ligarNumeros()` e `ligarPercentuais()`.
 - **1.5.0** — `x-ui.select :source` (busca no servidor, com `Targos\Ui\SelectOptions`
   e `config('ui.select.limit')`), menu ⋮ montado por modelo (`x-ui.dropdown template`,
   `x-ui.dropdown-template`, `x-ui.dropdown-separator`, `data-mostra-se`,

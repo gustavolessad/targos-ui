@@ -13,15 +13,21 @@ namespace Targos\Ui;
  */
 final class Money
 {
-    /** `1500.00` (o que o banco guarda e o formulário envia), ou null se não for número. */
-    public static function normalize(mixed $valor): ?string
+    /**
+     * `1500.00` (o que o banco guarda e o formulário envia), ou null se não for número.
+     *
+     * `$scale` é o número de casas. O padrão, 2, é o do valor em reais;
+     * custo unitário e percentual guardam 4 (`3.9505`), e normalizá-los
+     * com 2 arredondaria o que o banco tem antes mesmo de alguém digitar.
+     */
+    public static function normalize(mixed $valor, int $scale = 2): ?string
     {
         if ($valor instanceof \Stringable) {
             $valor = (string) $valor;
         }
 
         if (is_int($valor) || is_float($valor) || (is_string($valor) && is_numeric($valor))) {
-            return number_format((float) $valor, 2, '.', '');
+            return number_format((float) $valor, max(0, $scale), '.', '');
         }
 
         return null;

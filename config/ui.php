@@ -24,8 +24,21 @@ return [
      */
     'toast' => [
         'sucesso' => ['success', 'sucesso'],
+        'info' => ['info'],
         'aviso' => ['warning', 'aviso'],
         'erro' => ['error', 'erro'],
+    ],
+
+    /*
+     * Quantos segundos o toast de cada tipo fica na tela antes de sumir
+     * sozinho; `null`, até a pessoa fechar no X. O aviso e o erro ficam:
+     * muitas vezes são a mensagem da API, que só existe ali.
+     */
+    'toast_seconds' => [
+        'sucesso' => 5,
+        'info' => 5,
+        'aviso' => null,
+        'erro' => null,
     ],
 
     /*

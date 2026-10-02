@@ -14,10 +14,39 @@
     'icons' => [],
     // Ocupa a largura toda, com as opções dividindo o espaço por igual.
     'full' => false,
+    // Uma das opções é obrigatória: o `required` vai em cada rádio, que é como o navegador o entende.
+    'required' => false,
+    // A explicação do grupo, num ícone ao lado do rótulo (ver o input).
+    'info' => null,
+    /*
+     * As opções que não se escolhem, pelos valores: `['boleto']`. Elas
+     * continuam à vista, apagadas — sumir com uma opção esconderia que
+     * ela existe. `true` desliga o grupo inteiro.
+     *
+     * @var list<string|int>|bool
+     */
+    'disabled' => [],
+    // O `id` do grupo de opções (o contorno em volta delas).
+    'id' => null,
 ])
 
 @php
-    $valorAtual = old($name, $selected);
+    // `items[0][tipo]` no HTML é `items.0.tipo` para old() e para os erros.
+    $chave = \Targos\Ui\FieldName::key($name);
+
+    $valorAtual = old($chave, $selected);
+
+    /*
+     * Comparadas como texto, como a opção marcada: `[1]` e `['1']`
+     * desligam a mesma opção, e um `in_array` solto acharia que
+     * `'pj' == true`.
+     */
+    $desligadas = array_map('strval', match (true) {
+        $disabled === true => array_keys($options),
+        is_array($disabled) => $disabled,
+        $disabled === false || $disabled === null => [],
+        default => [$disabled],
+    });
 
     $tamanhos = [
         'md' => ['opcao' => 'h-9 px-4 text-sm gap-2', 'icone' => 'size-4'],
@@ -35,18 +64,21 @@
     A opção não escolhida ganha o fundo cinza sutil dos hovers do painel.
 --}}
 <div>
+    {{-- Sem `for`: o rótulo nomeia o grupo, e cada rádio já tem o seu texto. --}}
     @if ($label)
-        <span class="mb-1.5 block text-sm font-medium text-neutral-700 dark:text-neutral-300">{{ $label }}</span>
+        <x-ui.field-label :label="$label" :required="$required" :info="$info" class="mb-1.5" />
     @endif
 
     {{-- Fundo branco, como os campos; no escuro, o mesmo fundo deles. --}}
-    <div {{ $attributes->class(['inline-flex' => ! $full, 'flex w-full' => $full, 'rounded-lg border border-neutral-300 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900']) }}>
+    <div @if ($id) id="{{ $id }}" @endif {{ $attributes->except('id')->class(['inline-flex' => ! $full, 'flex w-full' => $full, 'rounded-lg border border-neutral-300 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900']) }}>
         @foreach ($options as $valor => $rotulo)
             <label @class(['cursor-pointer', 'flex-1' => $full])>
                 <input type="radio"
                        name="{{ $name }}"
                        value="{{ $valor }}"
                        @checked((string) $valorAtual === (string) $valor)
+                       @required($required)
+                       @disabled(in_array((string) $valor, $desligadas, true))
                        class="peer sr-only">
 
                 <span @class([
@@ -57,6 +89,7 @@
                     'dark:peer-not-checked:hover:bg-white/5 dark:peer-not-checked:hover:text-white',
                     'peer-checked:bg-primary-600 peer-checked:text-white',
                     'peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500/30',
+                    'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed',
                 ])>
                     @if ($icone = $icons[$valor] ?? null)
                         <span class="contents" data-icone="{{ $valor }}">
@@ -73,7 +106,7 @@
         @endforeach
     </div>
 
-    @error($name)
+    @error($chave)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
     @enderror
 </div>

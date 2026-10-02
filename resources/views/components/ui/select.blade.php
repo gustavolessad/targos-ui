@@ -42,12 +42,21 @@
     'source' => null,
     /** Com `source`: o texto da opção já escolhida (na edição, ou voltando de um erro), que não vem na página. */
     'selectedLabel' => null,
+    /*
+     * O `id` do `<select>`. Sem ele, sai do nome (`items[0][uf]` →
+     * `items-0-uf`). Passe um quando dois formulários da mesma tela têm
+     * o mesmo campo, para o rótulo de um não apontar para o do outro.
+     */
+    'id' => null,
 ])
 
 @php
     use Illuminate\Support\Str;
 
-    $valorAtual = old($name, $selected);
+    // `items[0][uf]` no HTML é `items.0.uf` para old() e para os erros.
+    $chave = \Targos\Ui\FieldName::key($name);
+
+    $valorAtual = old($chave, $selected);
 
     /*
      * Um select tem uma opção escolhida, nunca uma lista.
@@ -59,7 +68,7 @@
     $valorAtual = is_array($valorAtual) ? null : $valorAtual;
     $valorAtual = $valorAtual === null ? null : (string) $valorAtual;
 
-    $temErro = $errors->has($name);
+    $temErro = $errors->has($chave);
 
     /*
      * Tudo vira a mesma lista plana de entradas, e é dela que o
@@ -159,7 +168,7 @@
     ];
 
     // O `id` do painel acompanha o do campo, que pode vir de fora.
-    $id = $attributes->get('id', $name);
+    $id ??= \Targos\Ui\FieldName::id($name);
     $idDoPainel = 'sel-'.Str::slug($id.'-'.$attributes->get('form', ''));
 @endphp
 
@@ -274,7 +283,7 @@
         </p>
     </div>
 
-    @error($name)
+    @error($chave)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
     @enderror
 </div>

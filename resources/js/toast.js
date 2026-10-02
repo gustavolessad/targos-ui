@@ -9,6 +9,9 @@ const ANIMACAO_TOAST = 300;
  * Exposta em `window` para qualquer tela chamar sem importar nada. O
  * que vem do servidor já sai renderizado pelo `<x-ui.toast>`; esta
  * função serve ao que acontece sem recarregar a página.
+ *
+ * Some em `segundos` (5, sem dizer nada); com `null`, fica até o X —
+ * como o erro e o aviso que vêm do servidor.
  */
 function mostrarToast(tipo, texto, segundos = 5) {
     const pilha = document.getElementById('toasts');
@@ -24,9 +27,10 @@ function mostrarToast(tipo, texto, segundos = 5) {
     }
 
     /*
-     * Três tons, sem borda: verde para o que deu certo, âmbar para o que
-     * pede atenção sem impedir, vermelho para o que falhou. As mesmas do
-     * <x-ui.toast>; o Tailwind varre este arquivo, então são geradas.
+     * Quatro tons, sem borda: verde para o que deu certo, azul para o que
+     * a pessoa só precisa saber, âmbar para o que pede atenção sem
+     * impedir, vermelho para o que falhou. As mesmas do <x-ui.toast>; o
+     * Tailwind varre este arquivo, então são geradas.
      *
      * Sem o âmbar, um aviso de "a caixa passou do previsto" saía
      * vermelho e parecia erro — e a pessoa desfazia uma escolha que
@@ -34,6 +38,7 @@ function mostrarToast(tipo, texto, segundos = 5) {
      */
     const cores = {
         sucesso: ['bg-success-600', 'text-white'],
+        info: ['bg-info-600', 'text-white'],
         // Texto escuro: branco sobre o âmbar não se lê.
         aviso: ['bg-warning-400', 'text-neutral-950'],
     }[tipo] ?? ['bg-danger-600', 'text-white'];
@@ -51,7 +56,12 @@ function mostrarToast(tipo, texto, segundos = 5) {
     pilha.append(toast);
 
     entrar(toast);
-    agendarSaida(toast, segundos);
+
+    if (segundos > 0) {
+        agendarSaida(toast, segundos);
+    } else {
+        toast.dataset.toastFica = '';
+    }
 }
 
 /**
@@ -85,11 +95,15 @@ function agendarSaida(toast, segundos = 5) {
 
 function ligarToasts() {
     document.querySelectorAll('#toasts [data-toast]').forEach((toast) => {
-        // Os que vieram do servidor entram animados; o de sucesso some sozinho, o de erro fica até o X.
+        /*
+         * Os que vieram do servidor entram animados e saem no tempo que
+         * o <x-ui.toast> escreveu em `data-toast-segundos` (o de
+         * `config('ui.toast_seconds')`); com `data-toast-fica`, só pelo X.
+         */
         entrar(toast);
 
         if (! ('toastFica' in toast.dataset)) {
-            agendarSaida(toast);
+            agendarSaida(toast, Number(toast.dataset.toastSegundos) || 5);
         }
     });
 

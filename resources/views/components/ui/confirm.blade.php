@@ -9,6 +9,8 @@
     botões marcam `data-confirmar="texto"`; o confirm.js abre este modal
     com o texto e só envia depois do "Confirmar".
     `data-confirmar-perigo` pinta o botão de vermelho (exclusões).
+    No JavaScript, `confirmar(texto, { perigo })` faz a mesma pergunta
+    e devolve uma promessa (`true` só no "Confirmar").
 
     Um por página, no layout do painel (o modelo do pacote já o traz).
 --}}

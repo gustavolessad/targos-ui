@@ -9,6 +9,8 @@
      */
     'width' => 'max-w-lg',
     'side' => 'right',
+    // Já aberta ao carregar — o cadastro lateral que voltou do servidor com erro.
+    'open' => false,
 ])
 
 @php
@@ -50,7 +52,7 @@
     para perguntar, a gaveta acompanha o que ficou atrás. Por isso a de
     cá tem rodapé fixo — o conteúdo pode ser mais alto que a tela.
 --}}
-<div id="{{ $id }}" data-offcanvas
+<div id="{{ $id }}" data-offcanvas @if ($open) data-abrir-ao-carregar @endif
      class="fixed inset-0 z-60 hidden [&[data-aberto]]:block">
     <div data-offcanvas-fundo
          class="fixed inset-0 bg-neutral-300/50 opacity-0 backdrop-blur-[4px] dark:bg-neutral-900/50 transition-opacity duration-300

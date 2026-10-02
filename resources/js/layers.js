@@ -134,14 +134,18 @@ function ligarCamada(tipo) {
                 .forEach((camada) => fecharCamada(tipo, camada));
         }
     });
+
+    /*
+     * `<x-ui.modal :open="true">` e `<x-ui.offcanvas :open="true">`: o
+     * formulário voltou com erro e a pessoa continua nele.
+     */
+    document.querySelectorAll(`[data-${tipo}][data-abrir-ao-carregar]`)
+        .forEach((camada) => abrirCamada(tipo, camada.id));
 }
 
 function ligarCamadas() {
     ligarCamada('modal');
     ligarCamada('offcanvas');
-
-    // `<x-ui.modal :open="true">`: o formulário voltou com erro e a pessoa continua nele.
-    document.querySelectorAll('[data-modal][data-abrir-ao-carregar]').forEach((modal) => abrirCamada('modal', modal.id));
 }
 
 /*
@@ -156,5 +160,6 @@ window.abrirOffcanvas = (id) => abrirCamada('offcanvas', id);
  * é o caso da remoção pela gaveta do carrinho.
  */
 window.fecharModal = (id) => fecharCamada('modal', document.getElementById(id));
+window.fecharOffcanvas = (id) => fecharCamada('offcanvas', document.getElementById(id));
 
 export { ligarCamadas, abrirCamada, fecharCamada };

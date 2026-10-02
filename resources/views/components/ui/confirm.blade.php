@@ -10,7 +10,7 @@
     com o texto e só envia depois do "Confirmar".
     `data-confirmar-perigo` pinta o botão de vermelho (exclusões).
 
-    Um por página: o layout do painel do pacote já o inclui.
+    Um por página, no layout do painel (o modelo do pacote já o traz).
 --}}
 <x-ui.modal id="confirmacao" :title="$title">
     <p data-confirmacao-texto></p>

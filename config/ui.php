@@ -28,11 +28,4 @@ return [
         'erro' => ['error', 'erro'],
     ],
 
-    /*
-     * A folha de estilo da fonte, carregada pelos layouts do pacote. A
-     * família tem de ser a mesma de `--font-sans` no CSS; nulo não
-     * carrega nenhuma.
-     */
-    'font_url' => 'https://fonts.bunny.net/css?family=inter:400,500,600,700',
-
 ];

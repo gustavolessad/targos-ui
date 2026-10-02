@@ -8,14 +8,20 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Entrega os componentes do design system ao projeto.
+ * Entrega o design system ao projeto.
  *
- * O caminho registrado é a pasta que **contém** `ui/`, e sem prefixo:
- * é o que faz `<x-ui.button>` ser `<x-ui.button>` nas telas, como se
- * os componentes morassem em `resources/views/components/ui` do projeto.
+ * São duas coisas diferentes:
  *
- * O projeto vem antes: um arquivo em `resources/views/components/ui/`
- * dele substitui o componente de mesmo nome daqui.
+ * - Os **componentes** (`<x-ui.*>`) ficam aqui e são os mesmos em todo
+ *   projeto. O caminho registrado é a pasta que contém `ui/`, e sem
+ *   prefixo: é o que faz `<x-ui.button>` ser `<x-ui.button>` nas telas.
+ *   Um arquivo em `resources/views/components/ui/` do projeto, com o
+ *   mesmo nome, vale no lugar do daqui.
+ *
+ * - Os **modelos** (layout do painel, barra lateral, tela de login) são
+ *   copiados para o projeto por `vendor:publish --tag=ui-templates`, e
+ *   dali em diante são dele: montados com os componentes, editáveis à
+ *   vontade.
  */
 final class UiServiceProvider extends ServiceProvider
 {
@@ -29,5 +35,7 @@ final class UiServiceProvider extends ServiceProvider
         Blade::anonymousComponentPath(__DIR__.'/../resources/views/components');
 
         $this->publishes([__DIR__.'/../config/ui.php' => config_path('ui.php')], 'ui-config');
+
+        $this->publishes([__DIR__.'/../stubs/views' => resource_path('views')], 'ui-templates');
     }
 }

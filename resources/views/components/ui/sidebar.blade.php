@@ -4,7 +4,7 @@
     Acompanha o tema: branca no claro, preta no escuro. O projeto entra
     com o conteúdo: o slot `logo`, o slot `top` (opcional: um atalho
     acima da lista) e, no slot principal, os itens (`ui.nav-item` e
-    `ui.nav-group`). O exemplo completo está no README do pacote.
+    `ui.nav-group`). O modelo `admin/sidebar` do pacote é um exemplo completo.
 
     Cada bloco de itens é uma `div` com `space-y-0.5`; os blocos se
     separam só pelo espaço, sem título.

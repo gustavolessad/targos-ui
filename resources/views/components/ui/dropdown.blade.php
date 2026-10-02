@@ -8,6 +8,13 @@
     'side' => 'bottom',
     // Texto ao lado do ícone (ex.: "Compartilhar"); sem ele, o botão é só o ícone.
     'text' => null,
+    /*
+     * Menu montado só no clique, para as listagens: o nome do modelo da
+     * página (x-ui.dropdown-template) e o que vale para esta linha. A
+     * lista vem vazia; o dropdown.js a preenche na primeira abertura.
+     */
+    'template' => null,
+    'values' => [],
 ])
 
 @php
@@ -52,6 +59,8 @@
                  :variant="$variant"
                  :size="$size"
                  data-abre-menu="{{ $id }}"
+                 :data-monta-menu="$template"
+                 :data-menu-valores="$template ? json_encode($values, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null"
                  :aria-label="$label"
                  {{ $attributes }}>
         <x-ui.icon :name="$icon" class="size-4" />

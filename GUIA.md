@@ -225,6 +225,72 @@ quando o formulário volta.
 Se `$clients` for uma paginação do Laravel, a tabela já mostra os links de
 página.
 
+### Menu de ações (⋮)
+
+Numa tela de detalhe, o menu vai pronto, com os itens dentro:
+
+```blade
+<x-ui.dropdown id="acoes-cliente">
+    <x-ui.dropdown-item icon="pencil" :href="route('clients.edit', $client)">Editar</x-ui.dropdown-item>
+    <x-ui.dropdown-separator />
+    <x-ui.dropdown-item icon="trash-2" danger data-abre-modal="excluir-cliente">Excluir</x-ui.dropdown-item>
+</x-ui.dropdown>
+```
+
+Numa **listagem**, o menu de cada linha é montado só quando abre: desenhar o
+menu inteiro em cada linha (itens, ícones, formulários) custa mais que todo o
+resto da linha, para um menu que se abre um de cada vez. São duas partes:
+
+1. em cada linha, o botão com o nome do modelo (`template`) e o que vale para
+   aquela linha (`values`): as URLs e os dados de cada ação, ou `null` quando a
+   ação não vale para ela;
+2. uma vez na página, depois da tabela, o modelo com os itens.
+
+```blade
+@foreach ($clients as $client)
+    <x-ui.table.row>
+        …
+        <x-ui.table.cell align="end">
+            <x-ui.dropdown :id="'acoes-cliente-'.$client->id" size="icon-sm" variant="ghost"
+                           template="acoes-cliente" :values="[
+                'editar' => route('clients.edit', $client),
+                'whatsapp' => $client->whatsapp ? 'https://wa.me/55'.$client->whatsapp : null,
+                'excluir' => ['url' => route('clients.destroy', $client), 'nome' => $client->name],
+            ]" />
+        </x-ui.table.cell>
+    </x-ui.table.row>
+@endforeach
+
+<x-ui.dropdown-template name="acoes-cliente">
+    <x-ui.dropdown-item icon="pencil" href="{editar}">Editar</x-ui.dropdown-item>
+    <x-ui.dropdown-item icon="message-circle" href="{whatsapp}" target="_blank" data-mostra-se="whatsapp">WhatsApp</x-ui.dropdown-item>
+
+    <x-ui.dropdown-separator />
+
+    <form method="POST" action="{excluir.url}" data-mostra-se="excluir"
+          data-confirmar="Excluir {excluir.nome}?" data-confirmar-perigo>
+        @csrf
+        @method('DELETE')
+        <x-ui.dropdown-item type="submit" icon="trash-2" danger>Excluir</x-ui.dropdown-item>
+    </form>
+</x-ui.dropdown-template>
+```
+
+O que vale dentro do modelo:
+
+| No modelo | Vira |
+|---|---|
+| `{chave}` ou `{chave.campo}`, em atributo ou texto | O valor da linha (vazio, se for `null`) |
+| `data-mostra-se="chave"` | O elemento só fica se a chave tiver valor: `null`, `false` e texto vazio tiram |
+| `<x-ui.dropdown-separator />` | Sai sozinho quando sobra: no começo, no fim ou logo depois de outro |
+| `data-codigo-unico` num campo | Um código novo em cada cópia (o código contra o duplo envio, por exemplo) |
+
+O modelo vai **uma vez por página**. Se a tabela é um componente que pode
+aparecer mais de uma vez na mesma tela, ponha o modelo dentro de `@once`.
+
+Para conferir num teste o que a linha oferece, leia o JSON do botão
+(`data-menu-valores`): o menu montado não está no HTML.
+
 ### Modal
 
 ```blade

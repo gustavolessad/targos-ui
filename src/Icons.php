@@ -27,10 +27,19 @@ final class Icons
     /** @var list<string>|null */
     private static ?array $memoria = null;
 
-    /** Se o desenho existe no conjunto. */
+    /** @var array<string, int>|null Os nomes como chaves: perguntar se existe é direto, não uma busca na lista. */
+    private static ?array $indice = null;
+
+    /**
+     * Se o desenho existe no conjunto.
+     *
+     * Pelo índice (as chaves), e não `in_array` na lista: são mais de dois
+     * mil nomes, e a pergunta vem a cada ícone de cada página — centenas
+     * numa tabela de cobranças.
+     */
     public static function exists(string $name): bool
     {
-        return in_array($name, self::all(), strict: true);
+        return isset((self::$indice ??= array_flip(self::all()))[$name]);
     }
 
     /**
@@ -67,6 +76,7 @@ final class Icons
     public static function forget(): void
     {
         self::$memoria = null;
+        self::$indice = null;
         Cache::forget(self::CACHE_KEY);
     }
 

@@ -31,6 +31,17 @@
      * de oito opções, que é quando rolar começa a custar mais que digitar.
      */
     'searchable' => null,
+    /**
+     * Busca no servidor, para listas grandes demais para vir inteiras
+     * no HTML (os clientes, por exemplo): a URL que o select chama com
+     * `?q=` ao abrir (vazio: as primeiras) e a cada busca digitada. O
+     * endpoint responde com `Targos\Ui\SelectOptions::response()`.
+     *
+     * Com `source`, `options` não é usado: as opções vêm da busca.
+     */
+    'source' => null,
+    /** Com `source`: o texto da opção já escolhida (na edição, ou voltando de um erro), que não vem na página. */
+    'selectedLabel' => null,
 ])
 
 @php
@@ -83,7 +94,16 @@
         return $saida;
     };
 
-    if ($hierarchical) {
+    if ($source !== null) {
+        /*
+         * Busca no servidor: o nativo nasce só com a opção escolhida (se
+         * houver). As outras chegam pela busca (select.js), que reescreve
+         * as opções do nativo — ele continua sendo o que vai no formulário.
+         */
+        $entradas = $valorAtual !== null && $selectedLabel !== null
+            ? [$opcao($valorAtual, (string) $selectedLabel)]
+            : [];
+    } elseif ($hierarchical) {
         $descer = function (array $nos, int $nivel, array $ancestrais) use (&$descer, $opcao): array {
             $saida = [];
 
@@ -109,7 +129,8 @@
 
     $escolhida = $todas->first(fn (array $e): bool => $valorAtual !== null && $e['valor'] === $valorAtual);
 
-    $buscavel = $searchable ?? $todas->count() >= 8;
+    // Com busca no servidor, a caixa de busca é o próprio jeito de achar a opção.
+    $buscavel = $source !== null || ($searchable ?? $todas->count() >= 8);
 
     /*
      * As mesmas medidas do input, para os dois se alinharem quando
@@ -162,7 +183,8 @@
 --}}
 <div class="group relative min-w-0"
      data-seletor
-     @if ($buscavel) data-seletor-busca @endif>
+     @if ($buscavel) data-seletor-busca @endif
+     @if ($source !== null) data-seletor-fonte="{{ $source }}" @endif>
     @if ($label)
         <x-ui.field-label :label="$label"
                           :for="$id"

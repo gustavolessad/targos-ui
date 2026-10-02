@@ -35,7 +35,7 @@ export { ligarAbas } from './tabs.js';
 export { ligarSeletores } from './select.js';
 export { ligarLinhasClicaveis } from './table-row.js';
 export { ligarTema } from './theme.js';
-export { ligarDropdowns } from './dropdown.js';
+export { ligarDropdowns, montarMenu } from './dropdown.js';
 export { ligarOlhoDaSenha } from './password.js';
 export { ligarToasts } from './toast.js';
 export { ligarDatas } from './date.js';

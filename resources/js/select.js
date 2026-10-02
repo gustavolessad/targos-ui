@@ -24,6 +24,41 @@ function ligarSeletores(raiz = document) {
     raiz.querySelectorAll('[data-seletor]').forEach(montarSeletor);
 }
 
+/** Quanto esperar a pessoa parar de digitar antes de buscar no servidor. */
+const ESPERA_DA_BUSCA = 300;
+
+/** A URL da busca no servidor: a do `source`, com `?q=` (mantém o que ela já tiver na query). */
+export function urlDaBusca(fonte, termo, base) {
+    const url = new URL(fonte, base);
+    url.searchParams.set('q', termo ?? '');
+
+    return url.toString();
+}
+
+/**
+ * As opções do nativo depois de uma busca no servidor: as que vieram e,
+ * se a escolhida não veio, ela também — escondida, para o valor do
+ * formulário não se perder (o painel não mostra opção escondida).
+ *
+ * @param {{value: string, label: string}|null} escolhida
+ * @param {Array<{value: string|number, label: string}>} itens
+ * @returns {Array<{value: string, label: string, selected: boolean, hidden: boolean}>}
+ */
+export function mesclarOpcoes(escolhida, itens) {
+    const opcoes = itens.map((item) => ({
+        value: String(item.value),
+        label: String(item.label),
+        selected: escolhida !== null && String(item.value) === escolhida.value,
+        hidden: false,
+    }));
+
+    if (escolhida !== null && ! opcoes.some((opcao) => opcao.selected)) {
+        opcoes.push({ ...escolhida, selected: true, hidden: true });
+    }
+
+    return opcoes;
+}
+
 function montarSeletor(campo) {
     if (campo.dataset.seletorLigado) {
         return;
@@ -176,7 +211,78 @@ function montarSeletor(campo) {
     const opcoesVisiveis = () => Array.from(lista.querySelectorAll('[data-seletor-valor]'))
         .filter((botao) => ! botao.hidden && ! botao.disabled);
 
+    /*
+     * Busca no servidor (`source` no componente): as opções vêm da URL,
+     * não do HTML. Ao abrir, as primeiras; ao digitar, depois de uma
+     * pausa, as que batem — a busca anterior é cancelada. O resultado
+     * reescreve as opções do nativo, e o painel se monta dele como sempre.
+     */
+    const fonte = campo.dataset.seletorFonte;
+    const textoDoVazio = vazio?.textContent.trim() ?? '';
+    let busca = null;
+    let pausa = null;
+
+    const mostrarAviso = (mensagem) => {
+        if (vazio) {
+            vazio.textContent = mensagem;
+            vazio.classList.remove('hidden');
+        }
+    };
+
+    const aplicarResultado = (itens) => {
+        const atual = nativo.selectedOptions[0];
+        const escolhida = atual && atual.value !== '' ? { value: atual.value, label: atual.textContent.trim() } : null;
+        const vaga = Array.from(nativo.options).find((opcao) => opcao.value === '');
+
+        nativo.textContent = '';
+
+        if (vaga) {
+            nativo.append(vaga);
+        }
+
+        mesclarOpcoes(escolhida, itens).forEach((item) => {
+            const opcao = new Option(item.label, item.value, item.selected, item.selected);
+            opcao.hidden = item.hidden;
+            nativo.append(opcao);
+        });
+    };
+
+    const buscarNoServidor = async (termo) => {
+        busca?.abort();
+        busca = new AbortController();
+        mostrarAviso('Buscando…');
+
+        try {
+            const resposta = await fetch(urlDaBusca(fonte, termo, window.location.href), {
+                headers: { Accept: 'application/json' },
+                signal: busca.signal,
+            });
+
+            if (! resposta.ok) {
+                throw new Error(`HTTP ${resposta.status}`);
+            }
+
+            aplicarResultado(await resposta.json());
+            montarLista();
+
+            if (vazio) {
+                vazio.textContent = textoDoVazio;
+            }
+
+            vazio?.classList.toggle('hidden', opcoesVisiveis().length > 0);
+        } catch (erro) {
+            if (erro.name !== 'AbortError') {
+                mostrarAviso('Não foi possível buscar. Tente de novo.');
+            }
+        }
+    };
+
     const filtrar = () => {
+        // Com busca no servidor, quem filtra é ele: aqui não se esconde nada.
+        if (fonte) {
+            return;
+        }
+
         const termo = paraBusca(filtro?.value);
 
         lista.querySelectorAll('[data-seletor-valor]').forEach((botao) => {
@@ -224,6 +330,10 @@ function montarSeletor(campo) {
         marcada?.scrollIntoView({ block: 'nearest' });
 
         (filtro ?? marcada ?? opcoesVisiveis()[0])?.focus();
+
+        if (fonte) {
+            buscarNoServidor('');
+        }
     };
 
     const escolher = (valor) => {
@@ -257,7 +367,16 @@ function montarSeletor(campo) {
         }
     });
 
-    filtro?.addEventListener('input', filtrar);
+    filtro?.addEventListener('input', () => {
+        if (! fonte) {
+            filtrar();
+
+            return;
+        }
+
+        clearTimeout(pausa);
+        pausa = setTimeout(() => buscarNoServidor(filtro.value), ESPERA_DA_BUSCA);
+    });
 
     // As setas andam pelas opções visíveis; Enter no filtro escolhe a primeira.
     painel.addEventListener('keydown', (evento) => {
@@ -325,6 +444,9 @@ function montarSeletor(campo) {
     desenharGatilho();
 }
 
-window.ligarSeletores = ligarSeletores;
+// Fora do navegador (os testes, no Node), não há `window`.
+if (typeof window !== 'undefined') {
+    window.ligarSeletores = ligarSeletores;
+}
 
 export { ligarSeletores };

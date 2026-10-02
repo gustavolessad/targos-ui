@@ -38,4 +38,13 @@ return [
         'parameter' => 'por_pagina',
     ],
 
+    /*
+     * O select com busca no servidor (`<x-ui.select :source="...">`):
+     * quantas opções cada busca traz. Ao abrir, vêm as primeiras; ao
+     * digitar, as que batem. O endpoint lê com `Targos\Ui\SelectOptions`.
+     */
+    'select' => [
+        'limit' => 10,
+    ],
+
 ];

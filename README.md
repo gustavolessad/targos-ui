@@ -224,6 +224,9 @@ ApexCharts fica em `elemento.grafico`.
 | `data-abre-modal="id"` / `data-fecha-modal` | Abre e fecha um `<x-ui.modal>` |
 | `data-abre-offcanvas="id"` | Abre um `<x-ui.offcanvas>` |
 | `data-abre-menu="id"` | Abre um menu (`data-menu`) |
+| `data-monta-menu="nome"` + `data-menu-valores` | Monta o menu na primeira abertura, copiando o `<template data-modelo-menu="nome">` da página (vêm de `x-ui.dropdown template` e `x-ui.dropdown-template`; veja o GUIA) |
+| `data-mostra-se="chave"` | No modelo do menu, o elemento só fica se a linha tiver a chave |
+| `data-codigo-unico` | No modelo do menu, o campo ganha um código novo em cada cópia |
 | `data-confirmar="texto"` | Pergunta antes de enviar o formulário; `data-confirmar-perigo` pinta de vermelho |
 | `data-copiar="texto"` | Copia e avisa com um toast; dispara o evento `ui:copiado` |
 | `data-imprimir` | Abre a impressão do navegador |
@@ -247,6 +250,10 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.5.0** — `x-ui.select :source` (busca no servidor, com `Targos\Ui\SelectOptions`
+  e `config('ui.select.limit')`), menu ⋮ montado por modelo (`x-ui.dropdown template`,
+  `x-ui.dropdown-template`, `x-ui.dropdown-separator`, `data-mostra-se`,
+  `data-codigo-unico`) e `Icons::exists` por índice.
 - **1.4.3** — `x-ui.money` e `x-ui.date-range` deixam de depender de classes do
   projeto: `Targos\Ui\Money` e `Targos\Ui\DateShortcuts` passam a vir no pacote.
 - **1.4.2** — `x-ui.stat-card`: `info` (ícone de informação com dica, no canto)

@@ -21,7 +21,8 @@
     $aberto = $match !== null && request()->routeIs(...(array) $match);
 @endphp
 
-<details @if ($aberto) open @endif class="group/grupo">
+{{-- `data-inicial`: o grupo que já nasce aberto não anima ao carregar a página (nav.js). --}}
+<details @if ($aberto) open data-inicial @endif class="group/grupo">
     {{-- Mesmas cores do nav-item em repouso, para o grupo não destoar dos links. --}}
     <summary class="group flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2
                     text-sm font-medium text-neutral-900 transition hover:bg-neutral-100
@@ -44,8 +45,12 @@
         lista aberta se confunde com o nível de cima. Mesmo peso dos itens
         principais, cor um pouco mais fraca (o ativo fica de fora: segue
         bem escuro; o hover volta a escurecer).
+
+        Ao abrir, entram descendo de leve (`animate-descer`); o grupo
+        que já veio aberto do servidor fica parado.
     --}}
     <div class="mt-0.5 ms-[1.4rem] space-y-0.5 border-s border-neutral-300 ps-3 dark:border-white/10
+                group-[&[open]:not([data-inicial])]/grupo:animate-descer
                 [&>a:not([aria-current])]:text-neutral-700 [&>a:not([aria-current]):hover]:text-neutral-950
                 dark:[&>a:not([aria-current])]:text-neutral-300 dark:[&>a:not([aria-current]):hover]:text-white">
         {{ $slot }}

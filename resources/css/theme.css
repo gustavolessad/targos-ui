@@ -61,6 +61,25 @@
         }
     }
 
+    /*
+     * A entrada do que se desdobra no lugar, sem sair do fluxo — os
+     * itens de um grupo do menu lateral: `animate-descer`. Aparece
+     * descendo uns poucos pixels, com fade. Mesma duração e curva do
+     * `surgir`, para as duas entradas parecerem do mesmo sistema.
+     */
+    --animate-descer: descer 150ms ease-out;
+
+    @keyframes descer {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
@@ -182,9 +201,16 @@
     }
 }
 
-/* Quem pede menos movimento no sistema operacional vê o painel aparecer direto. */
+/*
+ * Quem pede menos movimento no sistema operacional vê tudo aparecer direto.
+ *
+ * Pelo nome dentro da classe, e não pela classe: `animate-descer` também
+ * é usada atrás de variante (`group-[…]:animate-descer`), que é outra
+ * classe para o CSS.
+ */
 @media (prefers-reduced-motion: reduce) {
-    .animate-surgir {
-        animation: none;
+    [class*='animate-surgir'],
+    [class*='animate-descer'] {
+        animation: none !important;
     }
 }

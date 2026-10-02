@@ -203,6 +203,9 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.2.0** — Os itens do `x-ui.nav-group` entram com animação ao abrir
+  (`animate-descer`, novo token). Quem liga os módulos um a um no `app.js`
+  acrescenta `ligarMenuLateral()`.
 - **1.1.2** — O menu do dropdown vira para cima quando não cabe embaixo (e
   o contrário); o painel do select e do calendário fica inteiro na janela
   quando não cabe em nenhum dos lados.

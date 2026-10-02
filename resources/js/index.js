@@ -24,6 +24,7 @@ import { ligarDicas } from './tooltip.js';
 import { ligarCopiar, ligarImprimir } from './copy.js';
 import { ligarAlternancias } from './alternancia.js';
 import { ligarConfirmacoes } from './confirm.js';
+import { ligarMenuLateral } from './nav.js';
 import { ligarEnvios } from './submit.js';
 
 export { MASCARAS, aplicarMascara, ligarMascaras } from './masks.js';
@@ -45,6 +46,7 @@ export { marcarCarregando, desmarcarCarregando, ligarEnvios } from './submit.js'
 export { painelFlutuante } from './floating.js';
 export { paraBusca } from './search.js';
 export { ligarConfirmacoes } from './confirm.js';
+export { ligarMenuLateral } from './nav.js';
 
 /**
  * Liga tudo, na ordem certa.
@@ -72,6 +74,7 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarDicas();
     ligarPeriodos();
     ligarConfirmacoes();
+    ligarMenuLateral();
 
     antesDosEnvios();
 

@@ -1,0 +1,26 @@
+{
+    "name": "targos/ui",
+    "description": "O design system da Targos: componentes Blade, tokens de Tailwind e JavaScript sem framework.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^12.0|^13.0",
+        "illuminate/view": "^12.0|^13.0",
+        "mallardduck/blade-lucide-icons": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Targos\\Ui\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Targos\\Ui\\UiServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

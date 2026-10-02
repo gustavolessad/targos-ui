@@ -1,0 +1,190 @@
+/*
+ * Os tokens do design system da Targos.
+ *
+ * Entra no `app.css` do projeto logo depois do Tailwind:
+ *
+ *     @import 'tailwindcss';
+ *     @plugin '@tailwindcss/forms';
+ *     @import '../../vendor/targos/ui/resources/css/theme.css';
+ *
+ * O `@plugin` fica no projeto, e não aqui: o Tailwind o procura a
+ * partir da pasta do arquivo que o declara, e o `node_modules` é do
+ * projeto.
+ *
+ * Para trocar a cor da marca, o projeto redeclara `--color-primary-*`
+ * num `@theme` próprio, depois deste import.
+ *
+ * Convenções:
+ * - Cor só por token de significado (primary, success, danger, warning,
+ *   info) ou pela família neutral. Azul é ação, nunca estado.
+ * - Variante e tamanho de componente são props que escolhem classes num
+ *   mapa dentro do componente — nunca classes conflitantes vindas de fora.
+ * - Camadas: 20–30 menus, 40 barra lateral e topo, 50 dica, 60 modal e
+ *   gaveta, 70 aviso (toast).
+ * - Nada de tag de componente dentro de comentário Blade: o Blade a
+ *   compila mesmo assim.
+ */
+
+/*
+ * As classes que os componentes e o JavaScript do pacote usam. Sem
+ * isto o Tailwind só enxergaria as telas do projeto, e o que só o
+ * componente usa sairia do CSS.
+ */
+@source '../views';
+@source '../js';
+
+/*
+ * O tema escuro é por classe: quem decide é o `.dark` no <html>, que o
+ * botão da barra superior liga e desliga.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    /*
+     * A entrada de tudo que abre por cima da tela — select, multiselect,
+     * seletor de data, tooltip: `animate-surgir` no painel. Os mesmos
+     * valores do dropdown (surge de 95% com fade, 150ms, ease-out). É
+     * animação, não transição: roda sozinha toda vez que o painel sai do
+     * `hidden`, sem JavaScript. Usa `transform`, então não briga com as
+     * classes `translate-*` que posicionam o tooltip.
+     */
+    --animate-surgir: surgir 150ms ease-out;
+
+    @keyframes surgir {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* primary — a cor de ação: o azul da Targos (#3A6FE0 no 600). */
+    --color-primary-50: #eef3fd;
+    --color-primary-100: #dde7fb;
+    --color-primary-200: #c2d4f8;
+    --color-primary-300: #97b6f2;
+    --color-primary-400: #6690ea;
+    --color-primary-500: #4a7be5;
+    --color-primary-600: #3a6fe0;
+    --color-primary-700: #2c58c2;
+    --color-primary-800: #27489b;
+    --color-primary-900: #253f7b;
+    --color-primary-950: #1a284b;
+
+    /* O texto sobre o `primary-600`. */
+    --color-primary-contrast: #ffffff;
+
+    /*
+     * O fundo da área de conteúdo (o <main>), neutro nos dois temas —
+     * cinza puro, sem puxar para azul.
+     *
+     * Claro: o neutral-100, para o branco dos cards se destacar sem sombra.
+     * Escuro: #111, um degrau abaixo do neutral-900 da barra lateral e dos cards,
+     * para a moldura se ler e os cards se separarem pela borda.
+     */
+    --color-painel: var(--color-neutral-100);
+    --color-painel-dark: #111111;
+
+    /* As cores de significado. Hoje apontam para as paletas do Tailwind. */
+    --color-success-50: var(--color-green-50);
+    --color-success-100: var(--color-green-100);
+    --color-success-200: var(--color-green-200);
+    --color-success-300: var(--color-green-300);
+    --color-success-400: var(--color-green-400);
+    --color-success-500: var(--color-green-500);
+    --color-success-600: var(--color-green-600);
+    --color-success-700: var(--color-green-700);
+    --color-success-800: var(--color-green-800);
+    --color-success-900: var(--color-green-900);
+    --color-success-950: var(--color-green-950);
+
+    --color-danger-50: var(--color-red-50);
+    --color-danger-100: var(--color-red-100);
+    --color-danger-200: var(--color-red-200);
+    --color-danger-300: var(--color-red-300);
+    --color-danger-400: var(--color-red-400);
+    --color-danger-500: var(--color-red-500);
+    --color-danger-600: var(--color-red-600);
+    --color-danger-700: var(--color-red-700);
+    --color-danger-800: var(--color-red-800);
+    --color-danger-900: var(--color-red-900);
+    --color-danger-950: var(--color-red-950);
+
+    --color-warning-50: var(--color-amber-50);
+    --color-warning-100: var(--color-amber-100);
+    --color-warning-200: var(--color-amber-200);
+    --color-warning-300: var(--color-amber-300);
+    --color-warning-400: var(--color-amber-400);
+    --color-warning-500: var(--color-amber-500);
+    --color-warning-600: var(--color-amber-600);
+    --color-warning-700: var(--color-amber-700);
+    --color-warning-800: var(--color-amber-800);
+    --color-warning-900: var(--color-amber-900);
+    --color-warning-950: var(--color-amber-950);
+
+    --color-info-50: var(--color-sky-50);
+    --color-info-100: var(--color-sky-100);
+    --color-info-200: var(--color-sky-200);
+    --color-info-300: var(--color-sky-300);
+    --color-info-400: var(--color-sky-400);
+    --color-info-500: var(--color-sky-500);
+    --color-info-600: var(--color-sky-600);
+    --color-info-700: var(--color-sky-700);
+    --color-info-800: var(--color-sky-800);
+    --color-info-900: var(--color-sky-900);
+    --color-info-950: var(--color-sky-950);
+}
+
+/*
+ * A barra de rolagem das áreas internas — a lista da barra lateral, as
+ * gavetas, o painel de log. Fina e com trilha transparente.
+ */
+@layer base {
+    .scroll-discreto {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-neutral-300) transparent;
+    }
+
+    .dark .scroll-discreto {
+        scrollbar-color: var(--color-neutral-700) transparent;
+    }
+
+    .scroll-discreto::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scroll-discreto::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scroll-discreto::-webkit-scrollbar-thumb {
+        background-color: var(--color-neutral-300);
+        border-radius: 9999px;
+    }
+
+    .dark .scroll-discreto::-webkit-scrollbar-thumb {
+        background-color: var(--color-neutral-700);
+    }
+
+    .scroll-discreto:hover::-webkit-scrollbar-thumb {
+        background-color: var(--color-neutral-400);
+    }
+
+    .dark .scroll-discreto:hover::-webkit-scrollbar-thumb {
+        background-color: var(--color-neutral-600);
+    }
+}
+
+/* Quem pede menos movimento no sistema operacional vê o painel aparecer direto. */
+@media (prefers-reduced-motion: reduce) {
+    .animate-surgir {
+        animation: none;
+    }
+}

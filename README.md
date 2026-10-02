@@ -50,7 +50,16 @@ projetos depois de uma tag nova (veja o [GUIA](GUIA.md), seção 5).
 
 ```bash
 npm install -D tailwindcss @tailwindcss/vite @tailwindcss/forms
+npm install apexcharts
 ```
+
+O ApexCharts desenha os gráficos do `<x-ui.chart>`. É obrigatório mesmo no
+projeto sem gráfico (o JavaScript do pacote o referencia), mas só é baixado pelo
+navegador nas páginas que têm um.
+
+> **Licença do ApexCharts**: gratuita para pessoas e organizações com menos de
+> US$ 2 milhões de receita anual; acima disso, exige licença comercial. Confira
+> em apexcharts.com/license antes de usar num projeto de cliente grande.
 
 ### 3. CSS (`resources/css/app.css`)
 
@@ -182,6 +191,31 @@ Do mais leve ao mais pesado:
 6. **Mudar o pacote.** O que serve a mais de um projeto vira prop ou
    configuração aqui, e sai numa versão nova.
 
+## Gráficos
+
+```blade
+<x-ui.chart type="bar" format="money" :labels="['Jul', 'Ago', 'Set']"
+            :series="[['name' => 'Recebido', 'data' => [12000, 15400, 9800]]]" />
+
+<x-ui.chart type="donut" :labels="['Pagas', 'Abertas', 'Vencidas']"
+            :colors="['success', 'primary', 'danger']" :series="[42, 13, 5]" />
+```
+
+| Prop | O que é |
+|---|---|
+| `type` | O tipo, pelo nome do ApexCharts: `bar`, `line`, `area`, `donut`, `pie`, `radialBar`, `radar`… |
+| `series` | Com eixo, uma lista de séries (`name` e `data`); em fatias, uma lista de números |
+| `labels` | As categorias do eixo horizontal, ou o nome de cada fatia |
+| `height` | Altura em pixels (padrão: 320) |
+| `format` | `money`, `percent` ou, sem nada, número |
+| `colors` | A cor de cada série, pelo token: `primary`, `success`, `warning`, `danger`, `info`, `neutral` |
+| `stacked` | Empilha as séries |
+| `options` | Qualquer opção do ApexCharts, mesclada por cima do padrão |
+
+O gráfico acompanha a cor da marca do projeto e o tema escuro, inclusive na
+troca pelo botão de tema. Para mexer nele depois de desenhado, a instância do
+ApexCharts fica em `elemento.grafico`.
+
 ## Comportamentos por atributo
 
 | Atributo | O que faz |
@@ -212,6 +246,10 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.4.0** — Gráficos: `<x-ui.chart>`, sobre o ApexCharts, com as cores, a
+  fonte e o tema do design system. **Exige `npm install apexcharts` no
+  projeto**; quem liga os módulos um a um no `app.js` acrescenta
+  `ligarGraficos()`.
 - **1.3.21** — Na barra recolhida, a dica do item não pisca mais ao clicar
   (era refeita a cada etapa do clique).
 - **1.3.2** — A barra recolhida mantém a margem lateral de `px-3`.

@@ -40,7 +40,11 @@ composer require targos/ui:^1.2
 
 ```bash
 npm install -D tailwindcss @tailwindcss/vite @tailwindcss/forms
+npm install apexcharts
 ```
+
+O `apexcharts` é a biblioteca dos gráficos. Instale mesmo que o projeto ainda
+não tenha gráfico: sem ela o `npm run build` falha.
 
 ### Passo 4 — Ligar o CSS
 
@@ -265,6 +269,25 @@ Qualquer ícone do [Lucide](https://lucide.dev/icons), pelo nome:
 <x-ui.icon name="users" class="size-4" />
 ```
 
+### Gráfico
+
+```blade
+<x-ui.chart type="bar" format="money" :labels="['Jul', 'Ago', 'Set']"
+            :series="[['name' => 'Recebido', 'data' => [12000, 15400, 9800]]]" />
+
+<x-ui.chart type="donut" :labels="['Pagas', 'Abertas', 'Vencidas']"
+            :colors="['success', 'primary', 'danger']" :series="[42, 13, 5]" />
+```
+
+- `type`: `bar`, `line`, `area`, `donut`, `pie` e os demais do ApexCharts.
+- `format`: `money` (R$), `percent` (%) ou nada (número).
+- `colors`: pelo nome do token — `primary`, `success`, `warning`, `danger`,
+  `info`, `neutral`.
+- `height`: altura em pixels.
+- `options`: qualquer opção do ApexCharts, para o que as props não cobrem.
+
+As cores, a fonte e o tema escuro o componente resolve sozinho.
+
 ### Cabeçalho da tela
 
 ```blade
@@ -432,5 +455,6 @@ php artisan view:cache
 | "Unable to locate … [layouts.panel]" | Os modelos não foram copiados | `php artisan vendor:publish --tag=ui-templates` |
 | Ícone não aparece | Nome não existe no Lucide | Confira em lucide.dev/icons |
 | Select, modal ou máscara não funcionam | JavaScript não ligado | Confira o `ligarUi()` no `app.js` e o apelido `@targos-ui` no `vite.config.js` |
+| `npm run build` falha com "apexcharts" não encontrado | A biblioteca dos gráficos não foi instalada | `npm install apexcharts` |
 | Composer pede senha ao instalar | Sem acesso ao repositório privado | Veja a seção "Deploy" |
 | Tema escuro pisca ao carregar | Falta o `<x-ui.theme-script />` no `<head>` | Está no modelo do layout; confira se não foi removido |

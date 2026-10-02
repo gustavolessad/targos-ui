@@ -15,6 +15,11 @@
     'href' => null,
     /** Uma linha pequena abaixo do número — "Original: R$ 1.000,00". */
     'hint' => null,
+    /**
+     * O tamanho do número: `md` (o das listagens) ou `lg`, maior e mais
+     * pesado, para o card que é o assunto da tela — os do dashboard.
+     */
+    'size' => 'md',
 ])
 
 {{--
@@ -31,6 +36,8 @@
         'info' => 'text-info-600 dark:text-info-400',
         default => 'text-neutral-900 dark:text-white',
     };
+
+    $classesDoTamanho = $size === 'lg' ? 'text-3xl font-bold tracking-tight' : 'text-2xl font-semibold';
 
     $classes = [
         /*
@@ -52,7 +59,7 @@
         <div class="min-w-0">
             <p class="truncate text-sm text-neutral-500 dark:text-neutral-400">{{ $label }}</p>
 
-            <p class="mt-1 text-2xl font-semibold {{ $classesDoNumero }}">{{ $value }}</p>
+            <p class="mt-1 {{ $classesDoTamanho }} {{ $classesDoNumero }}">{{ $value }}</p>
 
             @if ($hint)
                 <p class="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>

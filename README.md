@@ -246,6 +246,7 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.4.1** — `x-ui.stat-card` ganha `size="lg"`: número maior e mais pesado.
 - **1.4.0** — Gráficos: `<x-ui.chart>`, sobre o ApexCharts, com as cores, a
   fonte e o tema do design system. **Exige `npm install apexcharts` no
   projeto**; quem liga os módulos um a um no `app.js` acrescenta

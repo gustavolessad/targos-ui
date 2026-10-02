@@ -75,6 +75,25 @@ export function formatador(formato, { curto = false } = {}) {
     };
 }
 
+/**
+ * As séries tracejadas (`dashed: true`): a comparação, o período
+ * anterior — a referência, e não o dado. No `area`, a tracejada vira
+ * linha sem preenchimento, para não cobrir a principal.
+ *
+ * Devolve as séries como o ApexCharts as quer e o traço de cada uma
+ * (`dashArray`), ou `null` quando nenhuma é tracejada.
+ */
+export function tracejar(series, tipo) {
+    if (! Array.isArray(series) || ! series.some((serie) => serie?.dashed)) {
+        return { series, tracos: null };
+    }
+
+    return {
+        series: series.map(({ dashed, ...serie }) => ({ ...serie, type: dashed && tipo === 'area' ? 'line' : (serie.type ?? tipo) })),
+        tracos: series.map((serie) => (serie.dashed ? 4 : 0)),
+    };
+}
+
 /** Junta dois objetos de opções; o segundo vence, nível a nível. Listas são trocadas inteiras. */
 export function mesclar(base, extra) {
     const saida = { ...base };
@@ -150,6 +169,7 @@ function opcoes(config, localidade) {
     const semEixo = SEM_EIXO.includes(config.type);
     const naDica = formatador(config.format);
     const noEixo = formatador(config.format, { curto: true });
+    const { series, tracos } = semEixo ? { series: config.series, tracos: null } : tracejar(config.series, config.type);
 
     const base = {
         chart: {
@@ -164,7 +184,7 @@ function opcoes(config, localidade) {
             locales: [localidade],
             defaultLocale: localidade.name,
         },
-        series: config.series,
+        series,
         dataLabels: { enabled: false },
         legend: {
             position: semEixo ? 'bottom' : 'top',
@@ -178,7 +198,7 @@ function opcoes(config, localidade) {
     };
 
     const comEixo = {
-        stroke: { curve: 'smooth', width: ['line', 'area'].includes(config.type) ? 2.5 : 0 },
+        stroke: { curve: 'smooth', width: ['line', 'area'].includes(config.type) ? 2.5 : 0, ...(tracos ? { dashArray: tracos } : {}) },
         fill: config.type === 'area'
             ? { type: 'gradient', gradient: { opacityFrom: 0.35, opacityTo: 0.02, stops: [0, 95] } }
             : { opacity: 1 },
@@ -217,14 +237,20 @@ function opcoes(config, localidade) {
     /*
      * A miniatura: a biblioteca tira eixos, grade e legenda e estica o
      * desenho na caixa. O que sobra para acertar é o traço mais fino, a
-     * dica só com o rótulo e o valor, e nada de margem.
+     * dica só com o rótulo e o valor, e nada de margem. Com mais de uma
+     * série (a comparação), a dica diz de qual é cada valor.
      */
+    const variasSeries = Array.isArray(config.series) && config.series.length > 1;
     const miniatura = config.sparkline ? {
         chart: { sparkline: { enabled: true } },
-        stroke: { width: 2 },
+        stroke: { width: tracos ? tracos.map((traco) => (traco ? 1.5 : 2)) : 2 },
         markers: { size: 0, hover: { size: 4 } },
         grid: { padding: { left: 0, right: 0, top: 4, bottom: 0 } },
-        tooltip: { x: { show: true }, y: { title: { formatter: () => '' } }, marker: { show: false } },
+        tooltip: {
+            x: { show: true },
+            y: { title: { formatter: variasSeries ? (nome) => `${nome}:` : () => '' } },
+            marker: { show: variasSeries },
+        },
     } : {};
 
     return mesclar(mesclar(mesclar(mesclar(base, semEixo ? emFatias : comEixo), miniatura), opcoesDoTema(config)), config.options);

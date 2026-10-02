@@ -36,6 +36,16 @@
     'trendLabels' => [],
     /** Como os valores do gráfico aparecem na dica: `money`, `percent` ou, sem nada, número. */
     'trendFormat' => null,
+    /** A altura do gráfico, em pixels. */
+    'trendHeight' => 88,
+    /**
+     * A comparação: outra lista de números, ponto a ponto com `trend` —
+     * o período anterior. Aparece tracejada e cinza, atrás da principal:
+     * é a referência para ler o número, não outro número.
+     */
+    'trendCompare' => null,
+    /** O nome da comparação, na dica do gráfico. */
+    'trendCompareLabel' => 'Período anterior',
 ])
 
 {{--
@@ -57,6 +67,14 @@
 
     // O gráfico na cor do número; o card sem cor usa a de ação.
     $corDoGrafico = in_array($color, ['danger', 'warning', 'success', 'info'], true) ? $color : 'primary';
+
+    $seriesDoGrafico = $trend === null ? [] : [['name' => $label, 'data' => array_values($trend)]];
+    $coresDoGrafico = [$corDoGrafico];
+
+    if ($trend !== null && $trendCompare !== null) {
+        $seriesDoGrafico[] = ['name' => $trendCompareLabel, 'data' => array_values($trendCompare), 'dashed' => true];
+        $coresDoGrafico[] = 'neutral';
+    }
 
     $classes = [
         /*
@@ -111,11 +129,11 @@
             desenho acompanha o do card — um ponto a menos, pela borda.
         --}}
         <div class="-mx-4 -mb-4 mt-3 [&_svg]:rounded-b-[11px]" data-tendencia>
-            <x-ui.chart type="area" sparkline height="56"
-                        :series="[['name' => $label, 'data' => array_values($trend)]]"
+            <x-ui.chart type="area" sparkline :height="$trendHeight"
+                        :series="$seriesDoGrafico"
                         :labels="array_values($trendLabels)"
                         :format="$trendFormat"
-                        :colors="[$corDoGrafico]" />
+                        :colors="$coresDoGrafico" />
         </div>
     @endif
 </{{ $href !== null ? 'a' : 'div' }}>

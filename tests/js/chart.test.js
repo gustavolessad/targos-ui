@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { formatador, mesclar } from '../../resources/js/chart.js';
+import { formatador, mesclar, tracejar } from '../../resources/js/chart.js';
 
 // O espaço entre "R$" e o número é o não separável, que o Intl escreve.
 const limpo = (texto) => texto.replace(/ /g, ' ');
@@ -44,4 +44,23 @@ test('mesclar troca listas inteiras e aceita extra vazio', () => {
     assert.deepEqual(mesclar({ colors: ['a', 'b'] }, { colors: ['c'] }), { colors: ['c'] });
     assert.deepEqual(mesclar({ a: 1 }, undefined), { a: 1 });
     assert.deepEqual(mesclar({ a: 1 }, {}), { a: 1 });
+});
+
+test('tracejar: sem série tracejada, devolve as séries como vieram', () => {
+    const series = [{ name: 'Recebido', data: [1, 2] }];
+
+    assert.deepEqual(tracejar(series, 'area'), { series, tracos: null });
+});
+
+test('tracejar: no area, a tracejada vira linha e ganha o traço', () => {
+    const { series, tracos } = tracejar([
+        { name: 'Recebido', data: [1, 2] },
+        { name: 'Período anterior', data: [1, 1], dashed: true },
+    ], 'area');
+
+    assert.deepEqual(series, [
+        { name: 'Recebido', data: [1, 2], type: 'area' },
+        { name: 'Período anterior', data: [1, 1], type: 'line' },
+    ]);
+    assert.deepEqual(tracos, [0, 4]);
 });

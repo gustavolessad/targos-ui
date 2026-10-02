@@ -17,7 +17,7 @@ function mostrarToast(tipo, texto, segundos = 5) {
         return;
     }
 
-    const modelo = pilha.querySelector('template[data-toast-modelo]');
+    const modelo = pilha.querySelector('template[data-modelo-toast]');
 
     if (! modelo) {
         return;
@@ -46,7 +46,7 @@ function mostrarToast(tipo, texto, segundos = 5) {
     const toast = modelo.content.firstElementChild.cloneNode(true);
     toast.dataset.toast = tipo;
     toast.classList.add(...cores);
-    toast.querySelector('[data-toast-texto]').textContent = texto;
+    toast.querySelector('[data-texto-toast]').textContent = texto;
 
     pilha.append(toast);
 

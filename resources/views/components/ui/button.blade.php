@@ -41,9 +41,11 @@
         /*
          * O ghost sobre fundo colorido (o toast, uma faixa de aviso): a cor
          * do texto em volta, e o hover escurece um pouco o fundo, em vez do
-         * cinza claro do ghost, que some sobre o verde ou o vermelho.
+         * cinza claro do ghost, que some sobre o verde ou o vermelho. Sem
+         * mexer na opacidade: opacidade < 1 cria uma camada própria, e
+         * tooltip vizinho fica preso nela.
          */
-        'ghost-contrast' => 'border-transparent bg-transparent text-current opacity-80 hover:bg-black/10 hover:opacity-100 focus:ring-black/15',
+        'ghost-contrast' => 'border-transparent bg-transparent text-current hover:bg-black/10 focus:ring-black/15',
     ];
 
     // Altura fixa, a mesma do campo de cada degrau; o botão só de ícone é quadrado nessa altura.

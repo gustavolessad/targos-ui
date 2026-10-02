@@ -13,7 +13,8 @@
     `menu` é para o painel sem barra recolhível: só o botão que abre a
     gaveta no celular. Quem usa o `ui.sidebar-toggle` não precisa dele.
 --}}
-<header {{ $attributes->class(['flex h-16 items-center gap-3 px-4 sm:px-6']) }}>
+{{-- 56px (h-14): o x-ui.content desconta esta altura no min-h da área de conteúdo. --}}
+<header {{ $attributes->class(['flex h-14 items-center gap-3 px-4 sm:px-6']) }}>
     @if ($menu)
         <x-ui.button type="button" variant="ghost" size="icon"
                      data-abre-offcanvas="{{ $menu }}"

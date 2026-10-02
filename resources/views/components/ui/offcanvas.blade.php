@@ -53,7 +53,7 @@
 <div id="{{ $id }}" data-offcanvas
      class="fixed inset-0 z-60 hidden [&[data-aberto]]:block">
     <div data-offcanvas-fundo
-         class="fixed inset-0 bg-neutral-900/50 opacity-0 backdrop-blur-[10px] transition-opacity duration-300
+         class="fixed inset-0 bg-neutral-300/50 opacity-0 backdrop-blur-[4px] dark:bg-neutral-900/50 transition-opacity duration-300
                 [[data-aberto]_&]:opacity-100"></div>
 
     {{--

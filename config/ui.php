@@ -28,4 +28,14 @@ return [
         'erro' => ['error', 'erro'],
     ],
 
+    /*
+     * A paginação das tabelas: as quantidades do seletor "Por página" e
+     * o parâmetro da URL que a leva (`?por_pagina=50`). O controller lê
+     * com `Targos\Ui\PerPage::resolve(30)`.
+     */
+    'pagination' => [
+        'options' => [15, 30, 50, 100],
+        'parameter' => 'por_pagina',
+    ],
+
 ];

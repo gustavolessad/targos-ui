@@ -41,7 +41,7 @@
 --}}
 <div id="{{ $id }}" data-modal @if ($open) data-abrir-ao-carregar @endif
      class="fixed inset-0 z-60 hidden [&[data-aberto]]:block">
-    <div class="fixed inset-0 bg-neutral-900/50 opacity-0 backdrop-blur-[10px] transition-opacity duration-200
+    <div class="fixed inset-0 bg-neutral-300/50 opacity-0 backdrop-blur-[4px] dark:bg-neutral-900/50 transition-opacity duration-200
                 [[data-aberto]_&]:opacity-100"></div>
 
     {{--

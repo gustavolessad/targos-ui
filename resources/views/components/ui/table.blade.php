@@ -46,10 +46,13 @@
     $temLinhas = $rows === null || count($rows) > 0;
 
     /*
-     * Quem encosta no canto de baixo. Com paginação é ela; sem, a
-     * última linha — e o arredondamento tem de seguir quem está lá.
+     * A paginação fica fora do cartão, logo abaixo dele (x-ui.pagination):
+     * o cartão termina sempre na última linha. Aparece com mais de uma
+     * página — ou, sabendo o total, sempre que há linhas, pelo seletor
+     * "Por página" e pelo "Mostrando 1 a 15 de 15".
      */
-    $temPaginacao = $rows instanceof Illuminate\Contracts\Pagination\Paginator && $rows->hasPages();
+    $temPaginacao = $rows instanceof Illuminate\Contracts\Pagination\Paginator
+        && ($rows->hasPages() || ($rows instanceof Illuminate\Contracts\Pagination\LengthAwarePaginator && $rows->total() > 0));
 @endphp
 
 {{--
@@ -70,8 +73,8 @@
      * linha certa é o Blade, com `data-ultima`.
      */
     '[&_thead_th:first-child]:rounded-ss-xl [&_thead_th:last-child]:rounded-se-xl',
-    '[&_tr[data-ultima]_td:first-child]:rounded-es-xl' => ! $temPaginacao,
-    '[&_tr[data-ultima]_td:last-child]:rounded-ee-xl' => ! $temPaginacao,
+    '[&_tr[data-ultima]_td:first-child]:rounded-es-xl',
+    '[&_tr[data-ultima]_td:last-child]:rounded-ee-xl',
 ]) }}>
     {{--
         Sem embrulho de rolagem: `overflow-x` liga o `overflow-y` junto,
@@ -148,11 +151,9 @@
         </tbody>
     </table>
 
-    {{-- A paginação só aparece quando há mais de uma página. --}}
-    @if ($temPaginacao)
-        <div class="rounded-b-xl border-t border-neutral-100 bg-white px-4 py-3
-                    dark:border-neutral-800/70 dark:bg-neutral-900">
-            {{ $rows->withQueryString()->links() }}
-        </div>
-    @endif
 </div>
+
+{{-- Fora do cartão, embaixo: o resumo, o "Por página" e as páginas. --}}
+@if ($temPaginacao)
+    <x-ui.pagination :paginator="$rows->withQueryString()" class="mt-4" />
+@endif

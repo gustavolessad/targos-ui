@@ -74,7 +74,7 @@
              {{-- O erro e o aviso ficam até o X: muitas vezes é a mensagem da API, que só existe aqui. --}}
              @if ($mensagem['tipo'] !== 'sucesso') data-toast-fica @endif
              class="{{ $base }} {{ $cores[$mensagem['tipo']] }}">
-            <span class="flex-1 py-1" data-toast-texto>{{ $mensagem['texto'] }}</span>
+            <span class="flex-1 py-1" data-texto-toast>{{ $mensagem['texto'] }}</span>
 
             <x-ui.button variant="ghost-contrast" size="icon-xs" data-fecha-toast aria-label="Fechar" class="shrink-0">
                 <x-ui.icon name="x" class="size-4" />
@@ -83,9 +83,9 @@
     @endforeach
 
     {{-- O modelo do `mostrarToast`: a cor e o texto entram no clone. --}}
-    <template data-toast-modelo>
+    <template data-modelo-toast>
         <div class="{{ $base }}">
-            <span class="flex-1 py-1" data-toast-texto></span>
+            <span class="flex-1 py-1" data-texto-toast></span>
 
             <x-ui.button variant="ghost-contrast" size="icon-xs" data-fecha-toast aria-label="Fechar" class="shrink-0">
                 <x-ui.icon name="x" class="size-4" />

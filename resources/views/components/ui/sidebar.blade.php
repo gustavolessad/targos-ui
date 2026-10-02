@@ -14,8 +14,9 @@
     celular): o que tiver `id` dentro dela precisa de um por desenho.
 
     Recolhida (`recolhida:`, pelo botão `ui.sidebar-toggle`), vira uma
-    coluna de ícones: o logo dá lugar ao símbolo e as margens encolhem.
-    A largura é do layout, que é quem a posiciona.
+    coluna de ícones: o logo dá lugar ao símbolo. As margens laterais
+    ficam as mesmas (`px-3`), e o item vira um quadrado de 40px numa barra
+    de 64px. A largura é do layout, que é quem a posiciona.
 --}}
 <nav data-barra {{ $attributes->class(['flex h-full flex-col bg-white text-sm dark:bg-neutral-900']) }}>
     @isset($logo)
@@ -34,12 +35,12 @@
     @endisset
 
     @isset($top)
-        <div class="relative px-3 pb-2 recolhida:px-2">
+        <div class="relative px-3 pb-2">
             {{ $top }}
         </div>
     @endisset
 
-    <div class="scroll-discreto flex-1 space-y-4 overflow-y-auto px-3 py-2 recolhida:px-2">
+    <div class="scroll-discreto flex-1 space-y-4 overflow-y-auto px-3 py-2">
         {{ $slot }}
     </div>
 </nav>

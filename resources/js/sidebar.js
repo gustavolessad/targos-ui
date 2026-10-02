@@ -50,6 +50,7 @@ const MENU = `${CARTAO} min-w-48 p-1 [&>a]:py-2`;
 const TITULO = 'px-3 pb-1 pt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400';
 
 let dica = null;
+let donoDaDica = null;
 let menu = null;
 let donoDoMenu = null;
 let fechamento = null;
@@ -57,6 +58,7 @@ let fechamento = null;
 function esconderDica() {
     dica?.remove();
     dica = null;
+    donoDaDica = null;
 }
 
 function fecharMenu() {
@@ -74,6 +76,15 @@ function fecharMenuDepois() {
 
 /** A dica com o nome do item, à direita dele, centrada na altura. */
 function mostrarDica(item) {
+    /*
+     * Já está à vista para este item: fica como está. Refazê-la tocaria a
+     * animação de entrada de novo, e a dica piscaria a cada evento que
+     * pede por ela — o mouse entrou, o botão desceu, o foco chegou.
+     */
+    if (donoDaDica === item && dica) {
+        return;
+    }
+
     esconderDica();
 
     const texto = item.dataset.barraDica;
@@ -92,6 +103,8 @@ function mostrarDica(item) {
 
     dica.style.left = `${caixa.right + FOLGA}px`;
     dica.style.top = `${caixa.top + (caixa.height - dica.offsetHeight) / 2}px`;
+
+    donoDaDica = item;
 }
 
 /**
@@ -187,8 +200,14 @@ function alternar() {
 
 export function ligarBarraLateral() {
     document.addEventListener('click', (evento) => {
-        // Clicou: a dica já cumpriu o papel, e ficaria por cima do que o clique abrir.
-        esconderDica();
+        /*
+         * O clique num botão com dica (um que abre menu) a tira da frente
+         * do que ele abrir. No link ela fica: a página vai trocar, e
+         * sumir com a dica no meio do clique só a faria piscar.
+         */
+        if (donoDaDica?.contains(evento.target) && ! donoDaDica.matches('a[href]')) {
+            esconderDica();
+        }
 
         const botao = evento.target.closest('[data-recolhe-barra]');
 
@@ -215,15 +234,12 @@ export function ligarBarraLateral() {
         if (titulo && 'barraRotulo' in titulo.dataset) {
             evento.preventDefault();
 
-            if (donoDoMenu === titulo && evento.detail !== 0) {
-                fecharMenu();
-            } else {
-                abrirMenu(titulo);
+            // Já aberto pelo mouse por cima, o clique não o fecha nem o refaz: só garante que está lá.
+            abrirMenu(titulo);
 
-                // Veio do teclado (Enter no título): o foco entra no menu.
-                if (evento.detail === 0) {
-                    menu?.querySelector('a')?.focus();
-                }
+            // Veio do teclado (Enter no título): o foco entra no menu.
+            if (evento.detail === 0) {
+                menu?.querySelector('a')?.focus();
             }
 
             return;
@@ -257,17 +273,24 @@ export function ligarBarraLateral() {
         }
     });
 
-    // Pelo teclado, o foco faz o papel do mouse por cima.
+    /*
+     * Pelo teclado, o foco faz o papel do mouse por cima. Só o do teclado
+     * (`:focus-visible`): o botão do mouse também dá foco ao item, e ali
+     * a dica já está posta pelo mouse.
+     */
     document.addEventListener('focusin', (evento) => {
         const alvo = alvoDe(evento.target);
 
-        if (alvo && ! ('barraRotulo' in alvo.dataset)) {
+        if (alvo && ! ('barraRotulo' in alvo.dataset) && evento.target.matches(':focus-visible')) {
             mostrarDica(alvo);
         }
     });
 
     document.addEventListener('focusout', (evento) => {
-        esconderDica();
+        // O foco saiu, mas o mouse segue por cima do item: a dica é dele, e fica.
+        if (donoDaDica && ! donoDaDica.matches(':hover')) {
+            esconderDica();
+        }
 
         if (menu && ! menu.contains(evento.relatedTarget) && evento.relatedTarget !== donoDoMenu) {
             fecharMenuDepois();

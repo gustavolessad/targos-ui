@@ -212,6 +212,8 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.3.21** — Na barra recolhida, a dica do item não pisca mais ao clicar
+  (era refeita a cada etapa do clique).
 - **1.3.2** — A barra recolhida mantém a margem lateral de `px-3`.
 - **1.3.1** — Na barra recolhida, a dica do item usa o mesmo cartão do menu
   do grupo (claro no tema claro, escuro no escuro).

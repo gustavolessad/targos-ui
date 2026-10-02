@@ -20,13 +20,14 @@
      * "em andamento" é `info`, um azul-claro bem longe do de ação.
      *
      * Os nomes são de significado, e as cores vêm dos tokens de
-     * `resources/css/app.css` (`success`, `warning`, `info`, `danger`):
+     * `resources/css/theme.css` (`success`, `warning`, `info`, `danger`, `accent`):
      *
      * - neutral: fora de circulação, sem alarme (rascunho, inativo, arquivado);
      * - success: no ar, deu certo (publicado, ativo, negócio fechado);
      * - warning: precisa de você (contato novo);
      * - info: em andamento (em atendimento);
-     * - violet: concluído no mercado (vendido, alugado);
+     * - accent: identidade, não estado (o tipo "Parcela" ao lado de "Avulsa");
+     *   `violet` é o nome antigo, e continua valendo.
      * - danger: problema.
      *
      * O contorno de dentro dá corpo ao selo sobre o fundo quase branco
@@ -40,7 +41,7 @@
         'success' => 'bg-success-500 text-white ring-success-600/20 dark:ring-success-400/30',
         'warning' => 'bg-warning-50 text-warning-800 ring-warning-600/25 dark:bg-warning-500/15 dark:text-warning-400 dark:ring-warning-400/20',
         'info' => 'bg-info-50 text-info-800 ring-info-600/20 dark:bg-info-500/15 dark:text-info-300 dark:ring-info-400/20',
-        'violet' => 'bg-violet-50 text-violet-800 ring-violet-600/20 dark:bg-violet-500/15 dark:text-violet-300 dark:ring-violet-400/20',
+        'accent' => 'bg-accent-50 text-accent-800 ring-accent-600/20 dark:bg-accent-500/15 dark:text-accent-300 dark:ring-accent-400/20',
         'danger' => 'bg-danger-600 text-white ring-danger-700/20 dark:bg-danger-500 dark:ring-danger-400/30',
         /*
          * Na cor de ação. Para rótulo de identidade (o tipo da nota),
@@ -48,6 +49,9 @@
          */
         'primary' => 'bg-primary-50 text-primary-800 ring-primary-600/20 dark:bg-primary-500/15 dark:text-primary-300 dark:ring-primary-400/20',
     ];
+
+    // O nome antigo do accent: quem já usava `color="violet"` não muda nada.
+    $cores['violet'] = $cores['accent'];
 @endphp
 
 @php

@@ -17,42 +17,37 @@ function mostrarToast(tipo, texto, segundos = 5) {
         return;
     }
 
+    const modelo = pilha.querySelector('template[data-toast-modelo]');
+
+    if (! modelo) {
+        return;
+    }
+
     /*
-     * Três tons: verde para o que deu certo, âmbar para o que pede
-     * atenção sem impedir, vermelho para o que falhou.
+     * Três tons, sem borda: verde para o que deu certo, âmbar para o que
+     * pede atenção sem impedir, vermelho para o que falhou. As mesmas do
+     * <x-ui.toast>; o Tailwind varre este arquivo, então são geradas.
      *
      * Sem o âmbar, um aviso de "a caixa passou do previsto" saía
      * vermelho e parecia erro — e a pessoa desfazia uma escolha que
      * era dela.
      */
     const cores = {
-        sucesso: 'bg-success-600 text-white ring-success-700',
+        sucesso: ['bg-success-600', 'text-white'],
         // Texto escuro: branco sobre o âmbar não se lê.
-        aviso: 'bg-warning-400 text-neutral-950 ring-warning-500',
-    }[tipo] ?? 'bg-danger-600 text-white ring-danger-700';
+        aviso: ['bg-warning-400', 'text-neutral-950'],
+    }[tipo] ?? ['bg-danger-600', 'text-white'];
 
-    const toast = document.createElement('div');
-    toast.dataset.toast = tipo;
     /*
-     * As mesmas classes do <x-ui.toast>, inclusive as da animação: o
-     * Tailwind varre este arquivo, então elas são geradas igual.
+     * O corpo vem do modelo que o <x-ui.toast> desenha (o mesmo botão de
+     * fechar, as mesmas classes de animação): o toast daqui e o do
+     * servidor saem do mesmo HTML.
      */
-    toast.className = `pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-xl
-        px-4 py-3 text-sm shadow-lg ring-1 translate-y-3 opacity-0 transition duration-300 ease-out
-        [&[data-visivel]]:translate-y-0 [&[data-visivel]]:opacity-100 ${cores}`;
+    const toast = modelo.content.firstElementChild.cloneNode(true);
+    toast.dataset.toast = tipo;
+    toast.classList.add(...cores);
+    toast.querySelector('[data-toast-texto]').textContent = texto;
 
-    const mensagem = document.createElement('span');
-    mensagem.className = 'flex-1';
-    mensagem.textContent = texto;
-
-    const fechar = document.createElement('button');
-    fechar.type = 'button';
-    fechar.dataset.fechaToast = '';
-    fechar.setAttribute('aria-label', 'Fechar');
-    fechar.className = 'shrink-0 cursor-pointer opacity-70 transition hover:opacity-100';
-    fechar.textContent = '×';
-
-    toast.append(mensagem, fechar);
     pilha.append(toast);
 
     entrar(toast);

@@ -35,12 +35,21 @@
         }
     }
 
-    // As mesmas cores do `mostrarToast` (ui/toast.js). O âmbar leva texto escuro: branco sobre ele não se lê.
+    // As mesmas cores do `mostrarToast` (ui/toast.js), sem borda. O âmbar leva texto escuro: branco sobre ele não se lê.
     $cores = [
-        'sucesso' => 'bg-success-600 text-white ring-success-700',
-        'aviso' => 'bg-warning-400 text-neutral-950 ring-warning-500',
-        'erro' => 'bg-danger-600 text-white ring-danger-700',
+        'sucesso' => 'bg-success-600 text-white',
+        'aviso' => 'bg-warning-400 text-neutral-950',
+        'erro' => 'bg-danger-600 text-white',
     ];
+
+    /*
+     * O corpo de todo toast, o do servidor e o do JavaScript: o
+     * `mostrarToast` clona o <template> abaixo, então os dois saem do
+     * mesmo HTML (o mesmo botão de fechar, a mesma animação).
+     */
+    $base = 'pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-xl py-2 ps-4 pe-2 text-sm shadow-lg '
+        .'translate-y-3 opacity-0 transition duration-300 ease-out '
+        .'[&[data-visivel]]:translate-y-0 [&[data-visivel]]:opacity-100';
 
     /*
      * Só a primeira mensagem de validação.
@@ -64,17 +73,23 @@
         <div data-toast="{{ $mensagem['tipo'] }}"
              {{-- O erro e o aviso ficam até o X: muitas vezes é a mensagem da API, que só existe aqui. --}}
              @if ($mensagem['tipo'] !== 'sucesso') data-toast-fica @endif
-             class="pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-xl px-4 py-3
-                    text-sm shadow-lg ring-1
-                    translate-y-3 opacity-0 transition duration-300 ease-out
-                    [&[data-visivel]]:translate-y-0 [&[data-visivel]]:opacity-100
-                    {{ $cores[$mensagem['tipo']] }}">
-            <span class="flex-1">{{ $mensagem['texto'] }}</span>
+             class="{{ $base }} {{ $cores[$mensagem['tipo']] }}">
+            <span class="flex-1 py-1" data-toast-texto>{{ $mensagem['texto'] }}</span>
 
-            <button type="button" data-fecha-toast aria-label="Fechar"
-                    class="shrink-0 cursor-pointer opacity-70 transition hover:opacity-100">
+            <x-ui.button variant="ghost-contrast" size="icon-xs" data-fecha-toast aria-label="Fechar" class="shrink-0">
                 <x-ui.icon name="x" class="size-4" />
-            </button>
+            </x-ui.button>
         </div>
     @endforeach
+
+    {{-- O modelo do `mostrarToast`: a cor e o texto entram no clone. --}}
+    <template data-toast-modelo>
+        <div class="{{ $base }}">
+            <span class="flex-1 py-1" data-toast-texto></span>
+
+            <x-ui.button variant="ghost-contrast" size="icon-xs" data-fecha-toast aria-label="Fechar" class="shrink-0">
+                <x-ui.icon name="x" class="size-4" />
+            </x-ui.button>
+        </div>
+    </template>
 </div>

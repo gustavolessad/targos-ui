@@ -181,6 +181,24 @@
     --color-info-800: var(--color-sky-800);
     --color-info-900: var(--color-sky-900);
     --color-info-950: var(--color-sky-950);
+
+    /*
+     * accent — identidade e destaque, não ação nem estado: o rótulo que
+     * diferencia uma coisa de outra (o tipo "Parcela" ao lado de "Avulsa"),
+     * sem parecer clicável (isso é o primary) nem dizer como ela está
+     * (isso são as cores de significado acima). Aponta para o violet.
+     */
+    --color-accent-50: var(--color-violet-50);
+    --color-accent-100: var(--color-violet-100);
+    --color-accent-200: var(--color-violet-200);
+    --color-accent-300: var(--color-violet-300);
+    --color-accent-400: var(--color-violet-400);
+    --color-accent-500: var(--color-violet-500);
+    --color-accent-600: var(--color-violet-600);
+    --color-accent-700: var(--color-violet-700);
+    --color-accent-800: var(--color-violet-800);
+    --color-accent-900: var(--color-violet-900);
+    --color-accent-950: var(--color-violet-950);
 }
 
 /*

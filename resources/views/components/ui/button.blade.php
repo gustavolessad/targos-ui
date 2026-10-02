@@ -38,6 +38,12 @@
         // Sem moldura: ações de linha de tabela e de rodapé de modal.
         'ghost' => 'border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 focus:ring-neutral-400/30'
             .' dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white',
+        /*
+         * O ghost sobre fundo colorido (o toast, uma faixa de aviso): a cor
+         * do texto em volta, e o hover escurece um pouco o fundo, em vez do
+         * cinza claro do ghost, que some sobre o verde ou o vermelho.
+         */
+        'ghost-contrast' => 'border-transparent bg-transparent text-current opacity-80 hover:bg-black/10 hover:opacity-100 focus:ring-black/15',
     ];
 
     // Altura fixa, a mesma do campo de cada degrau; o botão só de ícone é quadrado nessa altura.

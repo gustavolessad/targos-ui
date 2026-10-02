@@ -408,6 +408,7 @@ php artisan view:cache
 |---|---|---|
 | Componente aparece sem estilo | CSS não foi gerado de novo | `npm run build` (ou deixe `npm run dev` rodando) |
 | Mudei o pacote e a tela não mudou | Cache das telas | `php artisan view:clear` |
+| A tela mostra textos como `…::ui.sidebar` no lugar dos componentes | Cache das telas de antes de trocar a origem do pacote (GitHub ↔ pasta local) | `php artisan view:clear` |
 | "Unable to locate a class or view for component [ui.x]" | Pacote não instalado ou nome errado | `composer show targos/ui`; confira o nome em `vendor/targos/ui/resources/views/components/ui` |
 | "Unable to locate … [layouts.panel]" | Os modelos não foram copiados | `php artisan vendor:publish --tag=ui-templates` |
 | Ícone não aparece | Nome não existe no Lucide | Confira em lucide.dev/icons |

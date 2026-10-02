@@ -203,6 +203,8 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.2.1** — Novo ícone de carregamento no botão que envia o formulário:
+  anel fino com um arco girando, no tamanho do texto do botão.
 - **1.2.0** — Os itens do `x-ui.nav-group` entram com animação ao abrir
   (`animate-descer`, novo token). Quem liga os módulos um a um no `app.js`
   acrescenta `ligarMenuLateral()`.

@@ -15,11 +15,20 @@
  * como um download) — neles a página continua, e o botão ficaria preso.
  */
 
-/** O círculo girando, do tamanho do ícone dos botões. */
+/*
+ * O anel girando. Um trilho apagado e um arco de um quarto de volta, de
+ * traço fino e pontas redondas: lê-se como "andando" sem pesar dentro
+ * do botão.
+ *
+ * O tamanho acompanha o texto do botão (`1.25em`), então serve do `xs`
+ * ao `xl` sem tabela de tamanhos; a cor é a do texto (`currentColor`),
+ * então serve a qualquer variante. A volta dura 0,7s: a de 1s do
+ * `animate-spin` parece lenta num envio que costuma levar menos que isso.
+ */
 const CARREGANDO = `
-    <svg aria-hidden="true" class="size-4 shrink-0 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"></path>
+    <svg aria-hidden="true" class="size-[1.25em] shrink-0 animate-spin [animation-duration:0.7s]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+        <circle class="opacity-20" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5"></circle>
+        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
     </svg>
     <span class="sr-only">Enviando…</span>`;
 

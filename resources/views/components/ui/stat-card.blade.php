@@ -2,7 +2,13 @@
     /** O que o número significa. */
     'label',
     'value',
-    /** O nome de um ícone do componente de ícones; sem ele, fica só o número. */
+    /**
+     * O que o número é, em uma ou duas frases: vira um ícone de
+     * informação no canto do card, com o texto na dica. É para o que o
+     * rótulo não cabe dizer — de onde vem o número, o que entra na conta.
+     */
+    'info' => null,
+    /** O nome de um ícone decorativo, no mesmo canto. Com `info`, quem aparece é a informação. */
     'icon' => null,
     /**
      * A cor do número, pelo significado: `neutral`, `danger`, `warning`, `success`, `info`.
@@ -20,6 +26,16 @@
      * pesado, para o card que é o assunto da tela — os do dashboard.
      */
     'size' => 'md',
+    /**
+     * O gráfico do pé do card: uma lista de números, na ordem do tempo.
+     * Fica encostado na base e nas laterais, na cor do card, sem eixos —
+     * mostra para onde o número foi, não cada valor.
+     */
+    'trend' => null,
+    /** O rótulo de cada ponto do gráfico (a data, o mês), para a dica dele. */
+    'trendLabels' => [],
+    /** Como os valores do gráfico aparecem na dica: `money`, `percent` ou, sem nada, número. */
+    'trendFormat' => null,
 ])
 
 {{--
@@ -38,6 +54,9 @@
     };
 
     $classesDoTamanho = $size === 'lg' ? 'text-3xl font-bold tracking-tight' : 'text-2xl font-semibold';
+
+    // O gráfico na cor do número; o card sem cor usa a de ação.
+    $corDoGrafico = in_array($color, ['danger', 'warning', 'success', 'info'], true) ? $color : 'primary';
 
     $classes = [
         /*
@@ -66,8 +85,37 @@
             @endif
         </div>
 
-        @if ($icon !== null)
+        @if ($info !== null)
+            {{--
+                `span`, e não botão: o card pode ser um link, e botão dentro
+                de link não vale. O clique na informação não segue o link —
+                quem clicou ali quer ler a dica, não trocar de tela.
+            --}}
+            <x-ui.tooltip :text="$info" side="left" class="shrink-0">
+                <span role="img" aria-label="{{ $info }}"
+                      onclick="event.preventDefault()"
+                      class="flex cursor-help items-center text-neutral-400 transition
+                             hover:text-neutral-600 dark:hover:text-neutral-200">
+                    <x-ui.icon name="info" class="size-4" />
+                </span>
+            </x-ui.tooltip>
+        @elseif ($icon !== null)
             <x-ui.icon :name="$icon" class="size-5 shrink-0 text-neutral-400" />
         @endif
     </div>
+
+    @if ($trend !== null)
+        {{--
+            Margens negativas do tamanho do padding do card (`p-4`): o
+            gráfico encosta na base e nas laterais. O canto de baixo do
+            desenho acompanha o do card — um ponto a menos, pela borda.
+        --}}
+        <div class="-mx-4 -mb-4 mt-3 [&_svg]:rounded-b-[11px]" data-tendencia>
+            <x-ui.chart type="area" sparkline height="56"
+                        :series="[['name' => $label, 'data' => array_values($trend)]]"
+                        :labels="array_values($trendLabels)"
+                        :format="$trendFormat"
+                        :colors="[$corDoGrafico]" />
+        </div>
+    @endif
 </{{ $href !== null ? 'a' : 'div' }}>

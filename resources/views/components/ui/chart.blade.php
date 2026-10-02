@@ -33,6 +33,11 @@
     // Empilha as séries umas sobre as outras, em vez de lado a lado.
     'stacked' => false,
     /*
+     * Miniatura: só o desenho, sem eixos, grade nem legenda, ocupando a
+     * caixa inteira. É o gráfico do pé do `ui.stat-card`.
+     */
+    'sparkline' => false,
+    /*
      * Qualquer opção do ApexCharts, mesclada por cima do padrão do
      * sistema: é a saída para o que as props acima não cobrem.
      */
@@ -48,6 +53,7 @@
         'format' => $format,
         'colors' => $colors,
         'stacked' => (bool) $stacked,
+        'sparkline' => (bool) $sparkline,
         'options' => (object) $options,
     ];
 @endphp

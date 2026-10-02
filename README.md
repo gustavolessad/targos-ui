@@ -246,6 +246,9 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.4.2** — `x-ui.stat-card`: `info` (ícone de informação com dica, no canto)
+  e `trend` (gráfico no pé do card, encostado na base e nas laterais).
+  `x-ui.chart` ganha `sparkline`.
 - **1.4.1** — `x-ui.stat-card` ganha `size="lg"`: número maior e mais pesado.
 - **1.4.0** — Gráficos: `<x-ui.chart>`, sobre o ApexCharts, com as cores, a
   fonte e o tema do design system. **Exige `npm install apexcharts` no

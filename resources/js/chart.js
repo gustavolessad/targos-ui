@@ -214,7 +214,20 @@ function opcoes(config, localidade) {
         },
     };
 
-    return mesclar(mesclar(mesclar(base, semEixo ? emFatias : comEixo), opcoesDoTema(config)), config.options);
+    /*
+     * A miniatura: a biblioteca tira eixos, grade e legenda e estica o
+     * desenho na caixa. O que sobra para acertar é o traço mais fino, a
+     * dica só com o rótulo e o valor, e nada de margem.
+     */
+    const miniatura = config.sparkline ? {
+        chart: { sparkline: { enabled: true } },
+        stroke: { width: 2 },
+        markers: { size: 0, hover: { size: 4 } },
+        grid: { padding: { left: 0, right: 0, top: 4, bottom: 0 } },
+        tooltip: { x: { show: true }, y: { title: { formatter: () => '' } }, marker: { show: false } },
+    } : {};
+
+    return mesclar(mesclar(mesclar(mesclar(base, semEixo ? emFatias : comEixo), miniatura), opcoesDoTema(config)), config.options);
 }
 
 function ler(elemento) {

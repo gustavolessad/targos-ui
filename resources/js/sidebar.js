@@ -33,12 +33,19 @@ const MARGEM = 8;
 /* O tempo para o mouse atravessar da barra ao menu do grupo sem ele fechar. */
 const ESPERA = 120;
 
-const DICA = 'pointer-events-none fixed z-50 w-max max-w-64 rounded-lg bg-neutral-900 px-2.5 py-1.5 text-xs font-medium'
-    + ' text-white shadow-lg ring-1 ring-black/5 dark:bg-white dark:text-neutral-900 dark:ring-black/10'
-    + ' origin-left animate-surgir';
+/*
+ * A superfície do que flutua ao lado da barra. A dica do item e o menu
+ * do grupo são o mesmo cartão — branco no claro, escuro no escuro —,
+ * para a coluna de ícones responder do mesmo jeito em toda a altura: o
+ * que muda de um para o outro é só o conteúdo.
+ */
+const CARTAO = 'fixed z-50 rounded-xl bg-white text-sm shadow-lg ring-1 ring-neutral-200'
+    + ' dark:bg-neutral-900 dark:ring-neutral-800 origin-left animate-surgir';
 
-const MENU = 'fixed z-50 min-w-48 rounded-xl bg-white p-1 text-sm shadow-lg ring-1 ring-neutral-200'
-    + ' dark:bg-neutral-900 dark:ring-neutral-800 origin-left animate-surgir [&>a]:py-2';
+// O nome do item, no peso e na cor em que ele aparece com a barra aberta.
+const DICA = `${CARTAO} pointer-events-none w-max max-w-64 px-3 py-2 font-medium text-neutral-900 dark:text-white`;
+
+const MENU = `${CARTAO} min-w-48 p-1 [&>a]:py-2`;
 
 const TITULO = 'px-3 pb-1 pt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400';
 

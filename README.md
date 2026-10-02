@@ -212,6 +212,8 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.3.1** — Na barra recolhida, a dica do item usa o mesmo cartão do menu
+  do grupo (claro no tema claro, escuro no escuro).
 - **1.3.0** — Barra lateral recolhível: `x-ui.sidebar-toggle`, variante
   `recolhida:`, slot `symbol` no `x-ui.sidebar`, dica com o nome do item e
   menu flutuante do grupo. O layout do projeto ganha as classes de largura

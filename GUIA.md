@@ -30,7 +30,7 @@ No `composer.json` do projeto, acrescente:
 ### Passo 2 — Instalar o pacote
 
 ```bash
-composer require targos/ui:^1.1
+composer require targos/ui:^1.2
 ```
 
 > O repositório é privado. Se o Composer pedir usuário e senha, é o acesso ao
@@ -340,16 +340,9 @@ Se a mudança serve a mais de um projeto, ela vai no pacote (próxima seção).
 
 ## 5. Mudar o pacote e lançar uma versão
 
-### Para testar a mudança num projeto antes de lançar
-
-No projeto, aponte para a pasta local do pacote:
-
-```bash
-composer config repositories.targos-ui '{"type":"path","url":"../targos-ui","options":{"symlink":true}}'
-composer require targos/ui:@dev
-```
-
-Agora o que você editar em `C:\Projetos\targos-ui` aparece no projeto na hora.
+Os projetos instalam o pacote **sempre pelo GitHub**, por versão. Não aponte
+um projeto para a pasta local do pacote: a mudança é feita aqui, lançada com
+uma tag, e só então chega aos projetos.
 
 ### Para lançar
 
@@ -372,12 +365,23 @@ Qual número subir:
 | Novidade que não quebra nada | Componente novo, prop nova | `1.1.0` → `1.2.0` |
 | Algo que quebra tela existente | Prop renomeada, componente removido | `1.1.0` → `2.0.0` |
 
-### Para o projeto voltar a usar a versão lançada
+### Para o projeto receber a versão lançada
+
+Na pasta do projeto:
 
 ```bash
-composer config repositories.targos-ui vcs https://github.com/gustavolessad/targos-ui.git
-composer require targos/ui:^1.2
+composer update targos/ui
+php artisan view:clear
+npm run build
 ```
+
+Se a versão nova subiu o primeiro número (`2.0.0`), o `update` não a pega
+sozinho: use `composer require targos/ui:^2.0`.
+
+### Se a versão lançada tiver um defeito
+
+Corrija no pacote e lance outra, de correção (`1.2.1` → `1.2.2`). Uma tag
+publicada não se altera.
 
 ---
 
@@ -408,7 +412,7 @@ php artisan view:cache
 |---|---|---|
 | Componente aparece sem estilo | CSS não foi gerado de novo | `npm run build` (ou deixe `npm run dev` rodando) |
 | Mudei o pacote e a tela não mudou | Cache das telas | `php artisan view:clear` |
-| A tela mostra textos como `…::ui.sidebar` no lugar dos componentes | Cache das telas de antes de trocar a origem do pacote (GitHub ↔ pasta local) | `php artisan view:clear` |
+| A tela mostra textos como `…::ui.sidebar` no lugar dos componentes | Cache das telas de uma instalação anterior do pacote | `php artisan view:clear` |
 | "Unable to locate a class or view for component [ui.x]" | Pacote não instalado ou nome errado | `composer show targos/ui`; confira o nome em `vendor/targos/ui/resources/views/components/ui` |
 | "Unable to locate … [layouts.panel]" | Os modelos não foram copiados | `php artisan vendor:publish --tag=ui-templates` |
 | Ícone não aparece | Nome não existe no Lucide | Confira em lucide.dev/icons |

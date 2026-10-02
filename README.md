@@ -39,21 +39,12 @@ de deploy ou token do GitHub no `auth.json` do Composer).
     { "type": "vcs", "url": "https://github.com/gustavolessad/targos-ui.git" }
 ],
 "require": {
-    "targos/ui": "^1.0"
+    "targos/ui": "^1.2"
 }
 ```
 
-Para mexer no pacote e ver o resultado na hora num projeto ao lado, troque o
-repositório pelo caminho local:
-
-```json
-"repositories": [
-    { "type": "path", "url": "../targos-ui", "options": { "symlink": true } }
-],
-"require": {
-    "targos/ui": "@dev"
-}
-```
+O pacote é sempre instalado pelo Git, por versão. Uma mudança só chega aos
+projetos depois de uma tag nova (veja o [GUIA](GUIA.md), seção 5).
 
 ### 2. Dependências de front
 
@@ -203,6 +194,8 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.2.2** — Documentação: o pacote é sempre instalado pelo Git; saem as
+  instruções de apontar o projeto para a pasta local.
 - **1.2.1** — Novo ícone de carregamento no botão que envia o formulário:
   anel fino com um arco girando, no tamanho do texto do botão.
 - **1.2.0** — Os itens do `x-ui.nav-group` entram com animação ao abrir

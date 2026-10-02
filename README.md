@@ -194,6 +194,8 @@ a página.
 
 Versionamento por tag do Git.
 
+- **1.2.3** — Itens do menu lateral mais altos (`p-3`) e com ícone maior
+  (`size-5`), no item simples e no título do grupo.
 - **1.2.2** — Documentação: o pacote é sempre instalado pelo Git; saem as
   instruções de apontar o projeto para a pasta local.
 - **1.2.1** — Novo ícone de carregamento no botão que envia o formulário:

@@ -12,7 +12,7 @@
 <a href="{{ $href }}"
    @if ($ativo) aria-current="page" @endif
    {{ $attributes->class([
-       'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
+       'group flex items-center gap-3 rounded-lg p-3 text-sm font-medium transition',
        // Em repouso, a cor do título da página; o hover só ganha fundo. O ativo: fundo azul-claro e texto bem escuro.
        'text-neutral-900 hover:bg-neutral-100 hover:text-neutral-950' => ! $ativo,
        'dark:text-white dark:hover:bg-white/5 dark:hover:text-white' => ! $ativo,
@@ -21,7 +21,7 @@
    ]) }}>
     @if ($icon)
         <x-ui.icon :name="$icon" @class([
-            'size-4 shrink-0 transition',
+            'size-5 shrink-0 transition',
             'text-neutral-500 group-hover:text-neutral-800' => ! $ativo,
             'dark:text-neutral-400 dark:group-hover:text-neutral-200' => ! $ativo,
             'text-primary-600 dark:text-primary-400' => $ativo,

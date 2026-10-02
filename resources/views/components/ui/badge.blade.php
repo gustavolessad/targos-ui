@@ -2,6 +2,13 @@
     'color' => 'neutral',
     // md (padrão, nas tabelas) | lg (destaque, no card principal das telas de detalhe)
     'size' => 'md',
+    /*
+     * Um ícone do Lucide antes do texto. Sem texto, o selo é só o ícone e
+     * fica redondo (o mesmo respiro nos quatro lados): para o estado que
+     * aparece ao lado de outra informação, com o nome numa dica. Nesse
+     * caso, dê o nome no `aria-label`.
+     */
+    'icon' => null,
 ])
 
 @php
@@ -43,8 +50,19 @@
     ];
 @endphp
 
+@php
+    $soIcone = $icon !== null && $slot->isEmpty();
+
+    $espaco = match (true) {
+        $soIcone => $size === 'lg' ? 'p-1.5' : 'p-1',
+        $size === 'lg' => 'px-3 py-1 text-sm',
+        default => 'px-2 py-0.5 text-xs',
+    };
+@endphp
+
 <span {{ $attributes->class([
     'inline-flex items-center rounded-full font-medium ring-1 ring-inset',
-    $size === 'lg' ? 'px-3 py-1 text-sm' : 'px-2 py-0.5 text-xs',
+    'gap-1' => $icon !== null && ! $soIcone,
+    $espaco,
     $cores[$color] ?? $cores['neutral'],
-]) }}>{{ $slot }}</span>
+]) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$size === 'lg' ? 'size-4' : 'size-3.5'" />@endif{{ $slot }}</span>

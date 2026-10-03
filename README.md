@@ -580,6 +580,11 @@ Numa listagem com o menu montado por modelo, os valores da linha vão no
 `values` do `x-ui.dropdown` como objeto, e no modelo `{editar.valores}` sai
 como JSON — pronto para o `data-form-valores='{editar.valores}'`.
 
+Dois atributos a mais no botão que abre o modal: `data-form="id"` aponta
+qual `<form>` preencher quando o modal tem mais de um (por padrão é o
+primeiro), e `data-modal-titulo="Cancelar NF-e 1/15"` escreve o título no
+`<h2>` do modal, para quem age sobre uma linha ver de qual linha se trata.
+
 ## Máscaras
 
 ```blade

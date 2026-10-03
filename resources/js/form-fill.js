@@ -81,12 +81,37 @@ function formularioDe(botao) {
     return modal?.querySelector('form') ?? botao.closest('form');
 }
 
+let ligado = false;
+
 export function ligarPreenchimentos() {
+    // Um ouvinte só no `document`: chamar de novo (depois de inserir HTML) não duplica.
+    if (ligado) {
+        return;
+    }
+
+    ligado = true;
+
     document.addEventListener('click', (evento) => {
-        const botao = evento.target.closest('[data-form-valores], [data-form-action]');
+        const botao = evento.target.closest('[data-form-valores], [data-form-action], [data-modal-titulo]');
 
         if (! botao) {
             return;
+        }
+
+        /*
+         * O título do modal que serve a várias linhas ("Cancelar NF-e
+         * 1/15", "Logo de Nike"): o botão que abre o modal o traz em
+         * `data-modal-titulo`, e ele vai para o `[data-modal-titulo]` do
+         * modal (o `<h2>` do x-ui.modal) e para o `aria-label` da caixa.
+         */
+        if (botao.dataset.modalTitulo !== undefined && botao.dataset.abreModal) {
+            const modal = document.getElementById(botao.dataset.abreModal);
+            const titulo = modal?.querySelector('[data-modal-titulo]');
+
+            if (titulo) {
+                titulo.textContent = botao.dataset.modalTitulo;
+                modal.querySelector('[role="dialog"]')?.setAttribute('aria-label', botao.dataset.modalTitulo);
+            }
         }
 
         const formulario = formularioDe(botao);

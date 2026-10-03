@@ -20,6 +20,13 @@
     'max' => null,
     /** Quanto o − e o + andam. */
     'step' => 1,
+    /*
+     * O campo pode ficar em branco: ao sair, o vazio continua vazio em
+     * vez de virar o `min`, e os limites valem só para o que foi
+     * digitado. Para a contagem em que "em branco" é "não contado" e 0 é
+     * "contei zero". O − num campo vazio dá o `min` (ou 0), sem descer.
+     */
+    'nullable' => false,
     'placeholder' => null,
     /*
      * O `id` do campo. Sem ele, sai do nome (`items[0][qty]` →
@@ -79,6 +86,18 @@
 
     $naCelula = $size === 'cell';
     [$medidas, $recuoDoBotao, $icone] = $tamanhos[$size] ?? $tamanhos['md'];
+
+    /*
+     * Na célula não há rótulo nem linha de erro: o `label` vira o nome
+     * acessível do campo, e o erro vai na borda, no `aria-invalid` e no
+     * `title` (a mensagem, ao passar o mouse). Como padrões do `merge`:
+     * o `aria-label` passado de fora vence.
+     */
+    $naCelulaAcessivel = $naCelula ? array_filter([
+        'aria-label' => $label,
+        'aria-invalid' => $temErro ? 'true' : null,
+        'title' => $temErro ? $errors->first($chave) : null,
+    ]) : [];
 @endphp
 
 @if ($naCelula)
@@ -98,14 +117,18 @@
            @if ($min !== null) data-min="{{ $min }}" @endif
            @if ($max !== null) data-max="{{ $max }}" @endif
            data-step="{{ $step }}"
-           {{ $attributes->merge(['autocomplete' => 'off'])->class([
-               'rounded border border-neutral-300 bg-transparent text-neutral-900 tabular-nums transition',
-               'placeholder:text-neutral-400 hover:border-neutral-400',
-               'focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none',
+           @if ($nullable) data-nullable @endif
+           {{ $attributes->merge(['autocomplete' => 'off', ...$naCelulaAcessivel])->class([
+               'rounded border bg-transparent text-neutral-900 tabular-nums transition',
+               'placeholder:text-neutral-400',
+               'focus:ring-2 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',
-               'dark:border-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:hover:border-neutral-600',
+               'dark:text-white dark:placeholder:text-neutral-500',
                'px-2 py-1 text-sm',
                $width ?? 'w-full',
+               // A borda de erro é a mesma do tamanho normal: na célula não há onde escrever a mensagem, e a cor é o aviso.
+               'border-neutral-300 hover:border-neutral-400 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-800 dark:hover:border-neutral-600' => ! $temErro,
+               'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
            ]) }}>
 @else
     <div class="group {{ $width }}" data-numero>
@@ -125,6 +148,7 @@
                    @if ($min !== null) data-min="{{ $min }}" @endif
                    @if ($max !== null) data-max="{{ $max }}" @endif
                    data-step="{{ $step }}"
+                   @if ($nullable) data-nullable @endif
                    {{ $attributes->merge(['autocomplete' => 'off'])->class([
                        'block w-full rounded-lg border text-neutral-900 tabular-nums',
                        'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
@@ -166,7 +190,7 @@
         @if ($temErro)
             <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
         @elseif ($hint)
-            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
         @endif
     </div>
 @endif

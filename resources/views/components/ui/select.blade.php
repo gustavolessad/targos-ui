@@ -89,6 +89,15 @@
      * o mesmo campo, para o rótulo de um não apontar para o do outro.
      */
     'id' => null,
+    /*
+     * Só leitura: o gatilho não abre o painel e fica com a cara de
+     * campo só de leitura, mas o `<select>` continua no envio — ao
+     * contrário de `disabled`, que o tira do formulário. Para o campo
+     * que a tela decidiu (o tipo da nota, fixado pela operação) e ainda
+     * precisa chegar ao servidor. Vai como `data-readonly` no nativo,
+     * que o select.js lê também quando posto ou tirado depois por script.
+     */
+    'readonly' => false,
 ])
 
 @php
@@ -365,6 +374,7 @@
             @if ($multiple) multiple @endif
             @required($required)
             data-seletor-nativo
+            @if ($readonly) data-readonly @endif
             {{ $attributes->except('id')->class($caixa) }}>
         @if ($placeholder !== null && ! $multiple)
             <option value="">{{ $placeholder }}</option>
@@ -403,17 +413,25 @@
         O gatilho: a cara do campo quando o JavaScript liga. Já vem com o
         texto certo do servidor, para a troca não piscar.
     --}}
+    {{--
+        Só leitura (`aria-readonly`): o fundo apagado do desligado, mas o
+        texto na cor normal — o valor é para ser lido — e sem o anel de
+        foco de aberto, porque não abre. O gatilho continua no Tab, como
+        um input só de leitura.
+    --}}
     <button type="button"
             hidden
             data-seletor-gatilho
             aria-haspopup="listbox"
             aria-expanded="false"
             aria-controls="{{ $idDoPainel }}"
+            @if ($readonly) aria-readonly="true" @endif
             @class([
                 ...$caixa,
                 'flex cursor-pointer items-center gap-2 text-start',
                 'aria-disabled:cursor-not-allowed aria-disabled:bg-neutral-100 aria-disabled:text-neutral-500',
                 'dark:aria-disabled:bg-neutral-900/50',
+                'aria-readonly:cursor-default aria-readonly:bg-neutral-100 dark:aria-readonly:bg-neutral-900/50',
             ])>
         @if ($multiple)
             {{--
@@ -500,6 +518,6 @@
     @if ($temErro)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $erro }}</p>
     @elseif ($hint)
-        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
     @endif
 </div>

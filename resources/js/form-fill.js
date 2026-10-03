@@ -48,6 +48,20 @@ export function escreverNoCampo(campo, valor) {
     campo.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
+/** O valor como texto, para quem o mostra e não o envia: nulo é nada, a lista vem separada por vírgula. */
+export function textoDoValor(valor) {
+    if (valor === null || valor === undefined || valor === false) {
+        return '';
+    }
+
+    return Array.isArray(valor) ? valor.map(textoDoValor).filter((parte) => parte !== '').join(', ') : String(valor);
+}
+
+/** Se a chave "tem valor": nulo, `false`, texto vazio e lista vazia não têm; `0` tem. */
+export function temValor(valor) {
+    return textoDoValor(valor).trim() !== '';
+}
+
 /**
  * Preenche o formulário com `valores` (`{ nome: valor }`), campo a campo
  * pelo `name`. Nomes de lista aceitam a notação do Laravel
@@ -56,6 +70,12 @@ export function escreverNoCampo(campo, valor) {
  * Um campo que não existe no formulário é ignorado; um `_action` ou
  * `action` nos valores NÃO troca o destino (isso é `data-form-action`,
  * de propósito separado: o destino de um POST não vem de dados).
+ *
+ * Além dos campos, o que só se mostra: `[data-form-texto="chave"]` recebe
+ * o valor da chave em `textContent` (o nome do cliente no modal de
+ * baixa), e `[data-form-se="chave"]` fica à vista só quando a chave tem
+ * valor (a linha da observação, quando há observação). Dentro do
+ * formulário, como os campos.
  */
 export function preencherFormulario(formulario, valores) {
     Object.entries(valores ?? {}).forEach(([chave, valor]) => {
@@ -68,12 +88,17 @@ export function preencherFormulario(formulario, valores) {
         const campos = [...formulario.querySelectorAll(`[name="${CSS.escape(nome)}"]`)]
             .filter((campo) => ! (campo.type === 'hidden' && 'falsy' in campo.dataset));
 
-        if (campos.length === 0) {
-            return;
-        }
-
         // Um grupo de rádios: o valor escolhe qual; os demais campos: todos recebem.
         campos.forEach((campo) => escreverNoCampo(campo, valor));
+
+        // Os textos e os blocos vão pela chave como foi escrita nos dados (`cliente.nome` inclusive).
+        formulario.querySelectorAll(`[data-form-texto="${CSS.escape(chave)}"]`).forEach((elemento) => {
+            elemento.textContent = textoDoValor(valor);
+        });
+
+        formulario.querySelectorAll(`[data-form-se="${CSS.escape(chave)}"]`).forEach((elemento) => {
+            elemento.hidden = ! temValor(valor);
+        });
     });
 }
 

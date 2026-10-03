@@ -67,13 +67,27 @@
     tela que a resolve.
 --}}
 @php
-    $classesDoNumero = match ($color) {
-        'danger' => 'text-danger-600 dark:text-danger-400',
-        'warning' => 'text-warning-600 dark:text-warning-400',
-        'success' => 'text-success-600 dark:text-success-400',
-        'info' => 'text-info-600 dark:text-info-400',
-        default => 'text-neutral-900 dark:text-white',
-    };
+    /*
+     * A cor do número sai do `data-cor` do próprio `<p>`, e não de uma
+     * classe escolhida aqui: um script que refaz o total (o resumo que
+     * muda com o filtro, sem recarregar) troca `textContent` e
+     * `dataset.cor`, e a cor acompanha. A prop `color` é só o valor
+     * inicial. As variantes estão escritas por extenso para o Tailwind
+     * as enxergar; o `neutral` é o padrão, sem variante.
+     *
+     * No `filled`, o número fica no contraste do card, seja qual for o
+     * `data-cor`: as variantes de cor não entram, e nada as vence.
+     */
+    $classesDoNumero = $variant === 'filled' ? 'text-primary-contrast' : implode(' ', [
+        'text-neutral-900 dark:text-white',
+        'data-[cor=danger]:text-danger-600 dark:data-[cor=danger]:text-danger-400',
+        'data-[cor=warning]:text-warning-600 dark:data-[cor=warning]:text-warning-400',
+        'data-[cor=success]:text-success-600 dark:data-[cor=success]:text-success-400',
+        'data-[cor=info]:text-info-600 dark:data-[cor=info]:text-info-400',
+    ]);
+
+    $cores = ['neutral', 'danger', 'warning', 'success', 'info'];
+    $corDoNumero = in_array($color, $cores, true) ? $color : 'neutral';
 
     $classesDoTamanho = match ($size) {
         'sm' => 'text-2xl font-bold tracking-tight',
@@ -129,7 +143,8 @@
         <div class="min-w-0">
             <p class="truncate text-sm font-medium text-neutral-900 dark:text-white">{{ $label }}</p>
 
-            <p class="mt-1 {{ $classesDoTamanho }} {{ $classesDoNumero }}">{{ $value }}</p>
+            {{-- `data-stat-valor`: o gancho para o script que troca o número (e a cor, pelo `data-cor`). --}}
+            <p class="mt-1 {{ $classesDoTamanho }} {{ $classesDoNumero }}" data-stat-valor data-cor="{{ $corDoNumero }}">{{ $value }}</p>
         </div>
 
         @if ($info !== null)

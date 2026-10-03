@@ -18,7 +18,12 @@ import { paraBusca } from './search.js';
  *   nativo (quem esconder ou desligar uma opção é obedecido);
  * - o `value` do nativo ganha um setter que redesenha o gatilho, porque
  *   `select.value = x` vindo de outro script não dispara evento nenhum;
- * - um observador acompanha o `disabled`.
+ * - um observador acompanha o `disabled` e o só leitura.
+ *
+ * Só leitura (`data-readonly`, ou `readonly`, no nativo — o `<select>`
+ * não tem o atributo, mas um script pode pô-lo mesmo assim): o gatilho
+ * não abre e ganha `aria-readonly`, e o nativo continua no envio. É o
+ * que `disabled` não dá: desligado, o campo não vai no formulário.
  *
  * Uma opção pode dizer mais que o rótulo: a segunda linha
  * (`data-caption`, o código e o saldo do produto) e os dados que a tela
@@ -332,6 +337,11 @@ function montarSeletor(campo) {
     // Várias escolhas: quem diz é o nativo (`<select multiple>`), como para todo o resto.
     const multiplo = nativo.multiple;
 
+    // Lido na hora: outro script pode pôr ou tirar depois (o observador abaixo redesenha o gatilho).
+    const soLeitura = () => nativo.hasAttribute('data-readonly') || nativo.hasAttribute('readonly');
+    // Desligado ou só leitura, nada aqui muda a escolha.
+    const travado = () => nativo.disabled || soLeitura();
+
     /** Os valores escolhidos agora, na ordem das opções (as escondidas pela busca inclusive). */
     const valoresEscolhidos = () => Array.from(nativo.selectedOptions, (opcao) => opcao.value).filter((valor) => valor !== '');
 
@@ -364,7 +374,7 @@ function montarSeletor(campo) {
             rotulo.textContent = label;
             chip.append(rotulo);
 
-            if (! nativo.disabled) {
+            if (! travado()) {
                 const tirar = document.createElement('span');
                 tirar.className = '-me-0.5 cursor-pointer rounded-full px-0.5 leading-none text-neutral-400 hover:text-neutral-700 dark:hover:text-white';
                 tirar.dataset.seletorTirar = value;
@@ -379,7 +389,7 @@ function montarSeletor(campo) {
         });
 
         if (limpar) {
-            limpar.disabled = chips.length === 0 || nativo.disabled;
+            limpar.disabled = chips.length === 0 || travado();
         }
 
         const marcados = new Set(chips.map((chip) => chip.value));
@@ -396,6 +406,13 @@ function montarSeletor(campo) {
     const desenharGatilho = () => {
         gatilho.setAttribute('aria-disabled', String(nativo.disabled));
         gatilho.tabIndex = nativo.disabled ? -1 : 0;
+
+        // Só leitura fica no Tab (como um input só de leitura): dá para chegar nele e ler o valor.
+        if (soLeitura()) {
+            gatilho.setAttribute('aria-readonly', 'true');
+        } else {
+            gatilho.removeAttribute('aria-readonly');
+        }
 
         if (multiplo) {
             desenharChips();
@@ -432,7 +449,7 @@ function montarSeletor(campo) {
 
     new MutationObserver(desenharGatilho).observe(nativo, {
         attributes: true,
-        attributeFilter: ['disabled'],
+        attributeFilter: ['disabled', 'readonly', 'data-readonly'],
         childList: true,
         subtree: true,
     });
@@ -727,7 +744,7 @@ function montarSeletor(campo) {
     };
 
     const abrir = () => {
-        if (nativo.disabled) {
+        if (travado()) {
             return;
         }
 
@@ -825,7 +842,7 @@ function montarSeletor(campo) {
             return;
         }
 
-        if (! nativo.disabled) {
+        if (! travado()) {
             definirValores(valoresEscolhidos().filter((valor) => valor !== tirar.dataset.seletorTirar));
 
             if (! aberto()) {

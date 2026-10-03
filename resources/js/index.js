@@ -34,6 +34,7 @@ import { ligarArquivos } from './file.js';
 import { ligarImagens } from './image.js';
 import { ligarFiltros } from './filters.js';
 import { ligarPreenchimentos } from './form-fill.js';
+import { ligarCondicionais } from './conditional.js';
 import { ligarNaoSalvo } from './unsaved.js';
 import { ligarEnvios } from './submit.js';
 
@@ -68,7 +69,8 @@ export { ligarRepetidores, adicionarLinha, limparLinhas, substituirIndice, proxi
 export { tamanhoLegivel, aceita, resumoDosArquivos, conferirArquivos, ligarArquivos } from './file.js';
 export { ligarImagens, definirImagemGravada } from './image.js';
 export { ligarFiltros, camposForaDaUrl, enviaAoMudar } from './filters.js';
-export { ligarPreenchimentos, preencherFormulario, escreverNoCampo } from './form-fill.js';
+export { ligarPreenchimentos, preencherFormulario, escreverNoCampo, textoDoValor, temValor } from './form-fill.js';
+export { ligarCondicionais, interpretarCondicao, condicaoVale } from './conditional.js';
 
 /**
  * Liga tudo, na ordem certa.
@@ -106,6 +108,7 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarImagens();
     ligarFiltros();
     ligarPreenchimentos();
+    ligarCondicionais();
 
     antesDosEnvios();
 

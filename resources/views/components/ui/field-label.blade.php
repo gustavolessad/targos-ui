@@ -25,7 +25,8 @@
     <label @if ($for) for="{{ $for }}" @endif
            class="block text-sm font-medium text-neutral-700 dark:text-neutral-300
                   group-has-disabled:text-neutral-400 dark:group-has-disabled:text-neutral-500">
-        {{ $label }}
+        {{-- `data-campo-rotulo`: só o texto, para um script trocá-lo ("CPF" → "CNPJ") sem levar o asterisco junto. --}}
+        <span data-campo-rotulo>{{ $label }}</span>
 
         @if ($required)
             <span class="text-danger-500">*</span>

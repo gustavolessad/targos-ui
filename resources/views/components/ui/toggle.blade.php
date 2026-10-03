@@ -95,6 +95,6 @@
     @enderror
 
     @if ($hint && ! $errors->has($chave))
-        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
     @endif
 </div>

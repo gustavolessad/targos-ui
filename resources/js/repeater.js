@@ -23,6 +23,7 @@ import { ligarDinheiro } from './money.js';
 import { ligarNumeros } from './number.js';
 import { ligarPercentuais } from './percent.js';
 import { ligarDicas } from './tooltip.js';
+import { ligarCondicionais } from './conditional.js';
 
 /** O que o Blade põe no lugar do índice, no modelo. */
 const MARCA = '__i__';
@@ -114,6 +115,11 @@ function atualizar(envelope) {
         vazio.hidden = total > 0;
     });
 
+    // O cabeçalho das colunas só faz sentido com linhas embaixo: sem nenhuma, some junto com o texto de vazio.
+    doRepetidor(envelope, '[data-repetidor-cabecalho]').forEach((cabecalho) => {
+        cabecalho.hidden = total === 0;
+    });
+
     linhas.forEach((linha, posicao) => {
         daLinha(linha, '[data-repetidor-remover]').forEach((botao) => {
             botao.hidden = ! removivel;
@@ -149,6 +155,8 @@ function ligarCampos(linha) {
     ligarPercentuais(linha);
     ligarDicas(linha);
     ligarPeriodos(linha);
+    // O bloco condicional da linha (`data-mostra-quando`) parte do estado dos campos dela, que acabaram de nascer.
+    ligarCondicionais(linha);
 }
 
 /*
@@ -175,9 +183,12 @@ function primeiroCampo(linha) {
  *
  * Exposta para o projeto que adiciona por outro caminho — o produto
  * escolhido numa busca vira um item da venda: com a linha na mão, ele
- * preenche os campos.
+ * preenche os campos. `focar: false` deixa o foco onde está: quem
+ * adiciona várias de uma vez (os itens de um pedido importado), ou a
+ * partir de uma busca em que a pessoa continua digitando, não quer o
+ * foco pulando para cada linha nova.
  */
-export function adicionarLinha(envelope) {
+export function adicionarLinha(envelope, { focar = true } = {}) {
     const modelo = doRepetidor(envelope, 'template[data-repetidor-modelo]')[0];
     const linhas = linhasDe(envelope);
 
@@ -209,7 +220,10 @@ export function adicionarLinha(envelope) {
     ligarCampos(linha);
     atualizar(envelope);
 
-    primeiroCampo(linha)?.focus();
+    if (focar) {
+        primeiroCampo(linha)?.focus();
+    }
+
     avisar(envelope, 'adicionado', linha);
 
     return linha;

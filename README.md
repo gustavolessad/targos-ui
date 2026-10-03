@@ -236,6 +236,7 @@ no `document`, com `detail: { grupo, aba }`.
 | `prefetch` | Com `source`: busca as primeiras opções assim que o JavaScript liga, e o primeiro clique abre sem esperar. Elas ficam guardadas até alguém digitar. Sem `prefetch`, cada abertura busca de novo |
 | `remember` | Lembra o enviado quando o formulário volta com erro (padrão). `:remember="false"` no select que não foi enviado — o filtro da listagem com o mesmo nome do campo do modal — para ele não mostrar o valor do outro |
 | `hint` | A linha de apoio embaixo do campo, como no `x-ui.input` |
+| `readonly` | Só leitura: o gatilho não abre o painel e fica com o fundo apagado (`aria-readonly`), mas o `<select>` **continua no envio** — ao contrário de `disabled`, que o tira do formulário. Vai como `data-readonly` no `<select>`; posto ou tirado depois por script (`select.toggleAttribute('data-readonly', true)`), o gatilho acompanha, como acompanha o `disabled` |
 | `multiple` | Várias escolhas: `<select multiple>` com nome de lista (`roles[]`; sem os colchetes, eles entram sozinhos). As escolhidas vêm do `old()` ou do `selected` (array ou Collection). O gatilho mostra chips com "×"; o painel tem uma caixa por opção, com "Limpar" e "Concluir". `required` é "ao menos uma" |
 
 O `caption` é a segunda linha da opção no painel, em letra menor; o gatilho e o
@@ -355,6 +356,34 @@ mesma linha) e `footer` (rodapé com fundo próprio e o mesmo respiro do corpo):
 </x-ui.card>
 ```
 
+`tone` é o fundo: `raised` (padrão, o card sobre o painel), `sunken` (um
+bloco dentro de outro card) ou `success`, `info`, `warning`, `danger` —
+fundo e borda tingidos de leve, menos que o `x-ui.alert`, para o quadro de
+destaque (o resumo de totais):
+
+```blade
+<x-ui.card tone="success" title="Resumo">…</x-ui.card>
+```
+
+### Card de indicador
+
+```blade
+<x-ui.stat-card label="Vencidos" value="R$ 1.200,00" color="danger" />
+```
+
+`color` (`neutral`, `danger`, `warning`, `success`, `info`) é a cor inicial
+do número. O `<p>` do número leva `data-stat-valor` e `data-cor`, e a cor sai
+do `data-cor`: um script que refaz o total sem recarregar troca os dois —
+
+```js
+const numero = card.querySelector('[data-stat-valor]');
+numero.textContent = 'R$ 0,00';
+numero.dataset.cor = 'success';
+```
+
+No `variant="filled"` o número fica no contraste do card, seja qual for o
+`data-cor`.
+
 ## Gráficos
 
 ```blade
@@ -390,7 +419,8 @@ ApexCharts fica em `elemento.grafico`.
 | `data-monta-menu="nome"` + `data-menu-valores` | Monta o menu na primeira abertura, copiando o `<template data-modelo-menu="nome">` da página (vêm de `x-ui.dropdown template` e `x-ui.dropdown-template`; veja o GUIA) |
 | `data-mostra-se="chave"` | No modelo do menu, o elemento só fica se a linha tiver a chave |
 | `data-codigo-unico` | No modelo do menu, o campo ganha um código novo em cada cópia |
-| `data-confirmar="texto"` | Pergunta antes de enviar o formulário; `data-confirmar-perigo` pinta de vermelho |
+| `data-confirmar="texto"` | Pergunta antes de enviar o formulário; `data-confirmar-perigo` pinta de vermelho; `data-confirmar-titulo` e `data-confirmar-botao` trocam o título e o texto do "Confirmar" só nessa pergunta (no formulário ou no botão que envia; o botão vence). Um `\n` no texto quebra a linha |
+| `data-mostra-quando="campo=valor"` | O bloco só aparece quando o campo tem aquele valor (veja "Bloco condicional") |
 | `data-copiar="texto"` | Copia e avisa com um toast; dispara o evento `ui:copiado` |
 | `data-imprimir` | Abre a impressão do navegador |
 | `data-troca-tema` | Alterna claro e escuro |
@@ -411,8 +441,16 @@ ApexCharts fica em `elemento.grafico`.
 | `allow-zero` | "0" digitado vale R$ 0,00 e grava `0.00`; o `min` padrão vira 0 |
 | `min` | O menor valor. Sem ele: 0,01, ou 0 com `allow-zero`. Abaixo de zero, ou `:min="false"` (sem limite), o campo aceita negativo: o "-" troca o sinal e -1.500,00 grava `-1500.00` |
 | `id` | O id do campo. Padrão: o nome sem colchetes (`items-0-cost`); o campo visível é `{id}-texto` |
-| `size` | `xs` a `lg`, ou `cell`: só o campo, para tabela (sem rótulo, erro, dica e sem o "R$" — quem diz a moeda é o cabeçalho da coluna). No `x-ui.percent`, o `cell` mantém o "%" menor |
+| `size` | `xs` a `lg`, ou `cell`: só o campo, para tabela (sem rótulo, dica e sem o "R$" — quem diz a moeda é o cabeçalho da coluna). No `x-ui.percent`, o `cell` mantém o "%" menor |
 | `width` | A largura com o envelope, como no `x-ui.input` |
+
+**O erro e o rótulo no `cell`** (em `input`, `number`, `money` e `percent`):
+não há onde escrever a mensagem, então o campo ganha a borda de erro do
+tamanho normal, `aria-invalid="true"` e `title` com a primeira mensagem (ela
+aparece ao passar o mouse). O `label`, que no `cell` não é desenhado, vira o
+`aria-label` do campo visível — um `aria-label` passado de fora vence. Em
+`money` e `percent`, os `aria-*` soltos vão para o campo visível (o que a
+pessoa toca), em qualquer tamanho.
 
 ```blade
 <x-ui.number name="installments" label="Parcelas" :min="1" :max="48" />
@@ -423,10 +461,22 @@ ApexCharts fica em `elemento.grafico`.
 + à direita (as setas ↑ e ↓ fazem o mesmo). Aceita só dígitos, e o "-" no
 começo quando não há `min` ou ele é negativo. Ao sair do campo, o valor volta
 para dentro de `min`/`max`, e o vazio vira o `min`. Props: `min`, `max`
-(sem padrão), `step` (quanto o − e o + andam; padrão 1), `size` (`xs` a `lg`,
-ou `cell`: só o campo, para tabela), `width`, `id`, `placeholder`, `hint`,
-`info`, `required`. Os atributos soltos, `class` inclusive, vão para o
-`<input>`.
+(sem padrão), `step` (quanto o − e o + andam; padrão 1), `nullable`, `size`
+(`xs` a `lg`, ou `cell`: só o campo, para tabela), `width`, `id`,
+`placeholder`, `hint`, `info`, `required`. Os atributos soltos, `class`
+inclusive, vão para o `<input>`.
+
+```blade
+<x-ui.number name="counts[0][qty]" size="cell" :min="0" nullable />
+```
+
+Com `nullable`, o campo pode ficar em branco: ao sair, o vazio continua vazio
+em vez de virar o `min`, e os limites valem só para o que foi digitado. É a
+contagem de estoque em que "em branco" é "não contado" e 0 é "contei zero". O
+− (ou ↓) num campo vazio dá o `min` (ou 0) e não desce dele; o + dá o `min`
+mais um passo; o "-" só entra quando o `min` deixa, como sempre. Fora do
+Blade, é `data-nullable` no campo; no JavaScript, `somarPasso` aceita
+`{ anulavel: true }`.
 
 ```blade
 <x-ui.percent name="fee" label="Taxa" :value="$plan->fee" />
@@ -556,6 +606,7 @@ erros) e o que vier em `with`. Só isso: as variáveis da tela não chegam sem `
 | `min` | Linhas no mínimo (padrão 0). Faltando, vêm em branco; no mínimo, o "remover" some |
 | `max` | O teto; atingido, o "adicionar" desliga |
 | `sortable` | Botões de subir e descer em cada linha |
+| `removable` | O botão de remover em cada linha (padrão `true`). `:removable="false"` não o desenha, nem no modelo: a lista cujas linhas vêm do servidor e só se preenchem. Sem `sortable` nem `removable`, não há coluna de botões |
 | `empty` | O texto mostrado sem linha nenhuma |
 | `remember` | Lembra as linhas enviadas quando o formulário volta com erro (padrão). `:remember="false"` no repetidor do formulário que não foi enviado (o modal de criar, quando foi o de editar que voltou) |
 | `id` | O id do envelope (padrão: o nome sem colchetes) |
@@ -570,13 +621,40 @@ Os `name`s não são renumerados ao mover: a ordem enviada é a da tela
 linha um `<input type="hidden" … data-repetidor-posicao>`, que o JavaScript
 preenche com 0, 1, 2…
 
+**Cabeçalho das colunas.** O slot `header` desenha um cabeçalho dentro da
+mesma caixa das linhas, acima delas, com a coluna dos botões (remover, subir,
+descer) reservada à direita na mesma medida que a linha usa — o projeto só
+repete a grade das colunas:
+
+```blade
+<x-ui.repeater name="counts" :items="$counts" row="inventory.count-row" :removable="false" :add="false">
+    <x-slot:header>
+        <div class="grid gap-3 sm:grid-cols-3"><span>Produto</span><span>Sistema</span><span>Contado</span></div>
+    </x-slot:header>
+</x-ui.repeater>
+```
+
+Sem linhas, o cabeçalho some junto com o texto de vazio, e volta com a
+primeira linha.
+
 Na linha nova, os campos do pacote já vêm ligados (máscara, select, data,
-período, valor, número, percentual, dica). O que é do projeto se liga pelo
-evento `ui:repetidor`, que sobe do envelope com
+período, valor, número, percentual, dica, bloco condicional). O que é do
+projeto se liga pelo evento `ui:repetidor`, que sobe do envelope com
 `detail: { acao: 'adicionado' | 'removido' | 'movido', item, indice }`
-(`item` é o elemento da linha). `adicionarLinha(envelope)` acrescenta uma linha
-por código (o produto escolhido numa busca vira item da venda) e devolve o
-elemento, ou `null` no teto. Repetidor dentro de repetidor não funciona.
+(`item` é o elemento da linha). Repetidor dentro de repetidor não funciona.
+
+`adicionarLinha(envelope, { focar })`, exportada do `@targos-ui`, acrescenta
+uma linha por código (o produto escolhido numa busca vira item da venda) e
+devolve o elemento, ou `null` no teto. Por padrão o foco vai ao primeiro campo
+da linha nova; `{ focar: false }` o deixa onde está — para quem adiciona
+várias de uma vez, ou a partir de uma busca em que a pessoa continua
+digitando.
+
+```js
+import { adicionarLinha } from '@targos-ui';
+
+const linha = adicionarLinha(document.getElementById('items'), { focar: false });
+```
 
 ## Alterações não salvas
 
@@ -642,6 +720,56 @@ qual `<form>` preencher quando o modal tem mais de um (por padrão é o
 primeiro), e `data-modal-titulo="Cancelar NF-e 1/15"` escreve o título no
 `<h2>` do modal, para quem age sobre uma linha ver de qual linha se trata.
 
+Além dos campos, o que só se mostra, dentro do mesmo `<form>`:
+`[data-form-texto="chave"]` recebe o valor da chave em `textContent` (o nome
+do cliente no modal de baixa), e `[data-form-se="chave"]` fica à vista só
+quando a chave tem valor — nulo, `false`, texto vazio e lista vazia não têm;
+`0` tem. A chave é como foi escrita nos dados (`cliente.nome` inclusive); uma
+lista vira texto separado por vírgula.
+
+```blade
+<p>Baixa de <strong data-form-texto="customer_name"></strong></p>
+<p data-form-se="notes" hidden>Obs.: <span data-form-texto="notes"></span></p>
+```
+
+## Bloco condicional
+
+```blade
+<x-ui.select name="forma" label="Forma de pagamento" :options="$formas" />
+
+<fieldset data-mostra-quando="forma=cartao" @if ($forma !== 'cartao') hidden disabled @endif>
+    <x-ui.select name="bandeira" label="Bandeira" :options="$bandeiras" />
+    <x-ui.number name="parcelas" label="Parcelas" :min="1" />
+</fieldset>
+```
+
+Um elemento com `data-mostra-quando="campo=valor"` aparece só quando o campo
+`campo` do mesmo `<form>` (ou do documento, fora de um) tem aquele valor.
+
+| Sintaxe | Aparece quando |
+|---|---|
+| `campo=valor` | O campo vale `valor` |
+| `campo=a\|b` | Vale `a` ou `b` |
+| `campo` | Tem qualquer valor não vazio; numa caixa ou interruptor, está marcado |
+| `campo=1` | Numa caixa ou interruptor (`value="1"`), está marcado |
+| `campo=` | Está vazio |
+| `!campo=valor`, `!campo` | O contrário |
+
+Em rádios e caixas, o valor é o do marcado (nenhum marcado é vazio; o
+escondido `data-falsy` do interruptor não conta); num `x-ui.select multiple`,
+basta uma escolhida bater. Escondido, o bloco ganha `hidden`; se é um
+`<fieldset>`, ganha `disabled` também, e nada de dentro vai no envio — o
+servidor não precisa adivinhar se o campo que chegou vazio estava à vista.
+Noutro elemento, `data-mostra-quando-desliga` desliga os campos de dentro um a
+um (e religa só os que ele desligou); o `<fieldset>` é o jeito recomendado.
+
+O servidor desenha o estado inicial (`hidden`, e `disabled` no `fieldset`);
+o JavaScript só confirma ao carregar e reage ao `input`/`change` do campo —
+inclusive ao preenchimento do modal (`data-form-valores`) e às linhas novas do
+repetidor. Fora do `ligarUi()`, é `ligarCondicionais()`, antes do
+`ligarEnvios()`. As regras estão em `interpretarCondicao(texto)` e
+`condicaoVale(condicao, valor)`.
+
 ## Máscaras
 
 ```blade
@@ -706,10 +834,22 @@ o mesmo campo (o modal de criar e o de editar). O rótulo aponta para ele:
 **Atributos no campo nativo.** Em `money`, `date` e `date-range`, `form`,
 `disabled`, `readonly`, `autofocus`, `tabindex` e `autocomplete` vão para o
 `<input>` escondido que leva o valor (no `date-range`, para os dois; o
-`autofocus` só para o início). O resto (`class`, `data-*`, `on*`, `aria-*`,
-`style`) continua no envelope, e o `onchange` posto nele segue recebendo o
-evento dos nativos. Desligado ou só leitura, o calendário não abre e o campo
-digitável fica desligado também.
+`autofocus` só para o início). O resto (`class`, `data-*`, `on*`, `style`)
+continua no envelope, e o `onchange` posto nele segue recebendo o evento dos
+nativos; em `money` e `percent`, os `aria-*` vão para o campo visível, que é
+onde o leitor de tela para. Desligado ou só leitura, o calendário não abre e
+o campo digitável fica desligado também.
+
+**Ganchos de texto.** O texto do rótulo de todo campo que usa o
+`x-ui.field-label` fica num `<span data-campo-rotulo>` (só o texto, sem o
+asterisco do `required`), e o parágrafo do `hint` leva `data-campo-dica` — em
+`input`, `number`, `money`, `percent`, `select`, `textarea`, `date`,
+`date-range`, `password`, `file`, `image`, `toggle`, `checkbox` e
+`checkbox-group`. É para o script trocar o texto sem mexer na estrutura:
+
+```js
+campo.querySelector('[data-campo-rotulo]').textContent = tipo === 'pj' ? 'CNPJ' : 'CPF';
+```
 
 ```blade
 <x-ui.date name="due" label="Vencimento" form="form-pagamento" disabled />
@@ -778,14 +918,22 @@ JavaScript escreveu. Para um campo só: `mostrarErroNoCampo(campo, texto)` e
 if (await confirmar('Remover este item?', { perigo: true })) {
     // …
 }
+
+await confirmar('Cancelar a venda 12?\nO estoque volta ao depósito.', {
+    perigo: true, titulo: 'Cancelar venda', botao: 'Sim, cancelar',
+});
 ```
 
-`confirmar(texto, { perigo })` faz a pergunta no mesmo modal do
+`confirmar(texto, { perigo, titulo, botao })` faz a pergunta no mesmo modal do
 `data-confirmar` (o `<x-ui.confirm>` precisa estar na página) e devolve
-`true` no "Confirmar" e `false` em qualquer outra saída. Uma pergunta por vez:
-chamada com outra aberta, volta `false` na hora. Também está em
-`window.confirmar`, como `window.mostrarToast(tipo, texto)`, que mostra um
-aviso sem recarregar a página.
+`true` no "Confirmar" e `false` em qualquer outra saída. `titulo` e `botao`
+trocam o título do modal e o texto do "Confirmar" só nessa pergunta; sem eles,
+valem os do componente (`title` e `confirm` do `x-ui.confirm`), e cada
+pergunta volta a eles antes de aplicar os seus — uma não herda o título da
+anterior. Um `\n` no texto quebra a linha. Uma pergunta por vez: chamada com
+outra aberta, volta `false` na hora. Também está em `window.confirmar`, como
+`window.mostrarToast(tipo, texto)`, que mostra um aviso sem recarregar a
+página.
 
 ## Convenções
 
@@ -801,6 +949,25 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.9.0** — O que as telas de contagem, baixa e resumo pediram:
+  `x-ui.number nullable` (o vazio fica vazio; `data-nullable`,
+  `somarPasso({ anulavel })`); no `size="cell"` de `input`, `number`, `money`
+  e `percent`, o erro na borda, no `aria-invalid` e no `title`, e o `label`
+  como `aria-label` (em `money` e `percent`, os `aria-*` soltos vão ao campo
+  visível); `x-ui.stat-card` com `data-stat-valor` e `data-cor` no número
+  (a cor sai do atributo, para o script trocar); `x-ui.confirm` com
+  `data-confirmar-titulo`, `data-confirmar-botao`, `confirmar(texto,
+  { perigo, titulo, botao })` e quebra de linha pelo `\n`; `x-ui.repeater`
+  com slot `header`, `removable` e `adicionarLinha(envelope, { focar })`;
+  `x-ui.select readonly` (no envio, sem abrir; `data-readonly` lido também
+  por script); o bloco condicional `data-mostra-quando` (`ligarCondicionais`,
+  `interpretarCondicao`, `condicaoVale`); `data-campo-rotulo` e
+  `data-campo-dica` nos campos; `data-form-texto` e `data-form-se` no
+  preenchimento do modal (`textoDoValor`, `temValor`); `x-ui.card tone`
+  ganha `success`, `info`, `warning`, `danger`; `abrirCamada` leva a camada
+  ao fim do `<body>` a cada abertura (o modal aberto por último fica por
+  cima). Quem liga os módulos um a um acrescenta `ligarCondicionais()` antes
+  do `ligarNaoSalvo()`.
 - **1.8.0** — O que os formulários compostos pedem: `x-ui.select multiple`
   (chips, caixa por opção, `old()` de lista, busca no servidor também);
   `x-ui.checkbox-group` (a lista curta de escolhas como um campo só);

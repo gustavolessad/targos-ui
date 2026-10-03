@@ -3,10 +3,12 @@
  * do `confirm()` do navegador.
  *
  * O formulário (ou o botão que o envia) declara `data-confirmar="texto"`;
- * `data-confirmar-perigo` pinta o botão de confirmar de vermelho. O envio
- * é segurado, o modal `#confirmacao` abre com o texto, e só o "Confirmar"
- * manda o formulário de verdade — pelo mesmo botão, para o `name`/`value`
- * dele ir junto.
+ * `data-confirmar-perigo` pinta o botão de confirmar de vermelho;
+ * `data-confirmar-titulo` e `data-confirmar-botao` trocam o título e o
+ * texto do "Confirmar" só naquela pergunta (o botão vence o formulário).
+ * O envio é segurado, o modal `#confirmacao` abre com o texto, e só o
+ * "Confirmar" manda o formulário de verdade — pelo mesmo botão, para o
+ * `name`/`value` dele ir junto.
  *
  * Para o que não é envio de formulário (um `fetch`, uma remoção na
  * gaveta), `confirmar(texto)` faz a mesma pergunta no mesmo modal e
@@ -44,10 +46,14 @@ function responder(resposta) {
  *
  *     if (await confirmar('Remover este item do carrinho?', { perigo: true })) { … }
  *
+ * `titulo` e `botao` trocam o título do modal e o texto do "Confirmar"
+ * só nesta pergunta ("Cancelar venda", "Sim, cancelar"); sem eles, os
+ * do componente. Um `\n` no texto quebra a linha.
+ *
  * Uma pergunta por vez: chamada com outra ainda aberta, volta `false`
  * na hora, sem empilhar.
  */
-export function confirmar(texto, { perigo = false } = {}) {
+export function confirmar(texto, { perigo = false, titulo = null, botao = null } = {}) {
     if (! perguntarPelaPromessa || ! modalLigado?.isConnected) {
         console.warn('confirmar(): o modal de confirmação (<x-ui.confirm>) não está na página, ou ligarConfirmacoes() ainda não rodou.');
 
@@ -60,7 +66,7 @@ export function confirmar(texto, { perigo = false } = {}) {
 
     return new Promise((resolver) => {
         resolverPendente = resolver;
-        perguntarPelaPromessa(String(texto ?? ''), Boolean(perigo));
+        perguntarPelaPromessa(String(texto ?? ''), { perigo: Boolean(perigo), titulo, botao });
     });
 }
 
@@ -87,14 +93,39 @@ export function ligarConfirmacoes() {
     const texto = modal.querySelector('[data-confirmacao-texto]');
     const botaoOk = modal.querySelector('[data-confirmacao-ok]');
     const botaoOkPerigo = modal.querySelector('[data-confirmacao-ok-perigo]');
+    // O título é o do x-ui.modal; a caixa (`role="dialog"`) o repete no `aria-label`.
+    const titulo = modal.querySelector('[data-modal-titulo]');
+    const caixa = modal.querySelector('[role="dialog"]');
+
+    /*
+     * Os textos padrão, lidos do Blade uma vez: cada pergunta volta a
+     * eles antes de aplicar os seus, para uma não herdar o título ou o
+     * botão da anterior.
+     */
+    const padroes = {
+        titulo: titulo?.textContent.trim() ?? '',
+        botao: botaoOk.textContent.trim(),
+    };
 
     let pendente = null;
 
-    /** Escreve a pergunta, mostra o botão certo e abre o modal. */
-    const perguntar = (pergunta, perigo) => {
+    /** Escreve a pergunta (e o título e o botão desta vez), mostra o botão certo e abre o modal. */
+    const perguntar = (pergunta, { perigo = false, titulo: tituloDaVez = null, botao: botaoDaVez = null } = {}) => {
         texto.textContent = pergunta;
         botaoOk.hidden = perigo;
         botaoOkPerigo.hidden = ! perigo;
+
+        const tituloAtual = tituloDaVez || padroes.titulo;
+        const botaoAtual = botaoDaVez || padroes.botao;
+
+        if (titulo) {
+            titulo.textContent = tituloAtual;
+            caixa?.setAttribute('aria-label', tituloAtual);
+        }
+
+        // Os dois botões levam o mesmo texto: qual aparece é o `perigo` que decide.
+        botaoOk.textContent = botaoAtual;
+        botaoOkPerigo.textContent = botaoAtual;
 
         abrirCamada('modal', 'confirmacao');
     };
@@ -117,7 +148,12 @@ export function ligarConfirmacoes() {
         responder(false);
 
         pendente = { formulario, botao };
-        perguntar(pergunta, 'confirmarPerigo' in origem.dataset);
+        perguntar(pergunta, {
+            perigo: 'confirmarPerigo' in origem.dataset,
+            // O título e o botão desta pergunta: no botão que enviou, senão no formulário. O botão vence.
+            titulo: botao?.dataset.confirmarTitulo ?? formulario.dataset.confirmarTitulo ?? null,
+            botao: botao?.dataset.confirmarBotao ?? formulario.dataset.confirmarBotao ?? null,
+        });
     });
 
     const enviar = () => {
@@ -182,9 +218,9 @@ export function ligarConfirmacoes() {
      * ir junto com a promessa: um duplo clique no "Confirmar" dela daria
      * o segundo clique ao `enviar` — e o formulário antigo sairia.
      */
-    perguntarPelaPromessa = (pergunta, perigo) => {
+    perguntarPelaPromessa = (pergunta, opcoes) => {
         pendente = null;
-        perguntar(pergunta, perigo);
+        perguntar(pergunta, opcoes);
     };
 
     modalLigado = modal;

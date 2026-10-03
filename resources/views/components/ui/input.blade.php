@@ -160,6 +160,19 @@
     ];
 
     $naCelula = $size === 'cell';
+
+    /*
+     * Na célula não há rótulo nem linha de erro: o `label` vira o nome
+     * acessível do campo (quem o rotula à vista é o cabeçalho da
+     * coluna), e o erro vai na borda, no `aria-invalid` e no `title` — a
+     * mensagem aparece ao passar o mouse, já que não há onde escrevê-la.
+     * Como padrões do `merge`: o `aria-label` passado de fora vence.
+     */
+    $naCelulaAcessivel = $naCelula ? array_filter([
+        'aria-label' => $label,
+        'aria-invalid' => $temErro ? 'true' : null,
+        'title' => $temErro ? $errors->first($chave) : null,
+    ]) : [];
 @endphp
 
 @if ($naCelula)
@@ -173,19 +186,22 @@
            @if ($mask) data-mascara="{{ $mask }}" @endif
            @if ($mask && $validate) data-mascara-valida @endif
            @if ($semPontuacao) data-mascara-destino="{{ $idDoCampo }}" @endif
-           {{ $attributes->class([
+           {{ $attributes->merge($naCelulaAcessivel)->class([
                /*
                 * A borda aparece sempre, não só no hover: numa tabela
                 * cheia de texto, um campo sem contorno não se anuncia
                 * como campo — quem lê não descobre que pode editar.
                 */
-               $radius.' border border-neutral-300 bg-transparent text-neutral-900 transition',
-               'placeholder:text-neutral-400 hover:border-neutral-400',
-               'focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none',
+               $radius.' border bg-transparent text-neutral-900 transition',
+               'placeholder:text-neutral-400',
+               'focus:ring-2 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',
-               'dark:border-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:hover:border-neutral-600',
+               'dark:text-white dark:placeholder:text-neutral-500',
                $tamanhos['cell'],
                $width ?? 'w-full',
+               // A borda de erro é a mesma do tamanho normal: aqui a cor é o aviso inteiro.
+               'border-neutral-300 hover:border-neutral-400 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-800 dark:hover:border-neutral-600' => ! $temErro,
+               'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
            ]) }}>
 
     @if ($semPontuacao)
@@ -280,7 +296,7 @@
         @if ($temErro)
             <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
         @elseif ($hint)
-            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
         @endif
     </div>
 @endif

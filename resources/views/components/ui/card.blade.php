@@ -8,6 +8,10 @@
      *
      * `raised` é o card sobre o fundo do painel; `sunken`, um bloco
      * dentro de outro card, que precisa de um degrau de tom.
+     *
+     * `success`, `info`, `warning` e `danger` tingem fundo e borda de
+     * leve — menos que o `x-ui.alert`, que é um aviso —, para o quadro
+     * de destaque: o resumo de totais, o bloco que resume a situação.
      */
     'tone' => 'raised',
     /**
@@ -25,9 +29,14 @@
 ])
 
 @php
+    // A borda entra no tom: nos tingidos, ela acompanha o fundo.
     $tons = [
-        'raised' => 'bg-white dark:bg-neutral-900',
-        'sunken' => 'bg-neutral-100 dark:bg-neutral-900',
+        'raised' => 'border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900',
+        'sunken' => 'border-neutral-300 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900',
+        'success' => 'border-success-200 bg-success-50/60 dark:border-success-500/30 dark:bg-success-500/10',
+        'info' => 'border-info-200 bg-info-50/60 dark:border-info-500/30 dark:bg-info-500/10',
+        'warning' => 'border-warning-200 bg-warning-50/60 dark:border-warning-500/30 dark:bg-warning-500/10',
+        'danger' => 'border-danger-200 bg-danger-50/60 dark:border-danger-500/30 dark:bg-danger-500/10',
     ];
 
     $respiros = [
@@ -56,7 +65,7 @@
 @endphp
 
 <{{ $tag }} @if ($href) href="{{ $href }}" @endif {{ $attributes->class([
-    'rounded-2xl border border-neutral-300 dark:border-neutral-800',
+    'rounded-2xl border',
     $tons[$tone] ?? $tons['raised'],
     'shadow-lg' => $elevated,
 ]) }}>

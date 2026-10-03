@@ -76,6 +76,9 @@
     // O que governa a digitação vai também para o visível; o `autofocus`, o percent.js passa a ele.
     $doTexto = ['disabled', 'readonly', 'tabindex'];
 
+    // Os `aria-*` soltos também vão para o visível: é nele que o leitor de tela para (ver `x-ui.money`).
+    $deAria = array_keys($attributes->filter(fn ($valor, string $chave): bool => str_starts_with($chave, 'aria-'))->getAttributes());
+
     // A altura, o recuo do texto (o fim livre para o "%") e a posição do "%".
     $tamanhos = [
         'xs' => ['h-7 text-xs', 'ps-2.5 pe-7', 'pe-2.5'],
@@ -107,12 +110,15 @@
 
     $caixa = $naCelula ? [
         // A borda à vista, sem fundo, e mais escura no hover (ver `x-ui.money`).
-        'block w-full rounded border border-neutral-300 bg-transparent text-neutral-900 transition',
-        'placeholder:text-neutral-400 hover:border-neutral-400',
-        'focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none',
+        'block w-full rounded border bg-transparent text-neutral-900 transition',
+        'placeholder:text-neutral-400',
+        'focus:ring-2 focus:outline-none',
         'disabled:cursor-not-allowed disabled:text-neutral-400',
-        'dark:border-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:hover:border-neutral-600',
+        'dark:text-white dark:placeholder:text-neutral-500',
         $altura,
+        // A borda de erro é a mesma do tamanho normal: na célula não há onde escrever a mensagem.
+        'border-neutral-300 hover:border-neutral-400 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-800 dark:hover:border-neutral-600' => ! $temErro,
+        'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
     ] : [
         'block w-full rounded-lg border text-neutral-900 bg-white',
         'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
@@ -130,9 +136,16 @@
 
     // Na célula, o envelope é a largura do campo: sem `width`, a célula inteira.
     $envelope = $naCelula ? ['relative', $width ?? 'w-full'] : ['group relative', $width];
+
+    // Na célula, o `label` vira o nome acessível do visível, e o erro vai no `aria-invalid` e no `title` (ver `x-ui.money`).
+    $naCelulaAcessivel = $naCelula ? array_filter([
+        'aria-label' => $label,
+        'aria-invalid' => $temErro ? 'true' : null,
+        'title' => $temErro ? $errors->first($chave) : null,
+    ]) : [];
 @endphp
 
-<div {{ $attributes->except($doCampo)->class(array_filter($envelope)) }} data-percentual>
+<div {{ $attributes->except([...$doCampo, ...$deAria])->class(array_filter($envelope)) }} data-percentual>
     {{-- Na célula, quem rotula é o cabeçalho da coluna. --}}
     @if ($label && ! $naCelula)
         <x-ui.field-label :label="$label" :for="$id" :required="$required" :info="$info" class="mb-1.5" />
@@ -162,7 +175,7 @@
                value="{{ $exibido }}"
                placeholder="{{ $placeholder }}"
                data-percentual-texto
-               {{ $attributes->only($doTexto) }}
+               {{ $attributes->only([...$doTexto, ...$deAria])->merge($naCelulaAcessivel) }}
                @class([...$caixa, $recuo, 'text-end tabular-nums'])>
 
         <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center {{ $posicaoDoSufixo }} {{ $tamanhoDoSufixo }} text-neutral-500 dark:text-neutral-400">%</span>
@@ -172,6 +185,6 @@
     @if ($temErro && ! $naCelula)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
     @elseif ($hint && ! $naCelula)
-        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
     @endif
 </div>

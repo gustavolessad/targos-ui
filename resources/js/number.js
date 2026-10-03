@@ -44,11 +44,20 @@ export function ajustar(valor, { min = null, max = null } = {}) {
  *
  * Vazio, a conta parte do `min` (ou do zero, sem ele) — o mesmo número
  * que o campo ganharia ao perder o foco.
+ *
+ * No campo que pode ficar em branco (`anulavel`), o vazio não é um
+ * número de onde se desce: o − num campo vazio dá a partida (o `min`,
+ * ou zero) e não vai abaixo dela. "Não contado" menos um não é −1.
  */
-export function somarPasso(valor, sentido, { min = null, max = null, step = 1 } = {}) {
-    const atual = numeroDe(valor) ?? min ?? 0;
+export function somarPasso(valor, sentido, { min = null, max = null, step = 1, anulavel = false } = {}) {
+    const numero = numeroDe(valor);
+    const partida = min ?? 0;
 
-    return ajustar(atual + sentido * step, { min, max });
+    if (numero === null && anulavel && sentido < 0) {
+        return ajustar(partida, { min, max });
+    }
+
+    return ajustar((numero ?? partida) + sentido * step, { min, max });
 }
 
 /** O que fica do que se digitou: só dígitos, e um "-" no começo quando `negativo`. */
@@ -86,6 +95,14 @@ function montar(campo) {
     const step = Math.abs(limite(campo.dataset.step) ?? 1) || 1;
     const negativo = min === null || min < 0;
 
+    /*
+     * `data-nullable`: o vazio é um estado, e não um número por escrever
+     * — na contagem de estoque, "em branco" é "não contado", e 0 é
+     * "contei zero". Ao sair, o vazio fica vazio; os limites valem só
+     * para o que foi digitado.
+     */
+    const anulavel = campo.dataset.nullable !== undefined;
+
     // Desligado ou só leitura, nada aqui escreve no campo. Lido na hora: outro script pode desligá-lo depois.
     const travado = () => campo.disabled || campo.readOnly;
 
@@ -101,7 +118,7 @@ function montar(campo) {
 
     const somar = (sentido) => {
         if (! travado()) {
-            gravar(somarPasso(campo.value, sentido, { min, max, step }));
+            gravar(somarPasso(campo.value, sentido, { min, max, step, anulavel }));
         }
     };
 
@@ -119,10 +136,10 @@ function montar(campo) {
         campo.setSelectionRange(cursor, cursor);
     });
 
-    // Ao sair, o valor volta para dentro dos limites, e o vazio vira o mínimo (se houver).
+    // Ao sair, o valor volta para dentro dos limites, e o vazio vira o mínimo (se houver) — ou fica vazio, no anulável.
     campo.addEventListener('blur', () => {
         if (! travado()) {
-            gravar(ajustar(campo.value, { min, max }) ?? min);
+            gravar(ajustar(campo.value, { min, max }) ?? (anulavel ? null : min));
         }
     });
 

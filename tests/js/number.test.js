@@ -48,6 +48,19 @@ test('vazio, o − e o + partem do mínimo, ou do zero', () => {
     assert.equal(somarPasso('', -1, { min: 0 }), 0);
 });
 
+test('anulável: o − num campo vazio dá a partida (o mínimo, ou zero) e não desce dela', () => {
+    assert.equal(somarPasso('', -1, { anulavel: true }), 0);
+    assert.equal(somarPasso('', -1, { anulavel: true, min: 1 }), 1);
+    assert.equal(somarPasso('', -1, { anulavel: true, step: 5 }), 0);
+    // O + continua partindo da partida e andando um passo.
+    assert.equal(somarPasso('', 1, { anulavel: true }), 1);
+    assert.equal(somarPasso('', 1, { anulavel: true, min: 1 }), 2);
+    // Com número, o anulável não muda nada.
+    assert.equal(somarPasso('5', -1, { anulavel: true }), 4);
+    assert.equal(somarPasso('0', -1, { anulavel: true }), -1);
+    assert.equal(somarPasso('0', -1, { anulavel: true, min: 0 }), 0);
+});
+
 test('digitando, ficam só os dígitos e o "-" do começo', () => {
     assert.equal(limparDigitado('12a3'), '123');
     assert.equal(limparDigitado('1.500'), '1500');

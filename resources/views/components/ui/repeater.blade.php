@@ -37,6 +37,12 @@
     'max' => null,
     /** Botões de subir e descer em cada linha. */
     'sortable' => false,
+    /*
+     * O botão de remover em cada linha (padrão). `:removable="false"`
+     * não o desenha, nem no modelo: a lista cujas linhas vêm do servidor
+     * e só se preenchem (a contagem de cada item do inventário).
+     */
+    'removable' => true,
     /** O texto de quando não há linha nenhuma. */
     'empty' => null,
     /*
@@ -95,9 +101,21 @@
     }
 
     $total = count($linhas);
-    $removivel = $total > $minimo;
+    $removivel = $removable && $total > $minimo;
     $comBotao = $add !== false && $add !== null && $add !== '';
     $cheio = $maximo !== null && $total >= $maximo;
+
+    /*
+     * A coluna dos botões à direita de cada linha. Sem remover nem
+     * mover, ela não existe — nem o espaço dela.
+     *
+     * O cabeçalho das colunas (slot `header`) reserva a mesma coluna,
+     * com os mesmos botões invisíveis: a medida é a dos botões de
+     * verdade, e muda junto com eles.
+     */
+    $comColunaDeBotoes = $sortable || $removable;
+    $temConteudo = fn ($slot) => $slot instanceof \Illuminate\View\ComponentSlot ? $slot->hasActualContent() : filled($slot);
+    $comCabecalho = isset($header) && $temConteudo($header);
 
     /*
      * As linhas e, por último, o modelo das novas — no mesmo laço, para
@@ -131,6 +149,32 @@
         `space-y` a última linha ganharia uma margem embaixo.
     --}}
     <div class="flex flex-col gap-3" data-repetidor-lista>
+        @if ($comCabecalho)
+            {{--
+                O cabeçalho das colunas, na mesma caixa das linhas e com
+                a mesma coluna de botões à direita: o projeto só repete a
+                grade das colunas no slot (`grid gap-3 sm:grid-cols-3`), e
+                cada título cai sobre o campo dele. Sem linhas, some junto
+                com o texto de vazio (o JavaScript o refaz a cada mudança).
+            --}}
+            <div class="flex items-start gap-2" data-repetidor-cabecalho @if ($total === 0) hidden @endif>
+                <div class="min-w-0 flex-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">{{ $header }}</div>
+
+                @if ($comColunaDeBotoes)
+                    <div class="invisible flex shrink-0 items-center gap-0.5" aria-hidden="true">
+                        @if ($sortable)
+                            <x-ui.button variant="ghost" size="icon-sm" tabindex="-1" disabled><x-ui.icon name="chevron-up" class="size-4" /></x-ui.button>
+                            <x-ui.button variant="ghost" size="icon-sm" tabindex="-1" disabled><x-ui.icon name="chevron-down" class="size-4" /></x-ui.button>
+                        @endif
+
+                        @if ($removable)
+                            <x-ui.button variant="ghost" size="icon-sm" tabindex="-1" disabled><x-ui.icon name="trash-2" class="size-4" /></x-ui.button>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        @endif
+
         @foreach ($desenhos as $desenho)
             @php
                 $nomeDaLinha = $name.'['.$desenho['indice'].']';
@@ -170,6 +214,7 @@
                     no mínimo, o "subir" da primeira e o "descer" da
                     última ficam desligados.
                 --}}
+                @if ($comColunaDeBotoes)
                 <div class="flex shrink-0 items-center gap-0.5">
                     @if ($sortable)
                         <x-ui.button variant="ghost" size="icon-sm" aria-label="Subir"
@@ -184,11 +229,14 @@
                     @endif
 
                     {{-- No mínimo, escondido e não desligado: um botão apagado em cada linha seria ruído para o que ali não se faz. --}}
-                    <x-ui.button variant="ghost" size="icon-sm" aria-label="Remover"
-                                 data-repetidor-remover :hidden="! $desenho['modelo'] && ! $removivel">
-                        <x-ui.icon name="trash-2" class="size-4" />
-                    </x-ui.button>
+                    @if ($removable)
+                        <x-ui.button variant="ghost" size="icon-sm" aria-label="Remover"
+                                     data-repetidor-remover :hidden="! $desenho['modelo'] && ! $removivel">
+                            <x-ui.icon name="trash-2" class="size-4" />
+                        </x-ui.button>
+                    @endif
                 </div>
+                @endif
             </div>
 
             @if ($desenho['modelo'])

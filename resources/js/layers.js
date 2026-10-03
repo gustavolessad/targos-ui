@@ -25,7 +25,7 @@ function abrirCamada(tipo, id) {
     }
 
     /*
-     * A camada passa a viver no `<body>`.
+     * A camada passa a viver no fim do `<body>`.
      *
      * `position: fixed` cobre a tela inteira **até** algum ancestral
      * criar contexto de empilhamento — o que acontece com `sticky`,
@@ -34,11 +34,18 @@ function abrirCamada(tipo, id) {
      * resto da página continuava claro por cima. z-index não resolve:
      * o filho não escapa do contexto do pai por mais alto que suba.
      *
-     * Mover é barato e vale uma vez só — na segunda abertura ela já
-     * está aqui. Os elementos são movidos, não recriados: o que estava
-     * digitado num campo do modal continua lá.
+     * **No fim, a cada abertura**, e não só na primeira: modal e gaveta
+     * têm o mesmo z-index, e entre iguais quem vence é a ordem no DOM.
+     * O modal de confirmação aberto de dentro de uma gaveta ficava
+     * atrás dela quando a gaveta tinha sido movida depois. Assim o
+     * aberto por último está sempre por cima.
+     *
+     * Mover é barato. Os elementos são movidos, não recriados: o que
+     * estava digitado num campo do modal continua lá, e os ouvintes
+     * ficam — os do pacote estão no `document`, e os que os módulos
+     * penduraram nos elementos de dentro vão junto com eles.
      */
-    if (camada.parentElement !== document.body) {
+    if (camada !== document.body.lastElementChild) {
         document.body.append(camada);
     }
 

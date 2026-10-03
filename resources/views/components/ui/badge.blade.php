@@ -10,16 +10,17 @@
      */
     'icon' => null,
     /*
-     * `solid` (padrão) ou `outline`: só o contorno e o texto na cor, sem
-     * fundo. Para o estado que acompanha outro na mesma linha (o
-     * financeiro ao lado do comercial da venda) sem competir com ele.
+     * Três variantes:
      *
-     * `filled`: o fundo cheio na cor, para o aviso que tem de saltar da
-     * tela inteira (o período de teste na barra superior), não para o
-     * estado de uma linha de tabela. O `warning` cheio é o amarelo com
-     * texto escuro.
+     * - `soft` (padrão): fundo claro e texto na cor, em todas as cores;
+     * - `filled`: o fundo cheio na cor, para o estado que tem de saltar de
+     *   relance (pago, vencido, o período de teste na barra superior). O
+     *   `warning` cheio é o amarelo com texto escuro;
+     * - `outline`: só o contorno e o texto na cor, sem fundo. Para o estado
+     *   que acompanha outro na mesma linha (o financeiro ao lado do
+     *   comercial da venda) sem competir com ele.
      */
-    'variant' => 'solid',
+    'variant' => 'soft',
 ])
 
 @php
@@ -44,16 +45,17 @@
      * O contorno de dentro dá corpo ao selo sobre o fundo quase branco
      * do painel, onde os tons claros sozinhos ficavam lavados.
      *
-     * `success` e `danger` são cheios, com texto branco: pago/quitado/emitida
-     * e vencido/erro são os estados que mais importam de relance.
+     * O padrão (`soft`) é claro em todas as cores. Quem quer o estado
+     * cheio, como pago/quitado/emitida e vencido/erro, pede
+     * `variant="filled"`.
      */
     $cores = [
         'neutral' => 'bg-neutral-100 text-neutral-700 ring-neutral-500/20 dark:bg-neutral-800 dark:text-neutral-300 dark:ring-white/10',
-        'success' => 'bg-success-500 text-white ring-success-600/20 dark:ring-success-400/30',
+        'success' => 'bg-success-50 text-success-800 ring-success-600/20 dark:bg-success-500/15 dark:text-success-300 dark:ring-success-400/20',
         'warning' => 'bg-warning-50 text-warning-800 ring-warning-600/25 dark:bg-warning-500/15 dark:text-warning-400 dark:ring-warning-400/20',
         'info' => 'bg-info-50 text-info-800 ring-info-600/20 dark:bg-info-500/15 dark:text-info-300 dark:ring-info-400/20',
         'accent' => 'bg-accent-50 text-accent-800 ring-accent-600/20 dark:bg-accent-500/15 dark:text-accent-300 dark:ring-accent-400/20',
-        'danger' => 'bg-danger-600 text-white ring-danger-700/20 dark:bg-danger-500 dark:ring-danger-400/30',
+        'danger' => 'bg-danger-50 text-danger-800 ring-danger-600/20 dark:bg-danger-500/15 dark:text-danger-300 dark:ring-danger-400/20',
         /*
          * Na cor de ação. Para rótulo de identidade (o tipo da nota),
          * não para estado.
@@ -79,11 +81,11 @@
     // Cheio: o fundo na cor forte, com o texto no contraste dela.
     $cheios = [
         'neutral' => 'bg-neutral-700 text-white ring-neutral-800/20 dark:bg-neutral-600 dark:ring-white/10',
-        'success' => $cores['success'],
+        'success' => 'bg-success-500 text-white ring-success-600/20 dark:ring-success-400/30',
         'warning' => 'bg-warning-400 text-neutral-950 ring-warning-500/40 dark:ring-warning-300/40',
         'info' => 'bg-info-600 text-white ring-info-700/20 dark:bg-info-500 dark:ring-info-400/30',
         'accent' => 'bg-accent-600 text-white ring-accent-700/20 dark:bg-accent-500 dark:ring-accent-400/30',
-        'danger' => $cores['danger'],
+        'danger' => 'bg-danger-600 text-white ring-danger-700/20 dark:bg-danger-500 dark:ring-danger-400/30',
         'primary' => 'bg-primary-600 text-primary-contrast ring-primary-700/20 dark:ring-primary-400/30',
     ];
     $cheios['violet'] = $cheios['accent'];

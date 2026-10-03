@@ -226,7 +226,7 @@ aviso de "Alterações não salvas".
 ```blade
 <x-ui.page-header title="Venda 1.024" back="{{ route('sales.index') }}">
     <x-slot:aside>
-        <x-ui.badge color="success">Concluída</x-ui.badge>
+        <x-ui.badge color="success" variant="filled">Concluída</x-ui.badge>
         <x-ui.badge color="warning" variant="outline">NFC-e pendente</x-ui.badge>
     </x-slot:aside>
 
@@ -417,15 +417,17 @@ sabe dela.
 
 ```blade
 <x-ui.badge color="success">Pago</x-ui.badge>
+<x-ui.badge color="danger" variant="filled">Vencido</x-ui.badge>
 <x-ui.badge color="warning" variant="outline">Em aberto</x-ui.badge>
 ```
 
 `color` é o significado (`neutral`, `success`, `warning`, `info`, `accent`,
-`danger`, `primary`); `variant="outline"` deixa só o contorno e o texto na
-cor, para o estado que acompanha outro na mesma linha sem competir com ele;
-`variant="filled"` enche o fundo na cor forte (o `warning` vira o amarelo com
-texto escuro), para o aviso que tem de saltar da tela inteira, como o período
-de teste na barra superior — não para o estado de uma linha de tabela;
+`danger`, `primary`). Três variantes: `soft` (padrão) é o fundo claro e o texto
+na cor, em todas as cores; `filled` enche o fundo na cor forte (o `warning`
+vira o amarelo com texto escuro), para o estado que tem de saltar de relance,
+como pago, vencido ou o período de teste na barra superior; `outline` deixa só
+o contorno e o texto na cor, para o estado que acompanha outro na mesma linha
+sem competir com ele. `solid` deixou de existir (1.11.1);
 `icon` põe um ícone antes do texto (sem texto, o selo fica redondo).
 
 ## Cartão
@@ -1241,6 +1243,12 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.1** — Muda o `x-ui.badge`, e **quebra o visual**: o padrão passou a se chamar
+  `soft` e deixou de pintar `success` e `danger` cheios (agora são claros,
+  como as outras cores); `solid` deixou de existir. Quem queria o selo cheio
+  usa `variant="filled"`, que já existia. Para a tela manter o visual: todo
+  `<x-ui.badge color="success|danger">` sem `variant` (ou com `solid`) ganha
+  `variant="filled"`; nas demais cores, tire o `variant="solid"` e nada muda.
 - **1.11.0** — O símbolo do `x-ui.money` e do `x-ui.percent` configurável e,
   se a tela quiser, clicável. Props `prefix` e `suffix` nos dois (texto, ou
   `false` para tirar; os padrões são os de sempre: "R$" antes no money, "%"

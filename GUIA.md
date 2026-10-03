@@ -199,7 +199,7 @@ quando o formulário volta.
 </x-ui.card>
 
 <x-ui.badge color="success">Pago</x-ui.badge>
-<x-ui.badge color="danger">Vencido</x-ui.badge>
+<x-ui.badge color="danger" variant="filled">Vencido</x-ui.badge>
 
 <x-ui.alert type="warning">Confira os dados antes de enviar.</x-ui.alert>
 ```

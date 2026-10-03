@@ -235,6 +235,7 @@ no `document`, com `detail: { grupo, aba }`.
 | `selected-label`, `selected-caption`, `selected-extra` | Com `source`: o rótulo, a segunda linha e os dados da opção já escolhida, que não vem na página |
 | `prefetch` | Com `source`: busca as primeiras opções assim que o JavaScript liga, e o primeiro clique abre sem esperar. Elas ficam guardadas até alguém digitar. Sem `prefetch`, cada abertura busca de novo |
 | `remember` | Lembra o enviado quando o formulário volta com erro (padrão). `:remember="false"` no select que não foi enviado — o filtro da listagem com o mesmo nome do campo do modal — para ele não mostrar o valor do outro |
+| `hint` | A linha de apoio embaixo do campo, como no `x-ui.input` |
 
 O `caption` é a segunda linha da opção no painel, em letra menor; o gatilho e o
 select nativo mostram só o rótulo, e a busca local casa no caption também. O
@@ -274,6 +275,26 @@ Limpar (a opção do placeholder) também avisa, com `value: ''`. Valor trocado
 por script (`select.value = x`) não dispara o evento: leia com
 `escolhaDe(select)`, que serve a qualquer hora, inclusive para a opção que veio
 marcada do servidor.
+
+## Botão
+
+```blade
+<x-ui.button icon="plus">Novo cliente</x-ui.button>
+<x-ui.button variant="secondary" size="sm" icon="download" :href="route('export')">Exportar</x-ui.button>
+```
+
+`variant` (`primary`, `secondary`, `outline`, `success`, `danger`, `danger-soft`,
+`ghost`, `ghost-contrast`, `inverse`), `size` (`xs` a `xl`, ou `icon`,
+`icon-sm`, `icon-xs` para o botão só de ícone), `href` (vira `<a>`) e `icon`
+(um ícone do Lucide antes do texto).
+
+## Lembrar o enviado (`remember`)
+
+Todo campo repreenche com o que foi digitado quando o formulário volta com
+erro. Na tela com dois formulários que têm um campo de mesmo nome — o filtro
+da listagem e o modal, o modal de criar e o de editar —, o que **não** foi
+enviado leva `:remember="false"` (no `x-ui.input`, `:keeps-input="false"`),
+senão mostra o valor do outro.
 
 ## Selo
 
@@ -718,6 +739,13 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.7.3** — `remember` em todo campo (`money`, `date`, `date-range`, `number`,
+  `percent`, `textarea`, `checkbox`, além de `select`, `toggle` e `repeater`; no
+  `input` chama-se `keeps-input`); `hint` no `x-ui.select`; `icon` no
+  `x-ui.button`; `x-ui.tabs` não cai com `?aba[]=x`; o modal foca o primeiro
+  campo, não o X; `disabled`/`readonly` postos no nativo do `money` e do `date`
+  depois de montados passam ao campo visível; o preenchimento do modal liga a
+  caixa também pelo valor dela (`value="active"` com `'active'`).
 - **1.7.2** — Toggle e checkbox voltam do erro no estado enviado também com `falsy`
   de texto (ligado é "o que voltou é o valor do ligado"); `remember` no
   `x-ui.repeater`; `definirImagemGravada(envelope, src)` troca a imagem gravada

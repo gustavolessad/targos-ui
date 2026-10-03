@@ -109,7 +109,9 @@
             }
         }
     } else {
-        $atual = $active ?? request()->string($name)->value();
+        // Só texto: `?aba[]=x` na URL não pode derrubar a tela.
+        $daUrl = request()->query($name);
+        $atual = $active ?? (is_string($daUrl) ? $daUrl : null);
 
         if (! in_array($atual, $chaves, strict: true)) {
             $atual = $chaves[0] ?? null;

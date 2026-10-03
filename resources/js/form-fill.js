@@ -20,7 +20,9 @@
 /** Escreve um valor num campo, do jeito que aquele tipo de campo entende. */
 export function escreverNoCampo(campo, valor) {
     if (campo.type === 'checkbox') {
-        campo.checked = valor === true || valor === 1 || valor === '1' || valor === 'true';
+        // `true`/1 liga; e também o próprio valor da caixa (`value="active"` com `'active'`).
+        campo.checked = valor === true || valor === 1 || valor === '1' || valor === 'true'
+            || (valor !== null && valor !== undefined && valor !== false && String(valor) === String(campo.value));
     } else if (campo.type === 'radio') {
         campo.checked = String(campo.value) === String(valor);
     } else if (campo.type === 'file') {

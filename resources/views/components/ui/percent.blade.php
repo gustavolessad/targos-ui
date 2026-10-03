@@ -23,6 +23,8 @@
      * o mesmo campo, para o rótulo de um não apontar para o do outro.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
 ])
 
 @php
@@ -41,7 +43,7 @@
     $chave = \Targos\Ui\FieldName::key($name);
     $id ??= \Targos\Ui\FieldName::id($name);
 
-    $valor = \Targos\Ui\Money::normalize(old($chave, $value), 4);
+    $valor = \Targos\Ui\Money::normalize($remember ? old($chave, $value) : $value, 4);
 
     // `3.2500` → 3,25. O Money::format deixa o sinal de fora.
     $valorNegativo = $valor !== null && (float) \Targos\Ui\Money::normalize($valor) < 0;

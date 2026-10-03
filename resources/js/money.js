@@ -180,6 +180,19 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
         }
     }
 
+    /*
+     * `disabled` e `readonly` postos no nativo depois de montado (por
+     * outro script: "a conta já teve movimento") passam ao campo
+     * visível, que é o que a pessoa toca. Ao montar, os dois já vêm
+     * iguais do Blade.
+     */
+    const espelharTrava = () => {
+        texto.disabled = nativo.disabled;
+        texto.readOnly = nativo.readOnly;
+    };
+
+    new MutationObserver(espelharTrava).observe(nativo, { attributes: true, attributeFilter: ['disabled', 'readonly'] });
+
     // O que está à vista, em centavos: é com ele que se compara o nativo mudado por outro script.
     let mostrado = lerDigitado(texto.value, { zero: true, negativo: true }).centavos;
     // O texto da última tecla aceita, para onde o campo volta quando a seguinte passa do limite.

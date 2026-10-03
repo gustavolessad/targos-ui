@@ -21,6 +21,8 @@
      * da mesma tela têm o mesmo período.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
 ])
 
 @php
@@ -43,8 +45,8 @@
     $idInicio = $id ?? \Targos\Ui\FieldName::id($start);
     $idFim = $id !== null ? $id.'-fim' : \Targos\Ui\FieldName::id($end);
 
-    $inicio = $valida($iso(old($chaveInicio, $iso($startValue))));
-    $fim = $valida($iso(old($chaveFim, $iso($endValue))));
+    $inicio = $valida($iso($remember ? old($chaveInicio, $iso($startValue)) : $iso($startValue)));
+    $fim = $valida($iso($remember ? old($chaveFim, $iso($endValue)) : $iso($endValue)));
     $minimo = $valida($iso($min));
     $maximo = $valida($iso($max));
     $texto = $inicio && $fim ? $exibir($inicio).' até '.$exibir($fim) : '';

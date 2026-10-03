@@ -54,7 +54,14 @@ function abrirCamada(tipo, id) {
         camada.dataset.aberto = '';
 
         // O foco vai para dentro, para quem usa teclado não ficar atrás dela.
-        camada.querySelector('[autofocus], input, button, a')?.focus();
+        /*
+         * O foco vai para o primeiro campo, não para o X de fechar (que
+         * vem antes no HTML): quem abre um modal de formulário quer
+         * digitar. Sem campo, o primeiro botão ou link.
+         */
+        const campo = camada.querySelector('[autofocus], input:not([type="hidden"]):not([tabindex="-1"]), select:not([tabindex="-1"]), textarea');
+
+        (campo ?? camada.querySelector('button, a'))?.focus();
     });
 
     /*

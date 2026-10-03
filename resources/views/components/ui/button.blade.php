@@ -3,6 +3,8 @@
     'size' => 'md',
     'href' => null,
     'type' => 'button',
+    /** Um ícone do Lucide antes do texto (`icon="plus"`). */
+    'icon' => null,
 ])
 
 @php
@@ -70,8 +72,13 @@
     ];
 @endphp
 
+@php
+    // O ícone acompanha o texto: `size-4` no botão comum, `size-5` no grande.
+    $tamanhoDoIcone = in_array($size, ['lg', 'xl'], true) ? 'size-5' : 'size-4';
+@endphp
+
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->class($classes) }}>{{ $slot }}</a>
+    <a href="{{ $href }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$tamanhoDoIcone" />@endif{{ $slot }}</a>
 @else
-    <button type="{{ $type }}" {{ $attributes->class($classes) }}>{{ $slot }}</button>
+    <button type="{{ $type }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$tamanhoDoIcone" />@endif{{ $slot }}</button>
 @endif

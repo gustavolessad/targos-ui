@@ -27,6 +27,8 @@
      * o mesmo campo, para o rótulo de um não apontar para o do outro.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
     /*
      * A largura do campo com o seu envelope — rótulo, erro e dica. Aqui,
      * e não no `class`, que vai para o `<input>` (ver `x-ui.input`).
@@ -49,7 +51,7 @@
     $chave = $name === null ? null : \Targos\Ui\FieldName::key($name);
     $id ??= $name === null ? null : \Targos\Ui\FieldName::id($name);
 
-    $valorAtual = $name === null ? $value : old($chave, $value);
+    $valorAtual = $name === null || ! $remember ? $value : old($chave, $value);
 
     // Um campo tem um valor, nunca uma lista: `?qty[]=1` na URL faria o old() devolver um array.
     $valorAtual = is_array($valorAtual) ? null : $valorAtual;

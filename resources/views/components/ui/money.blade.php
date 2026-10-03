@@ -27,6 +27,8 @@
      * um não apontar para o campo do outro.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
     /*
      * As casas do valor que vai no formulário: 2, ou 4 para o custo
      * unitário (`3.9505`).
@@ -64,7 +66,7 @@
     $escala = max(2, min(4, (int) $scale));
     $passo = '0.'.str_repeat('0', $escala - 1).'1';
 
-    $valor = \Targos\Ui\Money::normalize(old($chave, $value), $escala);
+    $valor = \Targos\Ui\Money::normalize($remember ? old($chave, $value) : $value, $escala);
 
     // A tela mostra 2 casas (`3.9505` → 3,95) e o sinal, que o Money::format deixa de fora.
     $valorNegativo = $valor !== null && (float) \Targos\Ui\Money::normalize($valor) < 0;

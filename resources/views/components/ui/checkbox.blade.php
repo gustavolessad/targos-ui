@@ -43,6 +43,8 @@
      * com valor 1 → `items-0-active-1`); no `bare`, sem ele não há `id`.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
 ])
 
 @php
@@ -124,7 +126,7 @@
     $marcado = match (true) {
         $name === null || $lista => $checked,
         // O formulário voltou com erro: marcada é "o que voltou é o valor da caixa" (com `falsy` de texto, o desmarcado também volta).
-        session()->hasOldInput() => (string) old($chave, '') === (string) $value,
+        $remember && session()->hasOldInput() => (string) old($chave, '') === (string) $value,
         default => $checked,
     };
 @endphp

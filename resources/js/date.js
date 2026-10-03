@@ -53,6 +53,15 @@ function montar(raiz) {
      */
     const travado = () => nativo.disabled || nativo.readOnly;
 
+    // A trava posta no nativo depois de montado passa ao campo digitável e ao botão do calendário.
+    const espelharTrava = () => {
+        texto.disabled = nativo.disabled;
+        texto.readOnly = nativo.readOnly;
+        botao.disabled = travado();
+    };
+
+    new MutationObserver(espelharTrava).observe(nativo, { attributes: true, attributeFilter: ['disabled', 'readonly'] });
+
     const grade = document.createElement('div');
     const rodape = document.createElement('div');
     rodape.className = 'mt-3 flex items-center justify-between border-t border-neutral-200 pt-3 dark:border-neutral-800';

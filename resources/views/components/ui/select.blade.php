@@ -28,6 +28,8 @@
      * acontece se ficar em branco.
      */
     'info' => null,
+    /** A linha de apoio embaixo do campo, como no `x-ui.input` (some quando há erro). */
+    'hint' => null,
     /** `xs`, `sm`, `md`, `lg` ou `cell`: os mesmos nomes e medidas do input. */
     'size' => 'md',
     /** As opções vêm em grupos com título, que não se escolhem. */
@@ -346,5 +348,9 @@
 
     @error($chave)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
+    @else
+        @if ($hint)
+            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+        @endif
     @enderror
 </div>

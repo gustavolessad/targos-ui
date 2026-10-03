@@ -21,6 +21,8 @@
      * o mesmo campo, para o rótulo de um não apontar para o do outro.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
 ])
 
 @php
@@ -29,7 +31,7 @@
     $id ??= \Targos\Ui\FieldName::id($name);
 
     // `old()` vence o valor passado, como no campo de texto comum.
-    $valorAtual = old($chave, $value);
+    $valorAtual = $remember ? old($chave, $value) : $value;
     $temErro = $errors->has($chave);
 
     $tamanhos = [

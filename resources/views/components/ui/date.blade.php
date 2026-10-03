@@ -16,6 +16,8 @@
      * um não apontar para o campo do outro.
      */
     'id' => null,
+    /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
+    'remember' => true,
 ])
 
 @php
@@ -34,7 +36,7 @@
     $iso = fn ($data): ?string => $data instanceof \DateTimeInterface ? $data->format('Y-m-d') : (is_string($data) ? $data : null);
     $valida = fn (?string $data): ?string => $data !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) ? $data : null;
 
-    $valor = $valida($iso(old($chave, $iso($value))));
+    $valor = $valida($iso($remember ? old($chave, $iso($value)) : $iso($value)));
     $exibido = $valor ? \Carbon\CarbonImmutable::createFromFormat('!Y-m-d', $valor)->format('d/m/Y') : '';
     $minimo = $valida($iso($min));
     $maximo = $valida($iso($max));

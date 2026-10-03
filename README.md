@@ -219,6 +219,61 @@ primeira aba que tem (a não ser que a tela passe `active`). No teclado, as
 setas trocam de aba, e Home e End vão às pontas. Cada troca dispara `ui:aba`
 no `document`, com `detail: { grupo, aba }`.
 
+## Select
+
+```blade
+<x-ui.select name="product_id" label="Produto" placeholder="Selecione…" :options="[
+    12 => ['label' => 'Café 500 g', 'caption' => 'P-0012 · saldo 12', 'extra' => ['price' => '19.90', 'unit' => 'UN']],
+    13 => 'Açúcar 1 kg',
+]" />
+```
+
+| Prop | O que é |
+|---|---|
+| `options` | `valor => rótulo`, lista (`['SC', 'SP']`), agrupado (`grouped`) ou árvore (`hierarchical`). O rótulo pode ser `['label' => …, 'caption' => …, 'extra' => […]]`; numa lista, com `value`. O nó da árvore aceita `caption` e `extra` |
+| `source` | Busca no servidor: a URL chamada com `?q=` ao abrir e ao digitar; o endpoint responde com `Targos\Ui\SelectOptions::response()` |
+| `selected-label`, `selected-caption`, `selected-extra` | Com `source`: o rótulo, a segunda linha e os dados da opção já escolhida, que não vem na página |
+| `prefetch` | Com `source`: busca as primeiras opções assim que o JavaScript liga, e o primeiro clique abre sem esperar. Elas ficam guardadas até alguém digitar. Sem `prefetch`, cada abertura busca de novo |
+
+O `caption` é a segunda linha da opção no painel, em letra menor; o gatilho e o
+select nativo mostram só o rótulo, e a busca local casa no caption também. O
+`extra` são os dados que a tela recebe ao escolher (vão no `data-extra` da
+`<option>`, em JSON).
+
+No servidor:
+
+```php
+return SelectOptions::response(
+    $produtos,
+    fn ($p) => $p->name,
+    caption: fn ($p) => "{$p->code} · saldo {$p->stock}",
+    extra: fn ($p) => ['price' => $p->price, 'unit' => $p->unit, 'stock' => $p->stock],
+);
+```
+
+Cada opção vira `{ value, label, caption, extra }`. `caption` e `extra` só vêm
+quando a closure é passada, e valem `null` no item que não tem.
+
+### A escolha do select
+
+```js
+import { escolhaDe } from '@targos-ui';
+
+select.addEventListener('ui:selecionado', (evento) => {
+    preco.value = evento.detail.extra?.price ?? '';
+});
+
+escolhaDe(select); // { value, label, caption, extra } ou null
+```
+
+Quando a escolha muda no painel (opções da página ou da busca), o `<select>`
+dispara `ui:selecionado` depois do `change`, subindo pelo DOM, com
+`detail: { value, label, caption, extra }`; `extra` é `null` quando não há.
+Limpar (a opção do placeholder) também avisa, com `value: ''`. Valor trocado
+por script (`select.value = x`) não dispara o evento: leia com
+`escolhaDe(select)`, que serve a qualquer hora, inclusive para a opção que veio
+marcada do servidor.
+
 ## Cartão
 
 O `<x-ui.card>` aceita os slots `actions` (botões à direita do título, na
@@ -316,6 +371,169 @@ passaria dele não entra), `min` (piso, padrão 0; abaixo de zero ou
 `:min="false"`, o "-" troca o sinal), `id`, `size`, `placeholder`, `hint`,
 `info`, `required`. Colar aceita "3,25", "3.25", "3" e "3.2500".
 
+## Arquivo e imagem
+
+```blade
+<x-ui.file name="xml" label="Arquivo XML da nota" accept=".xml,text/xml" required />
+<x-ui.file name="files[]" label="Imagens" accept="image/*" multiple :max="10" />
+```
+
+`x-ui.file` é um ou vários arquivos. O `<input type="file">` nativo continua
+sendo o campo do formulário. O JavaScript o esconde (sr-only), mas ele segue no
+Tab, e mostra no lugar um botão que abre a janela de escolha. Ao lado, aparece
+o que foi escolhido: "nota.xml (12 KB)" ou "3 arquivos (1,2 MB)". Sem
+JavaScript, o nativo aparece sozinho.
+
+| Prop | O que é |
+|---|---|
+| `accept` | Os tipos aceitos, como no HTML: `.xml`, `text/xml`, `image/*` |
+| `multiple` | Vários arquivos; o nome vira lista (`files[]`, id `files`) |
+| `max` | Tamanho máximo **de cada arquivo**, em MB (padrão 10; `:max="false"` tira o limite). 10 MB é o `max:10240` do Laravel |
+| `button` | O texto do botão. Padrão: "Escolher arquivo" ou "Escolher arquivos" |
+| `size` | `sm`, `md` ou `lg`, as alturas do campo |
+| `id`, `label`, `hint`, `info`, `required` | Como no `x-ui.input` |
+
+Ao escolher, o arquivo que passa do `max` ou não está no `accept` ganha o erro
+embaixo do campo ("O arquivo passa de 10 MB.", "Tipo de arquivo não aceito."),
+e a escolha é desfeita. Com vários arquivos, a mensagem diz qual deles falhou,
+e a escolha inteira é recusada. É só aviso: valide no servidor também
+(`mimes:xml`, `max:10240`). Os atributos soltos (`form`, `disabled`, `capture`,
+`data-*`, `onchange`, `class`) vão para o `<input type="file">`. Depois de
+conferir, o nativo dispara `ui:arquivos` com `detail.arquivos`, a lista que
+ficou escolhida (vazia quando a escolha foi recusada).
+
+```blade
+<x-ui.image name="logo" label="Logo" :src="$brand->logo_url" size="lg"
+            accept="image/jpeg,image/png,image/webp" :max="10" />
+```
+
+`x-ui.image` é uma imagem com prévia. O quadro mostra a imagem gravada (`src`)
+e, ao escolher, a nova na hora, sem ir ao servidor. Os botões são "Escolher
+imagem" (ou "Trocar", quando já há imagem) e "Remover".
+
+| Prop | O que é |
+|---|---|
+| `src` | A URL da imagem gravada, ou `null` |
+| `size` | O quadro: `sm` (64px), `md` (96px, padrão) ou `lg` (128px) |
+| `accept` | Padrão `image/jpeg,image/png,image/webp` |
+| `max` | Em MB (padrão 10; `:max="false"` tira o limite) |
+| `removable` | O botão "Remover" (padrão `true`). Com `false`, não há botão nem o escondido `_remove` |
+| `empty` | O que o quadro mostra sem imagem: o nome de um ícone do Lucide (`building-2`) ou um texto curto ("Sem logo"). Padrão: o ícone `image`, apagado |
+| `required` | O `*` no rótulo. O navegador só cobra o arquivo quando não há imagem nenhuma: com a gravada à vista, salvar sem trocar vale |
+| `id`, `label`, `hint`, `info` | Como no `x-ui.input` |
+
+**Tirar a imagem gravada.** Não mandar arquivo não diz nada: é o que acontece
+em todo salvar que não mexe na imagem. Quem diz é o escondido `{name}_remove`.
+"Remover", com imagem gravada, o põe em `1`; escolher um arquivo o volta a `0`.
+No controller:
+
+```php
+if ($request->hasFile('logo')) {
+    // grava a nova (e apaga a antiga)
+} elseif ($request->boolean('logo_remove')) {
+    // apaga a gravada
+}
+```
+
+Com colchete, o sufixo entra no último: `items[0][photo]` envia
+`items[0][photo_remove]`, lido por `items.0.photo_remove`. A cada mudança, o
+nativo dispara `ui:imagem` com `detail.arquivo` (o `File` ou `null`) e
+`detail.removida` (se a gravada vai sair ao salvar). Sem JavaScript, aparece o
+nativo ao lado do quadro, e não há como remover.
+
+No JavaScript, as regras estão em funções puras: `tamanhoLegivel(bytes)`
+("12 KB", "1,2 MB"), `aceita(arquivo, accept)`, `resumoDosArquivos(lista)` e
+`conferirArquivos(lista, { accept, max })`, que devolve a mensagem ou `null`.
+
+## Linhas repetidas
+
+```blade
+<x-ui.repeater name="addresses" :items="$person?->addresses ?? []" row="people.address-row"
+               add="Adicionar endereço" :min="1" :max="5" sortable
+               empty="Nenhum endereço. Adicione o primeiro." :with="['ufs' => $ufs]" />
+```
+
+O desenho de cada linha é uma view do projeto (`row`); o pacote repete, numera,
+adiciona, remove, move e liga os campos do pacote nas linhas novas.
+
+```blade
+{{-- resources/views/people/address-row.blade.php --}}
+<div class="grid gap-3 sm:grid-cols-3">
+    <input type="hidden" name="{{ $name }}[id]" value="{{ data_get($item, 'id') }}">
+    <input type="hidden" name="{{ $name }}[position]" data-repetidor-posicao>
+    <x-ui.input :name="$name.'[zip]'" label="CEP" mask="cep" :value="data_get($item, 'zip')" />
+    <x-ui.input :name="$name.'[street]'" label="Rua" :value="data_get($item, 'street')" />
+    <x-ui.select :name="$name.'[uf]'" label="UF" :options="$ufs" :selected="data_get($item, 'uf')" />
+</div>
+```
+
+A linha recebe `$name` (`addresses[0]`), `$index` (`0`, ou `__i__` no modelo das
+linhas novas), `$item` (o model, o array do `old()`, ou `null` no modelo e nas
+linhas em branco — por isso `data_get`), `$key` (`addresses.0`, para `old()` e
+erros) e o que vier em `with`. Só isso: as variáveis da tela não chegam sem `with`.
+
+| Prop | O que é |
+|---|---|
+| `name` | O nome base: os campos da linha são `addresses[0][zip]`. Aceita colchete (`order[items]`) |
+| `items` | As linhas gravadas (array ou Collection, de arrays ou models). As chaves são os índices |
+| `row` | A view que desenha uma linha |
+| `with` | Variáveis a mais para a linha: `:with="['ufs' => $ufs]"` |
+| `add` | O texto do botão de adicionar (padrão "Adicionar"); `:add="false"` o esconde |
+| `min` | Linhas no mínimo (padrão 0). Faltando, vêm em branco; no mínimo, o "remover" some |
+| `max` | O teto; atingido, o "adicionar" desliga |
+| `sortable` | Botões de subir e descer em cada linha |
+| `empty` | O texto mostrado sem linha nenhuma |
+| `id` | O id do envelope (padrão: o nome sem colchetes) |
+
+Depois de um erro de validação, o componente aplica `old()` sozinho: voltam as
+linhas que a pessoa tinha (inclusive as que adicionou), na ordem e com os mesmos
+índices, e o erro `addresses.2.zip` aparece no campo certo. O erro da lista
+(`addresses`, sem índice) aparece embaixo do botão.
+
+Os `name`s não são renumerados ao mover: a ordem enviada é a da tela
+(`array_values($request->validated('addresses'))`). Quem grava a posição põe na
+linha um `<input type="hidden" … data-repetidor-posicao>`, que o JavaScript
+preenche com 0, 1, 2…
+
+Na linha nova, os campos do pacote já vêm ligados (máscara, select, data,
+período, valor, número, percentual, dica). O que é do projeto se liga pelo
+evento `ui:repetidor`, que sobe do envelope com
+`detail: { acao: 'adicionado' | 'removido' | 'movido', item, indice }`
+(`item` é o elemento da linha). `adicionarLinha(envelope)` acrescenta uma linha
+por código (o produto escolhido numa busca vira item da venda) e devolve o
+elemento, ou `null` no teto. Repetidor dentro de repetidor não funciona.
+
+## Listagem: filtros que se enviam sozinhos
+
+```blade
+<form method="GET" action="{{ route('clients.index') }}" data-filtros class="flex flex-wrap items-end gap-3">
+    <x-ui.filter-field kind="wide"><x-ui.input type="search" name="busca" label="Buscar" size="sm" /></x-ui.filter-field>
+    <x-ui.filter-field kind="select"><x-ui.select name="status" label="Situação" size="sm" placeholder="Todas" :options="$status" /></x-ui.filter-field>
+    <x-ui.button type="submit" variant="secondary" size="sm">Buscar</x-ui.button>
+</form>
+```
+
+Com `data-filtros`, um select, uma data, um período ou uma caixa enviam o
+formulário ao mudar; a busca (`type="search"`, ou o campo com
+`data-filtro-busca`) espera a pessoa parar de digitar (`data-filtros-espera`,
+400 ms por padrão); os campos vazios e o `page` ficam fora da URL. Sem
+JavaScript, vale o botão "Buscar".
+
+## Modal de editar preenchido pela linha
+
+```blade
+<x-ui.dropdown-item icon="pencil" data-abre-modal="editar-deposito"
+                    data-form-action="{{ route('warehouses.update', $row) }}"
+                    data-form-valores='@json(["name" => $row->name, "sells" => $row->sells])'>Editar</x-ui.dropdown-item>
+```
+
+Um modal de editar serve a todas as linhas: o botão que o abre traz os dados
+dela em `data-form-valores` (JSON, `nome do campo => valor`) e o destino em
+`data-form-action`. O `<form>` do modal é preenchido campo a campo pelo `name`
+(texto, caixa, rádio, select, valor, data — os do pacote redesenham sozinhos).
+`preencherFormulario(form, valores)` faz o mesmo por código, com dados vindos de
+um `fetch`. O destino nunca vem dos dados: só de `data-form-action`.
+
 ## Máscaras
 
 ```blade
@@ -354,8 +572,8 @@ e `valorLimpo(valor, mascara)` devolve o valor sem pontuação.
 ## Nomes com colchete, `id` próprio e atributos no campo
 
 Todo campo (`input`, `money`, `number`, `percent`, `date`, `date-range`,
-`select`, `textarea`, `toggle`, `checkbox`, `radio-group`) aceita nome de
-lista, o das linhas repetidas:
+`select`, `textarea`, `toggle`, `checkbox`, `radio-group`, `file`, `image`)
+aceita nome de lista, o das linhas repetidas:
 
 ```blade
 <x-ui.date name="items[0][due]" label="Vencimento" />
@@ -470,6 +688,22 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.7.0** — As peças de listagem e de formulário composto:
+  - `x-ui.repeater` (linhas que se adicionam, removem e movem; `old()` por
+    índice; evento `ui:repetidor`; `adicionarLinha()`);
+  - `x-ui.file` e `x-ui.image` (prévia local, validação de tipo e tamanho,
+    `{name}_remove` para tirar a imagem gravada);
+  - `x-ui.select`: opção com segunda linha e dados (`caption`/`extra` em
+    `options` e em `SelectOptions::response`; `selected-caption`/`selected-extra`),
+    evento `ui:selecionado` e `escolhaDe()`, `prefetch`; na busca no servidor, a
+    opção vazia sai da frente do resultado e o Enter escolhe a primeira que veio;
+  - `data-filtros`: a barra de filtros que se envia sozinha (`ligarFiltros`);
+  - `data-form-valores` / `data-form-action`: o modal de editar preenchido pela
+    linha (`preencherFormulario`);
+  - os ids de `select` e `checkbox` deixam de passar por `Str::slug` (o `__i__`
+    do repetidor sobrevive). Quem liga os módulos um a um acrescenta
+    `ligarRepetidores()`, `ligarArquivos()`, `ligarImagens()`, `ligarFiltros()` e
+    `ligarPreenchimentos()`.
 - **1.6.0** — O que um ERP pede dos campos, sem prop de projeto:
   - todo campo aceita nome com colchete (`items[0][price]`: `old()` e erro por
     `items.0.price`, id `items-0-price`, via `Targos\Ui\FieldName`) e a prop `id`;

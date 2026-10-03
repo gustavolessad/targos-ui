@@ -61,15 +61,23 @@ export function ligarDicas(raiz = document) {
     });
 }
 
-// Uma vez só, para a página inteira.
-document.addEventListener('click', (evento) => {
-    if (! evento.target.closest('[data-dica-clique]')) {
-        fecharTodas();
-    }
-});
+/*
+ * Uma vez só, para a página inteira.
+ *
+ * Fora do navegador (os testes, no Node) não há `document`: o
+ * repeater.js importa este módulo, e o teste das regras dele não
+ * carregaria.
+ */
+if (typeof document !== 'undefined') {
+    document.addEventListener('click', (evento) => {
+        if (! evento.target.closest('[data-dica-clique]')) {
+            fecharTodas();
+        }
+    });
 
-document.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Escape') {
-        fecharTodas();
-    }
-});
+    document.addEventListener('keydown', (evento) => {
+        if (evento.key === 'Escape') {
+            fecharTodas();
+        }
+    });
+}

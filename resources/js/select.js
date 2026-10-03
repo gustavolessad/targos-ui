@@ -19,6 +19,14 @@ import { paraBusca } from './search.js';
  * - o `value` do nativo ganha um setter que redesenha o gatilho, porque
  *   `select.value = x` vindo de outro script não dispara evento nenhum;
  * - um observador acompanha o `disabled`.
+ *
+ * Uma opção pode dizer mais que o rótulo: a segunda linha
+ * (`data-caption`, o código e o saldo do produto) e os dados que a tela
+ * usa ao escolher (`data-extra`, em JSON: o preço, a unidade). Vêm da
+ * página ou da busca no servidor, e moram no `<option>` do nativo como o
+ * resto. A tela os recebe no evento `ui:selecionado`, disparado no
+ * nativo depois do `change`, ou pergunta a qualquer hora com
+ * `escolhaDe(nativo)`.
  */
 function ligarSeletores(raiz = document) {
     raiz.querySelectorAll('[data-seletor]').forEach(montarSeletor);
@@ -36,27 +44,156 @@ export function urlDaBusca(fonte, termo, base) {
 }
 
 /**
+ * Os dados da opção como vão no `data-extra` do `<option>`: JSON, ou
+ * `null` quando não há (a opção fica sem o atributo).
+ */
+export function textoDoExtra(extra) {
+    return extra === null || extra === undefined ? null : JSON.stringify(extra);
+}
+
+/**
+ * O caminho de volta: o `data-extra` lido como dados. Sem o atributo, ou
+ * com um JSON que não se lê, `null` — a escolha continua valendo, só
+ * sem os dados.
+ */
+export function lerExtra(texto) {
+    if (texto === null || texto === undefined || texto === '') {
+        return null;
+    }
+
+    try {
+        return JSON.parse(texto);
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Uma opção da busca com os tipos acertados. A segunda linha e os dados
+ * só entram quando existem, como na resposta do servidor
+ * (`SelectOptions::response`).
+ */
+function normalizarOpcao(item) {
+    const opcao = { value: String(item.value), label: String(item.label) };
+    const caption = item.caption === null || item.caption === undefined ? '' : String(item.caption).trim();
+
+    if (caption !== '') {
+        opcao.caption = caption;
+    }
+
+    if (item.extra !== null && item.extra !== undefined) {
+        opcao.extra = item.extra;
+    }
+
+    return opcao;
+}
+
+/**
  * As opções do nativo depois de uma busca no servidor: as que vieram e,
  * se a escolhida não veio, ela também — escondida, para o valor do
- * formulário não se perder (o painel não mostra opção escondida).
+ * formulário não se perder (o painel não mostra opção escondida). A
+ * segunda linha e os dados de cada uma vêm junto, os da escolhida
+ * inclusive.
  *
- * @param {{value: string, label: string}|null} escolhida
- * @param {Array<{value: string|number, label: string}>} itens
- * @returns {Array<{value: string, label: string, selected: boolean, hidden: boolean}>}
+ * @param {{value: string, label: string, caption?: string|null, extra?: object|null}|null} escolhida
+ * @param {Array<{value: string|number, label: string, caption?: string|null, extra?: object|null}>} itens
+ * @returns {Array<{value: string, label: string, caption?: string, extra?: object, selected: boolean, hidden: boolean}>}
  */
 export function mesclarOpcoes(escolhida, itens) {
-    const opcoes = itens.map((item) => ({
-        value: String(item.value),
-        label: String(item.label),
-        selected: escolhida !== null && String(item.value) === escolhida.value,
-        hidden: false,
-    }));
+    const opcoes = itens.map((item) => {
+        const opcao = normalizarOpcao(item);
+
+        return { ...opcao, selected: escolhida !== null && opcao.value === String(escolhida.value), hidden: false };
+    });
 
     if (escolhida !== null && ! opcoes.some((opcao) => opcao.selected)) {
-        opcoes.push({ ...escolhida, selected: true, hidden: true });
+        opcoes.push({ ...normalizarOpcao(escolhida), selected: true, hidden: true });
     }
 
     return opcoes;
+}
+
+/**
+ * Se a linha do painel some com o termo digitado na busca (já passado
+ * por `paraBusca`).
+ *
+ * No filtro local, fica quem tem o termo no texto de busca (o rótulo e a
+ * segunda linha). Na busca no servidor, quem filtra é ele: aqui só a
+ * opção vazia (a do placeholder, que limpa a escolha) sai da frente do
+ * resultado, para o Enter escolher a primeira que veio.
+ *
+ * @param {{valor: string, busca: string}} linha
+ * @param {string} termo
+ * @param {boolean} remota
+ */
+export function ficaEscondida({ valor, busca }, termo, remota) {
+    if (termo === '') {
+        return false;
+    }
+
+    if (remota) {
+        return valor === '';
+    }
+
+    return ! busca.includes(termo);
+}
+
+/**
+ * A escolha que uma `<option>` representa, como a tela a recebe: o
+ * valor, o rótulo (sem o recuo do hierárquico), a segunda linha e os
+ * dados. A opção vazia (o placeholder) não é escolha: `null`.
+ *
+ * @param {{value: string, textContent: string, dataset: {caption?: string, extra?: string}}|null|undefined} opcao
+ * @returns {{value: string, label: string, caption: string|null, extra: object|null}|null}
+ */
+export function escolhaDaOpcao(opcao) {
+    if (! opcao || opcao.value === '') {
+        return null;
+    }
+
+    return {
+        value: opcao.value,
+        label: String(opcao.textContent ?? '').trim(),
+        caption: opcao.dataset?.caption || null,
+        extra: lerExtra(opcao.dataset?.extra),
+    };
+}
+
+/*
+ * A escolha de cada select, guardada quando ela muda: o `extra` já lido
+ * do JSON, e o mesmo objeto para o evento e para quem perguntar depois.
+ * Vale enquanto a `<option>` marcada for a mesma; se outro script trocar
+ * o valor (`select.value = x`) ou a busca reescrever as opções, a
+ * escolha é lida de novo do `<option>`.
+ */
+const escolhas = new WeakMap();
+
+/**
+ * A opção escolhida num select, com a segunda linha e os dados:
+ * `{ value, label, caption, extra }`, ou `null` sem escolha. Serve a
+ * qualquer hora, inclusive para a que veio marcada do servidor (lida do
+ * `data-caption` e do `data-extra` dela).
+ *
+ * @param {HTMLSelectElement} nativo  o `<select>` (o `[data-seletor-nativo]`)
+ * @returns {{value: string, label: string, caption: string|null, extra: object|null}|null}
+ */
+export function escolhaDe(nativo) {
+    const opcao = nativo?.selectedOptions?.[0] ?? null;
+
+    if (opcao === null) {
+        return null;
+    }
+
+    const guardada = escolhas.get(nativo);
+
+    if (guardada?.opcao === opcao) {
+        return guardada.escolha;
+    }
+
+    const escolha = escolhaDaOpcao(opcao);
+    escolhas.set(nativo, { opcao, escolha });
+
+    return escolha;
 }
 
 function montarSeletor(campo) {
@@ -133,11 +270,13 @@ function montarSeletor(campo) {
         const botao = document.createElement('button');
         const nivel = Number(opcao.dataset.nivel ?? 0);
         const escolhida = opcao.selected && opcao.value !== '';
+        const caption = opcao.dataset.caption ?? '';
 
         botao.type = 'button';
         botao.setAttribute('role', 'option');
         botao.dataset.seletorValor = opcao.value;
-        botao.dataset.seletorBusca = paraBusca(rotuloDe(opcao));
+        // A busca local casa no rótulo e na segunda linha (o código do produto, por exemplo).
+        botao.dataset.seletorBusca = paraBusca(`${rotuloDe(opcao)} ${caption}`);
         botao.setAttribute('aria-selected', String(escolhida));
         botao.disabled = opcao.disabled;
         botao.className = [
@@ -161,9 +300,24 @@ function montarSeletor(campo) {
         }
 
         const rotulo = document.createElement('span');
-        rotulo.className = 'min-w-0 flex-1 truncate';
         rotulo.textContent = opcao.textContent.trim();
-        botao.append(rotulo);
+
+        if (caption === '') {
+            rotulo.className = 'min-w-0 flex-1 truncate';
+            botao.append(rotulo);
+        } else {
+            // Duas linhas: o rótulo e, embaixo, em letra menor, a segunda linha.
+            const textos = document.createElement('span');
+            textos.className = 'flex min-w-0 flex-1 flex-col';
+
+            const legenda = document.createElement('span');
+            legenda.className = 'truncate text-xs text-neutral-500 dark:text-neutral-400';
+            legenda.textContent = caption;
+
+            rotulo.className = 'truncate text-sm';
+            textos.append(rotulo, legenda);
+            botao.append(textos);
+        }
 
         if (escolhida) {
             botao.insertAdjacentHTML(
@@ -216,11 +370,24 @@ function montarSeletor(campo) {
      * não do HTML. Ao abrir, as primeiras; ao digitar, depois de uma
      * pausa, as que batem — a busca anterior é cancelada. O resultado
      * reescreve as opções do nativo, e o painel se monta dele como sempre.
+     *
+     * Com `prefetch`, as primeiras são buscadas já ao ligar e ficam
+     * guardadas: o painel abre com elas, sem esperar nem buscar de novo,
+     * até alguém digitar.
      */
     const fonte = campo.dataset.seletorFonte;
+    const preBusca = fonte !== undefined && campo.dataset.seletorPreBusca !== undefined;
     const textoDoVazio = vazio?.textContent.trim() ?? '';
     let busca = null;
     let pausa = null;
+    // O termo da busca em andamento (`null` sem busca), e se o nativo tem as primeiras opções.
+    let termoEmBusca = null;
+    let temPrimeiras = false;
+    // Enter digitado antes de a busca voltar: escolhe a primeira quando ela chegar.
+    let enterPendente = false;
+
+    // Na busca no servidor, a opção vazia não é resultado: com ela sozinha, "Nada encontrado".
+    const temResultado = () => opcoesVisiveis().some((botao) => ! fonte || botao.dataset.seletorValor !== '');
 
     const mostrarAviso = (mensagem) => {
         if (vazio) {
@@ -229,9 +396,28 @@ function montarSeletor(campo) {
         }
     };
 
+    const filtrar = () => {
+        const termo = paraBusca(filtro?.value);
+
+        lista.querySelectorAll('[data-seletor-valor]').forEach((botao) => {
+            botao.hidden = ficaEscondida({ valor: botao.dataset.seletorValor, busca: botao.dataset.seletorBusca }, termo, Boolean(fonte));
+        });
+
+        // O título do grupo some junto com as opções dele.
+        lista.querySelectorAll('[data-seletor-grupo]').forEach((grupo) => {
+            grupo.hidden = ! grupo.querySelector('[data-seletor-valor]:not([hidden])');
+        });
+
+        if (vazio) {
+            vazio.textContent = textoDoVazio;
+        }
+
+        vazio?.classList.toggle('hidden', temResultado());
+    };
+
     const aplicarResultado = (itens) => {
-        const atual = nativo.selectedOptions[0];
-        const escolhida = atual && atual.value !== '' ? { value: atual.value, label: atual.textContent.trim() } : null;
+        // A escolhida que não vier na busca continua, escondida, com a segunda linha e os dados que tinha.
+        const escolhida = escolhaDaOpcao(nativo.selectedOptions[0]);
         const vaga = Array.from(nativo.options).find((opcao) => opcao.value === '');
 
         nativo.textContent = '';
@@ -242,20 +428,34 @@ function montarSeletor(campo) {
 
         mesclarOpcoes(escolhida, itens).forEach((item) => {
             const opcao = new Option(item.label, item.value, item.selected, item.selected);
+            const extra = textoDoExtra(item.extra);
+
             opcao.hidden = item.hidden;
+
+            if (item.caption !== undefined) {
+                opcao.dataset.caption = item.caption;
+            }
+
+            if (extra !== null) {
+                opcao.dataset.extra = extra;
+            }
+
             nativo.append(opcao);
         });
     };
 
     const buscarNoServidor = async (termo) => {
         busca?.abort();
-        busca = new AbortController();
+
+        const controle = new AbortController();
+        busca = controle;
+        termoEmBusca = termo;
         mostrarAviso('Buscando…');
 
         try {
             const resposta = await fetch(urlDaBusca(fonte, termo, window.location.href), {
                 headers: { Accept: 'application/json' },
-                signal: busca.signal,
+                signal: controle.signal,
             });
 
             if (! resposta.ok) {
@@ -263,38 +463,45 @@ function montarSeletor(campo) {
             }
 
             aplicarResultado(await resposta.json());
+            temPrimeiras = termo === '';
             montarLista();
+            filtrar();
 
-            if (vazio) {
-                vazio.textContent = textoDoVazio;
+            if (enterPendente) {
+                enterPendente = false;
+
+                const primeira = opcoesVisiveis()[0];
+
+                if (primeira && aberto()) {
+                    escolher(primeira.dataset.seletorValor);
+                }
             }
-
-            vazio?.classList.toggle('hidden', opcoesVisiveis().length > 0);
         } catch (erro) {
             if (erro.name !== 'AbortError') {
+                enterPendente = false;
                 mostrarAviso('Não foi possível buscar. Tente de novo.');
+            }
+        } finally {
+            if (busca === controle) {
+                busca = null;
+                termoEmBusca = null;
             }
         }
     };
 
-    const filtrar = () => {
-        // Com busca no servidor, quem filtra é ele: aqui não se esconde nada.
-        if (fonte) {
+    /** Ao abrir: as primeiras opções, buscadas agora, a caminho ou já guardadas. */
+    const pedirPrimeiras = () => {
+        if (termoEmBusca === '') {
+            mostrarAviso('Buscando…');
+
             return;
         }
 
-        const termo = paraBusca(filtro?.value);
+        if (preBusca && temPrimeiras && termoEmBusca === null) {
+            return;
+        }
 
-        lista.querySelectorAll('[data-seletor-valor]').forEach((botao) => {
-            botao.hidden = termo !== '' && ! botao.dataset.seletorBusca.includes(termo);
-        });
-
-        // O título do grupo some junto com as opções dele.
-        lista.querySelectorAll('[data-seletor-grupo]').forEach((grupo) => {
-            grupo.hidden = ! grupo.querySelector('[data-seletor-valor]:not([hidden])');
-        });
-
-        vazio?.classList.toggle('hidden', opcoesVisiveis().length > 0);
+        buscarNoServidor('');
     };
 
     const flutuante = painelFlutuante(gatilho, painel);
@@ -302,6 +509,10 @@ function montarSeletor(campo) {
     const aberto = () => ! painel.hidden;
 
     const fechar = ({ focar = false } = {}) => {
+        clearTimeout(pausa);
+        pausa = null;
+        enterPendente = false;
+
         flutuante.fechar();
         gatilho.setAttribute('aria-expanded', 'false');
 
@@ -332,7 +543,7 @@ function montarSeletor(campo) {
         (filtro ?? marcada ?? opcoesVisiveis()[0])?.focus();
 
         if (fonte) {
-            buscarNoServidor('');
+            pedirPrimeiras();
         }
     };
 
@@ -345,6 +556,17 @@ function montarSeletor(campo) {
         if (mudou) {
             nativo.dispatchEvent(new Event('input', { bubbles: true }));
             nativo.dispatchEvent(new Event('change', { bubbles: true }));
+
+            /*
+             * Depois do `change`, a escolha com a segunda linha e os dados
+             * (o preço e a unidade do produto, para a tela preencher os
+             * outros campos). `escolhaDe` a guarda para quem perguntar
+             * depois; limpar a escolha também avisa, com o valor vazio.
+             */
+            nativo.dispatchEvent(new CustomEvent('ui:selecionado', {
+                bubbles: true,
+                detail: escolhaDe(nativo) ?? { value: '', label: '', caption: null, extra: null },
+            }));
         }
 
         fechar({ focar: true });
@@ -375,7 +597,10 @@ function montarSeletor(campo) {
         }
 
         clearTimeout(pausa);
-        pausa = setTimeout(() => buscarNoServidor(filtro.value), ESPERA_DA_BUSCA);
+        pausa = setTimeout(() => {
+            pausa = null;
+            buscarNoServidor(filtro.value);
+        }, ESPERA_DA_BUSCA);
     });
 
     // As setas andam pelas opções visíveis; Enter no filtro escolhe a primeira.
@@ -398,6 +623,13 @@ function montarSeletor(campo) {
 
         if (evento.key === 'Enter' && document.activeElement === filtro) {
             evento.preventDefault();
+
+            // A busca ainda não voltou: escolhe quando ela chegar, e não numa lista velha.
+            if (fonte && (pausa !== null || termoEmBusca !== null)) {
+                enterPendente = true;
+
+                return;
+            }
 
             if (opcoes[0]) {
                 escolher(opcoes[0].dataset.seletorValor);
@@ -442,6 +674,10 @@ function montarSeletor(campo) {
     });
 
     desenharGatilho();
+
+    if (preBusca) {
+        buscarNoServidor('');
+    }
 }
 
 // Fora do navegador (os testes, no Node), não há `window`.

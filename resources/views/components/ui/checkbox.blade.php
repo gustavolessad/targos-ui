@@ -62,13 +62,16 @@
      * Um `id` por caixa, com o valor junto.
      *
      * `FieldName::id` tira os colchetes do nome (`items[0][active]` →
-     * `items-0-active`); o `Str::slug` cuida do valor, porque ele vira
-     * parte do atributo: um "P / Preto" com barra e espaço não é `id`
-     * válido, e o `<label for>` não o acharia. Num nome simples, sai o
-     * mesmo `id` de sempre (`ativo-1`).
+     * `items-0-active`) e limpa o valor, porque ele vira parte do
+     * atributo: um "P / Preto" com barra e espaço não é `id` válido, e o
+     * `<label for>` não o acharia. Num nome simples, sai o mesmo `id` de
+     * sempre (`ativo-1`).
+     *
+     * Não é `Str::slug`: ele trocaria o `__i__` do `x-ui.repeater` por
+     * `-i-`, e toda linha nova nasceria com o mesmo id.
      */
     $nomeNoId = \Targos\Ui\FieldName::id((string) $name);
-    $idDaCaixa = $id ?? (\Illuminate\Support\Str::slug($nomeNoId.'-'.(string) $value) ?: $nomeNoId);
+    $idDaCaixa = $id ?? (\Targos\Ui\FieldName::id($nomeNoId.'-'.mb_strtolower((string) $value)) ?: $nomeNoId);
 
     /*
      * O erro aparece embaixo da caixa só quando ela é o campo inteiro.

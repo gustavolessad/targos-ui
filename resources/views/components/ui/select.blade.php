@@ -8,6 +8,14 @@
      * - agrupado (`grouped`): `['Grupo' => [valor => rótulo]]`;
      * - hierárquico (`hierarchical`): árvore de nós
      *   `['value' => 1, 'label' => 'Residencial', 'children' => [...]]`.
+     *
+     * No simples e no agrupado, o rótulo pode ser um array, para a opção
+     * com segunda linha e dados: `valor => ['label' => 'Café 500 g',
+     * 'caption' => 'P-0012 · saldo 12', 'extra' => ['price' => '19.90']]`.
+     * O `caption` aparece embaixo do rótulo, em letra menor; o `extra` é o
+     * que a tela recebe ao escolher (`escolhaDe()` e o evento
+     * `ui:selecionado`, no select.js). Numa lista, o valor vem do `value`
+     * de cada um. O nó do hierárquico aceita as mesmas `caption` e `extra`.
      */
     'options' => [],
     'selected' => null,
@@ -42,6 +50,17 @@
     'source' => null,
     /** Com `source`: o texto da opção já escolhida (na edição, ou voltando de um erro), que não vem na página. */
     'selectedLabel' => null,
+    /** Com `source`: a segunda linha da opção já escolhida, como o `caption` da busca. */
+    'selectedCaption' => null,
+    /** Com `source`: os dados da opção já escolhida, como o `extra` da busca (array). */
+    'selectedExtra' => null,
+    /**
+     * Com `source`: busca as primeiras opções assim que a página liga o
+     * JavaScript, e não só ao abrir, para o primeiro clique abrir sem
+     * esperar. Elas ficam guardadas: o painel volta a mostrá-las sem nova
+     * busca até alguém digitar.
+     */
+    'prefetch' => false,
     /*
      * O `id` do `<select>`. Sem ele, sai do nome (`items[0][uf]` →
      * `items-0-uf`). Passe um quando dois formulários da mesma tela têm
@@ -51,8 +70,6 @@
 ])
 
 @php
-    use Illuminate\Support\Str;
-
     // `items[0][uf]` no HTML é `items.0.uf` para old() e para os erros.
     $chave = \Targos\Ui\FieldName::key($name);
 
@@ -73,31 +90,51 @@
     /*
      * Tudo vira a mesma lista plana de entradas, e é dela que o
      * `<select>` nasce: `group` abre um `<optgroup>`, `option` é uma
-     * escolha com o nível e o caminho que o painel usa.
+     * escolha com o nível e o caminho que o painel usa, e a segunda linha
+     * (`caption`) e os dados (`extra`, já em JSON) quando os tem.
      *
-     * @var list<array{tipo: string, valor?: string, rotulo: string, nivel?: int, caminho?: string}>
+     * @var list<array{tipo: string, valor?: string, rotulo: string, nivel?: int, caminho?: string, caption?: ?string, extra?: ?string}>
      */
     $entradas = [];
 
-    $opcao = fn (mixed $valor, string $rotulo, int $nivel = 0, ?string $caminho = null): array => [
+    /*
+     * A segunda linha e os dados seguem as regras da busca no servidor
+     * (SelectOptions::response): vazio é nulo, e o select.js lê as
+     * opções da página e as da busca do mesmo jeito.
+     */
+    $emJson = function (mixed $extra): ?string {
+        $dados = \Targos\Ui\SelectOptions::extra($extra);
+
+        return $dados === null ? null : json_encode($dados, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    };
+
+    $opcao = fn (mixed $valor, string $rotulo, int $nivel = 0, ?string $caminho = null, mixed $caption = null, mixed $extra = null): array => [
         'tipo' => 'option',
         'valor' => (string) $valor,
         'rotulo' => $rotulo,
         'nivel' => $nivel,
         'caminho' => $caminho ?? $rotulo,
+        'caption' => \Targos\Ui\SelectOptions::caption($caption),
+        'extra' => $emJson($extra),
     ];
 
     /*
      * Lista simples (['SC', 'SP']) ou mapa (valor => rótulo): o que
      * distingue as duas é a forma do array inteiro, não o tipo de cada
      * chave — `[3 => 'Casa']` é um mapa de id para nome.
+     *
+     * O rótulo que é array traz a segunda linha e os dados
+     * (`['label' => …, 'caption' => …, 'extra' => […]]`); o valor é a
+     * chave, ou o `value` dele numa lista.
      */
     $plano = function (array $mapa) use ($opcao): array {
         $lista = $mapa !== [] && array_is_list($mapa);
         $saida = [];
 
         foreach ($mapa as $valor => $rotulo) {
-            $saida[] = $opcao($lista ? $rotulo : $valor, (string) $rotulo);
+            $saida[] = is_array($rotulo)
+                ? $opcao($rotulo['value'] ?? $valor, (string) $rotulo['label'], 0, null, $rotulo['caption'] ?? null, $rotulo['extra'] ?? null)
+                : $opcao($lista ? $rotulo : $valor, (string) $rotulo);
         }
 
         return $saida;
@@ -110,7 +147,7 @@
          * as opções do nativo — ele continua sendo o que vai no formulário.
          */
         $entradas = $valorAtual !== null && $selectedLabel !== null
-            ? [$opcao($valorAtual, (string) $selectedLabel)]
+            ? [$opcao($valorAtual, (string) $selectedLabel, 0, null, $selectedCaption, $selectedExtra)]
             : [];
     } elseif ($hierarchical) {
         $descer = function (array $nos, int $nivel, array $ancestrais) use (&$descer, $opcao): array {
@@ -118,7 +155,7 @@
 
             foreach ($nos as $no) {
                 $caminho = [...$ancestrais, (string) $no['label']];
-                $saida[] = $opcao($no['value'], (string) $no['label'], $nivel, implode(' › ', $caminho));
+                $saida[] = $opcao($no['value'], (string) $no['label'], $nivel, implode(' › ', $caminho), $no['caption'] ?? null, $no['extra'] ?? null);
                 $saida = [...$saida, ...$descer($no['children'] ?? [], $nivel + 1, $caminho)];
             }
 
@@ -167,9 +204,15 @@
         'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 aria-expanded:ring-2 aria-expanded:border-danger-500 aria-expanded:ring-danger-500/20 dark:border-danger-500' => $temErro,
     ];
 
-    // O `id` do painel acompanha o do campo, que pode vir de fora.
+    /*
+     * O `id` do painel acompanha o do campo, que pode vir de fora. Passa
+     * pelo FieldName, e não por `Str::slug`: o slug troca `_` por `-`, e o
+     * `__i__` das linhas do `<x-ui.repeater>` virava `-i-`, o mesmo id em
+     * toda linha clonada (com o `aria-controls` apontando para o painel
+     * errado). Assim `addresses[__i__][uf]` dá `sel-addresses-__i__-uf`.
+     */
     $id ??= \Targos\Ui\FieldName::id($name);
-    $idDoPainel = 'sel-'.Str::slug($id.'-'.$attributes->get('form', ''));
+    $idDoPainel = 'sel-'.\Targos\Ui\FieldName::id($id.'-'.$attributes->get('form', ''));
 @endphp
 
 {{--
@@ -193,7 +236,8 @@
 <div class="group relative min-w-0"
      data-seletor
      @if ($buscavel) data-seletor-busca @endif
-     @if ($source !== null) data-seletor-fonte="{{ $source }}" @endif>
+     @if ($source !== null) data-seletor-fonte="{{ $source }}" @endif
+     @if ($source !== null && $prefetch) data-seletor-pre-busca @endif>
     @if ($label)
         <x-ui.field-label :label="$label"
                           :for="$id"
@@ -215,16 +259,26 @@
             @if ($entrada['tipo'] === 'group')
                 <optgroup label="{{ $entrada['rotulo'] }}">
                     @foreach ($entrada['itens'] as $item)
-                        <option value="{{ $item['valor'] }}" @selected($item['valor'] === $valorAtual)>{{ $item['rotulo'] }}</option>
+                        <option value="{{ $item['valor'] }}"
+                                @if ($item['caption'] !== null) data-caption="{{ $item['caption'] }}" @endif
+                                @if ($item['extra'] !== null) data-extra="{{ $item['extra'] }}" @endif
+                                @selected($item['valor'] === $valorAtual)>{{ $item['rotulo'] }}</option>
                     @endforeach
                 </optgroup>
             @else
-                {{-- O recuo no nativo é o espaço; no painel, o `data-nivel`. --}}
+                {{--
+                    O recuo no nativo é o espaço; no painel, o `data-nivel`.
+                    A segunda linha e os dados vão em `data-caption` e
+                    `data-extra` (JSON): o nativo mostra só o rótulo, e o
+                    painel e o `escolhaDe()` leem dali.
+                --}}
                 <option value="{{ $entrada['valor'] }}"
                         @if ($hierarchical)
                             data-nivel="{{ $entrada['nivel'] }}"
                             data-caminho="{{ $entrada['caminho'] }}"
                         @endif
+                        @if ($entrada['caption'] !== null) data-caption="{{ $entrada['caption'] }}" @endif
+                        @if ($entrada['extra'] !== null) data-extra="{{ $entrada['extra'] }}" @endif
                         @selected($entrada['valor'] === $valorAtual)>{{ str_repeat("\u{00A0}\u{00A0}\u{00A0}", $entrada['nivel']) }}{{ $entrada['rotulo'] }}</option>
             @endif
         @endforeach

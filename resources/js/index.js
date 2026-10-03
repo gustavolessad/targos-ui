@@ -29,6 +29,11 @@ import { ligarConfirmacoes } from './confirm.js';
 import { ligarMenuLateral } from './nav.js';
 import { ligarBarraLateral } from './sidebar.js';
 import { ligarGraficos } from './chart.js';
+import { ligarRepetidores } from './repeater.js';
+import { ligarArquivos } from './file.js';
+import { ligarImagens } from './image.js';
+import { ligarFiltros } from './filters.js';
+import { ligarPreenchimentos } from './form-fill.js';
 import { ligarEnvios } from './submit.js';
 
 export { MASCARAS, aplicarMascara, ligarMascaras, valorLimpo, mensagemInvalida, validarCpf, validarCnpj, validarTelefone, validarCep } from './masks.js';
@@ -36,7 +41,7 @@ export { mostrarErros, limparErros, mostrarErroNoCampo, limparErroDoCampo, campo
 export { requisicaoJson, mensagemDe, xsrfToken, ErroDeRequisicao } from './fetch.js';
 export { ligarCamadas, abrirCamada, fecharCamada } from './layers.js';
 export { ligarAbas } from './tabs.js';
-export { ligarSeletores } from './select.js';
+export { ligarSeletores, escolhaDe } from './select.js';
 export { ligarLinhasClicaveis } from './table-row.js';
 export { ligarTema } from './theme.js';
 export { ligarDropdowns, montarMenu } from './dropdown.js';
@@ -57,6 +62,11 @@ export { ligarConfirmacoes, confirmar } from './confirm.js';
 export { ligarMenuLateral } from './nav.js';
 export { ligarBarraLateral } from './sidebar.js';
 export { ligarGraficos } from './chart.js';
+export { ligarRepetidores, adicionarLinha, substituirIndice, proximoIndice, podeRemover, podeAdicionar } from './repeater.js';
+export { tamanhoLegivel, aceita, resumoDosArquivos, conferirArquivos, ligarArquivos } from './file.js';
+export { ligarImagens } from './image.js';
+export { ligarFiltros, camposForaDaUrl, enviaAoMudar } from './filters.js';
+export { ligarPreenchimentos, preencherFormulario, escreverNoCampo } from './form-fill.js';
 
 /**
  * Liga tudo, na ordem certa.
@@ -89,6 +99,11 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarMenuLateral();
     ligarBarraLateral();
     ligarGraficos();
+    ligarRepetidores();
+    ligarArquivos();
+    ligarImagens();
+    ligarFiltros();
+    ligarPreenchimentos();
 
     antesDosEnvios();
 

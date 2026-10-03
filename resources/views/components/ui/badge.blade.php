@@ -13,6 +13,11 @@
      * `solid` (padrão) ou `outline`: só o contorno e o texto na cor, sem
      * fundo. Para o estado que acompanha outro na mesma linha (o
      * financeiro ao lado do comercial da venda) sem competir com ele.
+     *
+     * `filled`: o fundo cheio na cor, para o aviso que tem de saltar da
+     * tela inteira (o período de teste na barra superior), não para o
+     * estado de uma linha de tabela. O `warning` cheio é o amarelo com
+     * texto escuro.
      */
     'variant' => 'solid',
 ])
@@ -71,9 +76,23 @@
     ];
     $contornos['violet'] = $contornos['accent'];
 
-    $pintura = $variant === 'outline'
-        ? 'bg-transparent '.($contornos[$color] ?? $contornos['neutral'])
-        : ($cores[$color] ?? $cores['neutral']);
+    // Cheio: o fundo na cor forte, com o texto no contraste dela.
+    $cheios = [
+        'neutral' => 'bg-neutral-700 text-white ring-neutral-800/20 dark:bg-neutral-600 dark:ring-white/10',
+        'success' => $cores['success'],
+        'warning' => 'bg-warning-400 text-neutral-950 ring-warning-500/40 dark:ring-warning-300/40',
+        'info' => 'bg-info-600 text-white ring-info-700/20 dark:bg-info-500 dark:ring-info-400/30',
+        'accent' => 'bg-accent-600 text-white ring-accent-700/20 dark:bg-accent-500 dark:ring-accent-400/30',
+        'danger' => $cores['danger'],
+        'primary' => 'bg-primary-600 text-primary-contrast ring-primary-700/20 dark:ring-primary-400/30',
+    ];
+    $cheios['violet'] = $cheios['accent'];
+
+    $pintura = match ($variant) {
+        'outline' => 'bg-transparent '.($contornos[$color] ?? $contornos['neutral']),
+        'filled' => $cheios[$color] ?? $cheios['neutral'],
+        default => $cores[$color] ?? $cores['neutral'],
+    };
 @endphp
 
 @php

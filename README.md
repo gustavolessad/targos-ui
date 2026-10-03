@@ -423,6 +423,9 @@ sabe dela.
 `color` é o significado (`neutral`, `success`, `warning`, `info`, `accent`,
 `danger`, `primary`); `variant="outline"` deixa só o contorno e o texto na
 cor, para o estado que acompanha outro na mesma linha sem competir com ele;
+`variant="filled"` enche o fundo na cor forte (o `warning` vira o amarelo com
+texto escuro), para o aviso que tem de saltar da tela inteira, como o período
+de teste na barra superior — não para o estado de uma linha de tabela;
 `icon` põe um ícone antes do texto (sem texto, o selo fica redondo).
 
 ## Cartão
@@ -1190,6 +1193,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.10.2** — `x-ui.badge variant="filled"`: o fundo cheio na cor (o
+  `warning` é o amarelo com texto escuro), para o aviso que salta da tela.
 - **1.10.1** — O `x-ui.radio-group` fica com a altura do `x-ui.input` do
   mesmo tamanho (40px no md, 48px no lg): as opções eram 6px mais altas que a
   moldura comportava, e o grupo ao lado de um campo sobrava na linha. O

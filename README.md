@@ -1243,6 +1243,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.5** — `x-ui.alert` mais visível no tema claro: fundo no tom 100 (era o
+  50) e borda no 200. O tema escuro não muda.
 - **1.11.4** — `x-ui.button` ganha `size="icon-lg"` (48px) e `size="icon-xl"` (56px),
   os quadrados só de ícone nas alturas do `lg` e do `xl`.
 - **1.11.3** — `x-ui.tooltip`: o texto fica num `<span data-dica-texto>`, para um

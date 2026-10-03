@@ -19,6 +19,19 @@
 
 /** Escreve um valor num campo, do jeito que aquele tipo de campo entende. */
 export function escreverNoCampo(campo, valor) {
+    // O select múltiplo recebe a lista: marca as opções que estão nela.
+    if (campo.tagName === 'SELECT' && campo.multiple) {
+        const valores = (Array.isArray(valor) ? valor : [valor]).filter((v) => v !== null && v !== undefined).map(String);
+
+        [...campo.options].forEach((opcao) => {
+            opcao.selected = valores.includes(String(opcao.value));
+        });
+
+        campo.dispatchEvent(new Event('change', { bubbles: true }));
+
+        return;
+    }
+
     if (campo.type === 'checkbox') {
         // `true`/1 liga; e também o próprio valor da caixa (`value="active"` com `'active'`).
         campo.checked = valor === true || valor === 1 || valor === '1' || valor === 'true'

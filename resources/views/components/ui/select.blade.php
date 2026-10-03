@@ -37,6 +37,19 @@
     /** As opções vêm em árvore; o recuo mostra o nível e o pai também se escolhe. */
     'hierarchical' => false,
     /**
+     * Várias escolhas: o nativo vira `<select multiple>` e o nome, lista
+     * (`roles[]`; passado sem os colchetes, eles entram sozinhos). As
+     * escolhidas vêm do `old()` ou do `selected`, os dois listas (array
+     * ou Collection de valores). O gatilho as mostra em chips, cada um
+     * com o "×" que a tira, e o painel tem uma caixa por opção, com
+     * "Limpar" e "Concluir" no rodapé. `required` é "ao menos uma".
+     *
+     * Com `source`, o `selected-label` é o mapa dos rótulos das
+     * escolhidas: `[valor => rótulo]`, ou `valor => ['label' => …,
+     * 'caption' => …, 'extra' => […]]`.
+     */
+    'multiple' => false,
+    /**
      * A caixa de busca no painel. Nulo decide sozinho: aparece a partir
      * de oito opções, que é quando rolar começa a custar mais que digitar.
      */
@@ -94,7 +107,48 @@
     $valorAtual = is_array($valorAtual) ? null : $valorAtual;
     $valorAtual = $valorAtual === null ? null : (string) $valorAtual;
 
-    $temErro = $errors->has($chave);
+    /*
+     * Várias escolhas (`multiple`): uma lista de valores, e o nome do
+     * HTML é sempre o de lista (`roles[]`), viesse com os colchetes ou
+     * não.
+     *
+     * Quando o formulário volta com erro, vale o que voltou — e, se a
+     * lista não voltou, é que nada foi escolhido (o navegador não envia
+     * o `<select multiple>` vazio), e não o `selected` de antes. Como a
+     * caixa do `x-ui.checkbox`. A sessão é a da requisição, a mesma de
+     * onde o `old()` lê.
+     *
+     * Só ficam valores simples: `?roles[][x]=1` na URL faz o `old()`
+     * trazer uma lista de listas, e comparar lista com texto derrubava a
+     * tela.
+     */
+    $nomeDoCampo = $multiple && ! str_ends_with($name, '[]') ? $name.'[]' : $name;
+    $valoresAtuais = [];
+
+    if ($multiple) {
+        $voltou = $remember && request()->hasSession() && request()->session()->hasOldInput();
+
+        $valoresAtuais = collect($voltou ? old($chave, []) : $selected)
+            ->filter(fn (mixed $valor): bool => is_scalar($valor) && (string) $valor !== '')
+            ->map(fn (mixed $valor): string => (string) $valor)
+            ->unique()
+            ->values()
+            ->all();
+
+        $valorAtual = null;
+    }
+
+    // A opção que nasce marcada: a do valor atual, ou, no múltiplo, cada uma da lista.
+    $marcada = fn (string $valor): bool => $multiple ? in_array($valor, $valoresAtuais, true) : $valor === $valorAtual;
+
+    // No múltiplo, o erro de uma das escolhidas (`roles.1`: "inválido") também aparece no campo.
+    $erro = $errors->first($chave);
+
+    if ($erro === '' && $multiple) {
+        $erro = $errors->first($chave.'.*');
+    }
+
+    $temErro = $erro !== '';
 
     /*
      * Tudo vira a mesma lista plana de entradas, e é dela que o
@@ -149,7 +203,28 @@
         return $saida;
     };
 
-    if ($source !== null) {
+    if ($source !== null && $multiple) {
+        /*
+         * Busca no servidor com várias escolhas: o nativo nasce com as
+         * escolhidas que têm rótulo no `selected-label` (o mapa
+         * `valor => rótulo`, ou `valor => ['label', 'caption', 'extra']`).
+         * A escolhida sem rótulo não tem como aparecer, e fica de fora,
+         * como a do simples sem `selected-label`.
+         */
+        $rotulos = is_iterable($selectedLabel) ? collect($selectedLabel) : collect();
+
+        $entradas = collect($valoresAtuais)
+            ->filter(fn (string $valor): bool => $rotulos->has($valor))
+            ->map(function (string $valor) use ($rotulos, $opcao): array {
+                $rotulo = $rotulos->get($valor);
+
+                return is_array($rotulo)
+                    ? $opcao($valor, (string) ($rotulo['label'] ?? ''), 0, null, $rotulo['caption'] ?? null, $rotulo['extra'] ?? null)
+                    : $opcao($valor, (string) $rotulo);
+            })
+            ->values()
+            ->all();
+    } elseif ($source !== null) {
         /*
          * Busca no servidor: o nativo nasce só com a opção escolhida (se
          * houver). As outras chegam pela busca (select.js), que reescreve
@@ -184,6 +259,9 @@
 
     $escolhida = $todas->first(fn (array $e): bool => $valorAtual !== null && $e['valor'] === $valorAtual);
 
+    // No múltiplo, as escolhidas na ordem das opções: é a ordem dos chips (e a do `selectedOptions`, no select.js).
+    $escolhidas = $todas->filter(fn (array $e): bool => in_array($e['valor'], $valoresAtuais, true))->values();
+
     // Com busca no servidor, a caixa de busca é o próprio jeito de achar a opção.
     $buscavel = $source !== null || ($searchable ?? $todas->count() >= 8);
 
@@ -198,6 +276,25 @@
         'lg' => 'h-12 px-4 text-base',
         'cell' => 'px-2 py-1 text-sm',
     ];
+
+    /*
+     * No múltiplo, a altura é a mínima: o gatilho cresce quando os chips
+     * não cabem numa linha. Sem JavaScript, o `<select multiple>` aparece
+     * como lista, com a altura que o navegador der.
+     */
+    if ($multiple) {
+        $tamanhos = [
+            'xs' => 'min-h-7 px-2.5 py-0.5 text-xs',
+            'sm' => 'min-h-9 px-3 py-1 text-sm',
+            'md' => 'min-h-10 px-3 py-1.5 text-sm',
+            'lg' => 'min-h-12 px-4 py-2 text-base',
+            'cell' => 'px-2 py-1 text-sm',
+        ];
+    }
+
+    // O chip de cada escolhida e o "×" dele: as mesmas classes do select.js, que os redesenha a cada mudança.
+    $classeDoChip = 'inline-flex min-w-0 max-w-full items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200';
+    $classeDoTirar = '-me-0.5 cursor-pointer rounded-full px-0.5 leading-none text-neutral-400 hover:text-neutral-700 dark:hover:text-white';
 
     // O gatilho é um botão: ao abrir, o foco vai para o painel. Aberto (aria-expanded) mantém a cara de foco, como o campo de data.
     $foco = 'focus:border-primary-500 focus:ring-primary-500/20 aria-expanded:ring-2 aria-expanded:border-primary-500 aria-expanded:ring-primary-500/20';
@@ -235,6 +332,9 @@
     `form`, a busca de CEP que preenche a UF.
 
     Sem JavaScript, o nativo aparece sozinho, com a mesma cara.
+
+    Com `multiple`, o nativo é um `<select multiple>` (sem JavaScript, a
+    lista do navegador), e o espelho mostra as escolhidas em chips.
 --}}
 {{--
     `min-w-0`: o campo cabe na coluna que tiver (a UF no endereço é
@@ -255,12 +355,18 @@
                           class="mb-1.5" />
     @endif
 
+    {{--
+        No múltiplo, o placeholder não vira `<option>`: marcada, ela iria
+        no formulário como uma escolha vazia, e o `required` ("ao menos
+        uma") passaria com ela. Ele só aparece no gatilho.
+    --}}
     <select id="{{ $id }}"
-            name="{{ $name }}"
+            name="{{ $nomeDoCampo }}"
+            @if ($multiple) multiple @endif
             @required($required)
             data-seletor-nativo
             {{ $attributes->except('id')->class($caixa) }}>
-        @if ($placeholder !== null)
+        @if ($placeholder !== null && ! $multiple)
             <option value="">{{ $placeholder }}</option>
         @endif
 
@@ -271,7 +377,7 @@
                         <option value="{{ $item['valor'] }}"
                                 @if ($item['caption'] !== null) data-caption="{{ $item['caption'] }}" @endif
                                 @if ($item['extra'] !== null) data-extra="{{ $item['extra'] }}" @endif
-                                @selected($item['valor'] === $valorAtual)>{{ $item['rotulo'] }}</option>
+                                @selected($marcada($item['valor']))>{{ $item['rotulo'] }}</option>
                     @endforeach
                 </optgroup>
             @else
@@ -288,7 +394,7 @@
                         @endif
                         @if ($entrada['caption'] !== null) data-caption="{{ $entrada['caption'] }}" @endif
                         @if ($entrada['extra'] !== null) data-extra="{{ $entrada['extra'] }}" @endif
-                        @selected($entrada['valor'] === $valorAtual)>{{ str_repeat("\u{00A0}\u{00A0}\u{00A0}", $entrada['nivel']) }}{{ $entrada['rotulo'] }}</option>
+                        @selected($marcada($entrada['valor']))>{{ str_repeat("\u{00A0}\u{00A0}\u{00A0}", $entrada['nivel']) }}{{ $entrada['rotulo'] }}</option>
             @endif
         @endforeach
     </select>
@@ -309,11 +415,32 @@
                 'aria-disabled:cursor-not-allowed aria-disabled:bg-neutral-100 aria-disabled:text-neutral-500',
                 'dark:aria-disabled:bg-neutral-900/50',
             ])>
-        <span @class([
-                  'min-w-0 flex-1 truncate',
-                  'text-neutral-400' => $escolhida === null,
-              ])
-              data-seletor-texto>{{ $escolhida['caminho'] ?? $placeholder ?? "\u{00A0}" }}</span>
+        @if ($multiple)
+            {{--
+                No múltiplo, os chips das escolhidas, que quebram linha
+                quando não cabem (o gatilho cresce); sem nenhuma, o
+                placeholder. O "×" é um `<span>`: botão dentro de botão não
+                existe no HTML.
+            --}}
+            <span @class([
+                      'flex min-w-0 flex-1 flex-wrap items-center gap-1',
+                      'text-neutral-400' => $escolhidas->isEmpty(),
+                  ])
+                  data-seletor-texto
+                  data-seletor-placeholder="{{ $placeholder }}">
+                @forelse ($escolhidas as $item)
+                    <span class="{{ $classeDoChip }}" data-seletor-chip="{{ $item['valor'] }}"><span class="truncate">{{ $item['caminho'] }}</span><span class="{{ $classeDoTirar }}" data-seletor-tirar="{{ $item['valor'] }}" tabindex="-1" title="Tirar {{ $item['caminho'] }}" aria-hidden="true">×</span></span>
+                @empty
+                    {{ $placeholder ?? "\u{00A0}" }}
+                @endforelse
+            </span>
+        @else
+            <span @class([
+                      'min-w-0 flex-1 truncate',
+                      'text-neutral-400' => $escolhida === null,
+                  ])
+                  data-seletor-texto>{{ $escolhida['caminho'] ?? $placeholder ?? "\u{00A0}" }}</span>
+        @endif
 
         <x-ui.icon name="chevron-down" class="size-4 shrink-0 text-neutral-400 transition
                                               [[aria-expanded=true]_&]:rotate-180" />
@@ -339,18 +466,40 @@
                         data-seletor-filtro />
         @endif
 
-        <div class="max-h-64 overflow-y-auto" role="listbox" data-seletor-lista></div>
+        <div class="max-h-64 overflow-y-auto" role="listbox" @if ($multiple) aria-multiselectable="true" @endif data-seletor-lista></div>
 
         <p class="hidden px-2.5 py-2 text-sm text-neutral-500 dark:text-neutral-400" data-seletor-vazio>
             Nada encontrado.
         </p>
+
+        @if ($multiple)
+            {{--
+                Clicar numa opção alterna e deixa o painel aberto; daqui,
+                "Limpar" tira todas (desligado quando não há o que tirar) e
+                "Concluir" fecha.
+            --}}
+            <div class="mt-1 flex items-center justify-between gap-2 border-t border-neutral-100 px-1 pt-1 dark:border-neutral-800">
+                <button type="button"
+                        data-seletor-limpar
+                        @disabled($escolhidas->isEmpty())
+                        class="cursor-pointer rounded-md px-2 py-1 text-xs text-neutral-500 focus:outline-none enabled:hover:bg-neutral-100 enabled:hover:text-neutral-700 enabled:focus:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-40
+                               dark:text-neutral-400 dark:enabled:hover:bg-neutral-800 dark:enabled:hover:text-neutral-200 dark:enabled:focus:bg-neutral-800">
+                    Limpar
+                </button>
+
+                <button type="button"
+                        data-seletor-concluir
+                        class="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 focus:bg-primary-50 focus:outline-none
+                               dark:text-primary-300 dark:hover:bg-primary-900/40 dark:focus:bg-primary-900/40">
+                    Concluir
+                </button>
+            </div>
+        @endif
     </div>
 
-    @error($chave)
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
-    @else
-        @if ($hint)
-            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
-        @endif
-    @enderror
+    @if ($temErro)
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $erro }}</p>
+    @elseif ($hint)
+        <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
+    @endif
 </div>

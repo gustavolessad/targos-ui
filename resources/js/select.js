@@ -27,6 +27,13 @@ import { paraBusca } from './search.js';
  * resto. A tela os recebe no evento `ui:selecionado`, disparado no
  * nativo depois do `change`, ou pergunta a qualquer hora com
  * `escolhaDe(nativo)`.
+ *
+ * Com `multiple`, o nativo é um `<select multiple>` e o espelho muda de
+ * cara, não de regra: o gatilho mostra as escolhidas em chips, cada um
+ * com o "×" que a tira; no painel, cada opção tem uma caixa (só
+ * desenho — o estado é o `selected` do `<option>`), clicar alterna sem
+ * fechar, e o rodapé tem "Limpar" e "Concluir". O evento e o
+ * `escolhaDe` falam em listas: `{ values, labels, extras }`.
  */
 function ligarSeletores(raiz = document) {
     raiz.querySelectorAll('[data-seletor]').forEach(montarSeletor);
@@ -100,15 +107,38 @@ function normalizarOpcao(item) {
  * @returns {Array<{value: string, label: string, caption?: string, extra?: object, selected: boolean, hidden: boolean}>}
  */
 export function mesclarOpcoes(escolhida, itens) {
+    return mesclarVarias(escolhida === null ? [] : [escolhida], itens);
+}
+
+/**
+ * O mesmo, para o select de várias escolhas (`multiple`): as que vieram,
+ * marcadas quando estão entre as escolhidas, e, no fim, escondidas, as
+ * escolhidas que a busca não trouxe — nenhuma sai do formulário porque
+ * não bateu com o termo digitado.
+ *
+ * @param {Array<{value: string, label: string, caption?: string|null, extra?: object|null}>} escolhidas
+ * @param {Array<{value: string|number, label: string, caption?: string|null, extra?: object|null}>} itens
+ * @returns {Array<{value: string, label: string, caption?: string, extra?: object, selected: boolean, hidden: boolean}>}
+ */
+export function mesclarVarias(escolhidas, itens) {
+    const marcados = new Set(escolhidas.map((escolhida) => String(escolhida.value)));
+
     const opcoes = itens.map((item) => {
         const opcao = normalizarOpcao(item);
 
-        return { ...opcao, selected: escolhida !== null && opcao.value === String(escolhida.value), hidden: false };
+        return { ...opcao, selected: marcados.has(opcao.value), hidden: false };
     });
 
-    if (escolhida !== null && ! opcoes.some((opcao) => opcao.selected)) {
-        opcoes.push({ ...normalizarOpcao(escolhida), selected: true, hidden: true });
-    }
+    const vieram = new Set(opcoes.map((opcao) => opcao.value));
+
+    escolhidas.forEach((escolhida) => {
+        const valor = String(escolhida.value);
+
+        if (! vieram.has(valor)) {
+            vieram.add(valor);
+            opcoes.push({ ...normalizarOpcao(escolhida), selected: true, hidden: true });
+        }
+    });
 
     return opcoes;
 }
@@ -159,6 +189,56 @@ export function escolhaDaOpcao(opcao) {
     };
 }
 
+/**
+ * As escolhas de um select de várias (`multiple`), como a tela as
+ * recebe: três listas na ordem das opções, uma posição por escolhida —
+ * o valor, o rótulo (sem o recuo) e os dados (`null` na que não tem).
+ * A opção vazia não entra. Sem escolha nenhuma, as três vêm vazias, e
+ * nunca `null`.
+ *
+ * @param {Iterable<{value: string, textContent: string, dataset: {caption?: string, extra?: string}}>} opcoes  as marcadas (`selectedOptions`)
+ * @returns {{values: string[], labels: string[], extras: Array<object|null>}}
+ */
+export function escolhasDasOpcoes(opcoes) {
+    const lista = Array.from(opcoes ?? [], (opcao) => escolhaDaOpcao(opcao)).filter((escolha) => escolha !== null);
+
+    return {
+        values: lista.map((escolha) => escolha.value),
+        labels: lista.map((escolha) => escolha.label),
+        extras: lista.map((escolha) => escolha.extra),
+    };
+}
+
+/**
+ * Põe ou tira um valor da lista das escolhas: o que estava sai, o que
+ * não estava entra no fim. Devolve uma lista nova, de textos.
+ *
+ * @param {Array<string|number>} valores
+ * @param {string|number} valor
+ * @returns {string[]}
+ */
+export function alternarValor(valores, valor) {
+    const lista = Array.from(valores ?? [], String);
+    const texto = String(valor);
+
+    return lista.includes(texto) ? lista.filter((item) => item !== texto) : [...lista, texto];
+}
+
+/**
+ * Os chips do gatilho no select de várias: um por opção escolhida, com o
+ * valor (é por ele que o "×" a tira) e o texto — o caminho no
+ * hierárquico, senão o rótulo, como no gatilho do simples. A opção
+ * vazia não vira chip.
+ *
+ * @param {Iterable<{value: string, textContent: string, dataset: {caminho?: string}}>} opcoes  as marcadas (`selectedOptions`)
+ * @returns {Array<{value: string, label: string}>}
+ */
+export function chipsDasOpcoes(opcoes) {
+    return Array.from(opcoes ?? [])
+        .filter((opcao) => opcao.value !== '')
+        .map((opcao) => ({ value: opcao.value, label: String(opcao.dataset?.caminho ?? opcao.textContent ?? '').trim() }));
+}
+
 /*
  * A escolha de cada select, guardada quando ela muda: o `extra` já lido
  * do JSON, e o mesmo objeto para o evento e para quem perguntar depois.
@@ -174,10 +254,29 @@ const escolhas = new WeakMap();
  * qualquer hora, inclusive para a que veio marcada do servidor (lida do
  * `data-caption` e do `data-extra` dela).
  *
+ * No select de várias (`multiple`), as listas das escolhidas:
+ * `{ values, labels, extras }` (ver `escolhasDasOpcoes`), vazias quando
+ * não há nenhuma — nunca `null`.
+ *
  * @param {HTMLSelectElement} nativo  o `<select>` (o `[data-seletor-nativo]`)
- * @returns {{value: string, label: string, caption: string|null, extra: object|null}|null}
+ * @returns {{value: string, label: string, caption: string|null, extra: object|null}|{values: string[], labels: string[], extras: Array<object|null>}|null}
  */
 export function escolhaDe(nativo) {
+    if (nativo?.multiple) {
+        // Guardada enquanto as marcadas forem as mesmas, uma a uma.
+        const marcadas = Array.from(nativo.selectedOptions ?? []);
+        const guardada = escolhas.get(nativo);
+
+        if (guardada?.opcoes?.length === marcadas.length && guardada.opcoes.every((opcao, i) => opcao === marcadas[i])) {
+            return guardada.escolha;
+        }
+
+        const escolha = escolhasDasOpcoes(marcadas);
+        escolhas.set(nativo, { opcoes: marcadas, escolha });
+
+        return escolha;
+    }
+
     const opcao = nativo?.selectedOptions?.[0] ?? null;
 
     if (opcao === null) {
@@ -208,6 +307,9 @@ function montarSeletor(campo) {
     const lista = campo.querySelector('[data-seletor-lista]');
     const filtro = campo.querySelector('[data-seletor-filtro]');
     const vazio = campo.querySelector('[data-seletor-vazio]');
+    // O rodapé do painel no select de várias.
+    const limpar = campo.querySelector('[data-seletor-limpar]');
+    const concluir = campo.querySelector('[data-seletor-concluir]');
 
     if (! nativo || ! gatilho || ! texto || ! painel || ! lista) {
         return;
@@ -227,15 +329,85 @@ function montarSeletor(campo) {
     /** O que o gatilho mostra: o caminho no hierárquico, senão o rótulo. */
     const rotuloDe = (opcao) => (opcao?.dataset.caminho ?? opcao?.textContent ?? '').trim();
 
+    // Várias escolhas: quem diz é o nativo (`<select multiple>`), como para todo o resto.
+    const multiplo = nativo.multiple;
+
+    /** Os valores escolhidos agora, na ordem das opções (as escondidas pela busca inclusive). */
+    const valoresEscolhidos = () => Array.from(nativo.selectedOptions, (opcao) => opcao.value).filter((valor) => valor !== '');
+
+    /*
+     * Os chips do select de várias: um por escolhida, com o "×" que a
+     * tira (desligado, sem ele). O "×" é um `<span>`, e não um botão: ele
+     * mora dentro do gatilho, que já é um botão. As mesmas classes estão
+     * no select.blade.php, que desenha os primeiros.
+     *
+     * Aberto, o painel acompanha: a caixa de cada opção (pelo
+     * `aria-selected`) e a posição, porque o gatilho cresce com os chips.
+     */
+    const desenharChips = () => {
+        const chips = chipsDasOpcoes(nativo.selectedOptions);
+
+        texto.textContent = '';
+        texto.classList.toggle('text-neutral-400', chips.length === 0);
+
+        if (chips.length === 0) {
+            texto.textContent = texto.dataset.seletorPlaceholder || ' ';
+        }
+
+        chips.forEach(({ value, label }) => {
+            const chip = document.createElement('span');
+            chip.className = 'inline-flex min-w-0 max-w-full items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200';
+            chip.dataset.seletorChip = value;
+
+            const rotulo = document.createElement('span');
+            rotulo.className = 'truncate';
+            rotulo.textContent = label;
+            chip.append(rotulo);
+
+            if (! nativo.disabled) {
+                const tirar = document.createElement('span');
+                tirar.className = '-me-0.5 cursor-pointer rounded-full px-0.5 leading-none text-neutral-400 hover:text-neutral-700 dark:hover:text-white';
+                tirar.dataset.seletorTirar = value;
+                tirar.tabIndex = -1;
+                tirar.title = `Tirar ${label}`;
+                tirar.setAttribute('aria-hidden', 'true');
+                tirar.textContent = '×';
+                chip.append(tirar);
+            }
+
+            texto.append(chip);
+        });
+
+        if (limpar) {
+            limpar.disabled = chips.length === 0 || nativo.disabled;
+        }
+
+        const marcados = new Set(chips.map((chip) => chip.value));
+
+        lista.querySelectorAll('[data-seletor-valor]').forEach((botao) => {
+            botao.setAttribute('aria-selected', String(marcados.has(botao.dataset.seletorValor)));
+        });
+
+        if (! painel.hidden) {
+            flutuante.posicionar();
+        }
+    };
+
     const desenharGatilho = () => {
+        gatilho.setAttribute('aria-disabled', String(nativo.disabled));
+        gatilho.tabIndex = nativo.disabled ? -1 : 0;
+
+        if (multiplo) {
+            desenharChips();
+
+            return;
+        }
+
         const opcao = nativo.selectedOptions[0];
         const temValor = opcao && opcao.value !== '';
 
         texto.textContent = rotuloDe(opcao) || ' ';
         texto.classList.toggle('text-neutral-400', ! temValor);
-
-        gatilho.setAttribute('aria-disabled', String(nativo.disabled));
-        gatilho.tabIndex = nativo.disabled ? -1 : 0;
     };
 
     /*
@@ -265,6 +437,27 @@ function montarSeletor(campo) {
         subtree: true,
     });
 
+    /*
+     * A caixa da opção no select de várias: o desenho do `x-ui.checkbox
+     * bare` (o `sm`), só em CSS, sem `<input>` — quem guarda o estado é o
+     * `<option>` do nativo. Ela acende pelo `aria-selected` da linha
+     * (`group/opcao`): alternar só troca o atributo, e o painel não se
+     * remonta (o foco e a rolagem ficam onde estavam).
+     */
+    const caixaDaOpcao = () => {
+        const caixa = document.createElement('span');
+
+        caixa.setAttribute('aria-hidden', 'true');
+        caixa.className = [
+            'flex size-4 shrink-0 items-center justify-center rounded border border-neutral-300 bg-white text-white',
+            'dark:border-neutral-600 dark:bg-neutral-900',
+            'group-aria-selected/opcao:border-primary-600 group-aria-selected/opcao:bg-primary-600',
+        ].join(' ');
+        caixa.innerHTML = '<svg class="size-3 opacity-0 group-aria-selected/opcao:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+        return caixa;
+    };
+
     /** Uma linha do painel para uma `<option>` do nativo. */
     const linha = (opcao) => {
         const botao = document.createElement('button');
@@ -284,19 +477,26 @@ function montarSeletor(campo) {
             'text-neutral-700 hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none',
             'dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800',
             'disabled:cursor-not-allowed disabled:opacity-40',
-            escolhida ? marca : '',
+            // Nas várias, quem mostra a escolha é a caixa; a linha não se pinta.
+            multiplo ? 'group/opcao' : (escolhida ? marca : ''),
             nivel > 0 ? '' : 'ps-2.5',
             // O pai de uma árvore em negrito: é o que organiza os de baixo.
             opcao.dataset.nivel === '0' ? 'font-medium text-neutral-900 dark:text-white' : '',
         ].join(' ');
 
-        // O recuo acompanha o nível; a guia desenha de quem ele é filho.
+        // O recuo acompanha o nível; a guia desenha de quem ele é filho (nas várias, a caixa faz esse papel).
         if (nivel > 0) {
             botao.style.paddingInlineStart = `${0.625 + nivel * 1.1}rem`;
 
-            const guia = document.createElement('span');
-            guia.className = 'size-1.5 shrink-0 rounded-full bg-neutral-300 dark:bg-neutral-600';
-            botao.append(guia);
+            if (! multiplo) {
+                const guia = document.createElement('span');
+                guia.className = 'size-1.5 shrink-0 rounded-full bg-neutral-300 dark:bg-neutral-600';
+                botao.append(guia);
+            }
+        }
+
+        if (multiplo) {
+            botao.append(caixaDaOpcao());
         }
 
         const rotulo = document.createElement('span');
@@ -319,7 +519,7 @@ function montarSeletor(campo) {
             botao.append(textos);
         }
 
-        if (escolhida) {
+        if (escolhida && ! multiplo) {
             botao.insertAdjacentHTML(
                 'beforeend',
                 '<svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
@@ -416,8 +616,12 @@ function montarSeletor(campo) {
     };
 
     const aplicarResultado = (itens) => {
-        // A escolhida que não vier na busca continua, escondida, com a segunda linha e os dados que tinha.
-        const escolhida = escolhaDaOpcao(nativo.selectedOptions[0]);
+        /*
+         * A escolhida que não vier na busca continua, escondida, com a
+         * segunda linha e os dados que tinha — no select de várias, cada
+         * uma delas.
+         */
+        const escolhidas = Array.from(nativo.selectedOptions, (opcao) => escolhaDaOpcao(opcao)).filter((escolhida) => escolhida !== null);
         const vaga = Array.from(nativo.options).find((opcao) => opcao.value === '');
 
         nativo.textContent = '';
@@ -426,7 +630,7 @@ function montarSeletor(campo) {
             nativo.append(vaga);
         }
 
-        mesclarOpcoes(escolhida, itens).forEach((item) => {
+        mesclarVarias(escolhidas, itens).forEach((item) => {
             const opcao = new Option(item.label, item.value, item.selected, item.selected);
             const extra = textoDoExtra(item.extra);
 
@@ -474,7 +678,7 @@ function montarSeletor(campo) {
                 const primeira = opcoesVisiveis()[0];
 
                 if (primeira && aberto()) {
-                    escolher(primeira.dataset.seletorValor);
+                    agir(primeira.dataset.seletorValor);
                 }
             }
         } catch (erro) {
@@ -548,6 +752,25 @@ function montarSeletor(campo) {
         }
     };
 
+    /** Avisa a mudança como o nativo faria (`input`, `change`), e depois com os dados da escolha. */
+    const avisar = () => {
+        nativo.dispatchEvent(new Event('input', { bubbles: true }));
+        nativo.dispatchEvent(new Event('change', { bubbles: true }));
+
+        /*
+         * Depois do `change`, a escolha com a segunda linha e os dados
+         * (o preço e a unidade do produto, para a tela preencher os
+         * outros campos). `escolhaDe` a guarda para quem perguntar
+         * depois; limpar a escolha também avisa, com o valor vazio. No
+         * select de várias, o detalhe são as listas
+         * (`{ values, labels, extras }`), vazias quando nada ficou.
+         */
+        nativo.dispatchEvent(new CustomEvent('ui:selecionado', {
+            bubbles: true,
+            detail: escolhaDe(nativo) ?? { value: '', label: '', caption: null, extra: null },
+        }));
+    };
+
     const escolher = (valor) => {
         const mudou = nativo.value !== valor;
 
@@ -555,25 +778,77 @@ function montarSeletor(campo) {
 
         // Como o nativo faria: só avisa quando a escolha mudou de fato.
         if (mudou) {
-            nativo.dispatchEvent(new Event('input', { bubbles: true }));
-            nativo.dispatchEvent(new Event('change', { bubbles: true }));
-
-            /*
-             * Depois do `change`, a escolha com a segunda linha e os dados
-             * (o preço e a unidade do produto, para a tela preencher os
-             * outros campos). `escolhaDe` a guarda para quem perguntar
-             * depois; limpar a escolha também avisa, com o valor vazio.
-             */
-            nativo.dispatchEvent(new CustomEvent('ui:selecionado', {
-                bubbles: true,
-                detail: escolhaDe(nativo) ?? { value: '', label: '', caption: null, extra: null },
-            }));
+            avisar();
         }
 
         fechar({ focar: true });
     };
 
-    gatilho.addEventListener('click', () => (aberto() ? fechar() : abrir()));
+    /*
+     * No select de várias, a escolha é uma lista: cada `<option>` do
+     * nativo fica marcada se o valor dela está em `novos`. Avisa como o
+     * simples, e só quando alguma mudou; o painel fica aberto. Os chips
+     * e as caixas se redesenham pelo `change`.
+     */
+    const definirValores = (novos) => {
+        const marcados = new Set(novos);
+        let mudou = false;
+
+        for (const opcao of nativo.options) {
+            const marcar = opcao.value !== '' && marcados.has(opcao.value);
+
+            if (opcao.selected !== marcar) {
+                opcao.selected = marcar;
+                mudou = true;
+            }
+        }
+
+        if (mudou) {
+            avisar();
+        }
+    };
+
+    /** O clique (ou o Enter) numa opção: no simples, escolhe e fecha; nas várias, alterna. */
+    const agir = (valor) => (multiplo ? definirValores(alternarValor(valoresEscolhidos(), valor)) : escolher(valor));
+
+    gatilho.addEventListener('click', (evento) => {
+        // O "×" de um chip tira aquela escolha, sem abrir nem fechar o painel.
+        const tirar = evento.target.closest('[data-seletor-tirar]');
+
+        if (! tirar) {
+            if (aberto()) {
+                fechar();
+            } else {
+                abrir();
+            }
+
+            return;
+        }
+
+        if (! nativo.disabled) {
+            definirValores(valoresEscolhidos().filter((valor) => valor !== tirar.dataset.seletorTirar));
+
+            if (! aberto()) {
+                gatilho.focus();
+            }
+        }
+    });
+
+    // Clicar no "×" não puxa o foco: com o painel aberto, ele fica na busca ou na opção.
+    gatilho.addEventListener('mousedown', (evento) => {
+        if (evento.target.closest('[data-seletor-tirar]')) {
+            evento.preventDefault();
+        }
+    });
+
+    limpar?.addEventListener('click', () => {
+        definirValores([]);
+
+        // Sem escolhas, o "Limpar" se desliga e perde o foco: ele vai para a busca, ou para a primeira opção.
+        (filtro ?? opcoesVisiveis()[0])?.focus();
+    });
+
+    concluir?.addEventListener('click', () => fechar({ focar: true }));
 
     gatilho.addEventListener('keydown', (evento) => {
         if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(evento.key)) {
@@ -586,7 +861,7 @@ function montarSeletor(campo) {
         const botao = evento.target.closest('[data-seletor-valor]');
 
         if (botao && ! botao.disabled) {
-            escolher(botao.dataset.seletorValor);
+            agir(botao.dataset.seletorValor);
         }
     });
 
@@ -604,7 +879,7 @@ function montarSeletor(campo) {
         }, ESPERA_DA_BUSCA);
     });
 
-    // As setas andam pelas opções visíveis; Enter no filtro escolhe a primeira.
+    // As setas andam pelas opções visíveis; Enter no filtro escolhe a primeira (nas várias, alterna).
     painel.addEventListener('keydown', (evento) => {
         const opcoes = opcoesVisiveis();
         const atual = opcoes.indexOf(document.activeElement);
@@ -633,7 +908,7 @@ function montarSeletor(campo) {
             }
 
             if (opcoes[0]) {
-                escolher(opcoes[0].dataset.seletorValor);
+                agir(opcoes[0].dataset.seletorValor);
             }
 
             return;
@@ -652,9 +927,15 @@ function montarSeletor(campo) {
         }
     });
 
-    // Um clique fora fecha, como em qualquer menu.
+    /*
+     * Um clique fora fecha, como em qualquer menu. "Fora" pelo caminho
+     * do clique, e não por `contains`: o chip cujo "×" foi clicado já
+     * saiu da página quando o clique chega aqui.
+     */
     document.addEventListener('click', (evento) => {
-        if (aberto() && ! campo.contains(evento.target) && ! painel.contains(evento.target)) {
+        const caminho = evento.composedPath();
+
+        if (aberto() && ! caminho.includes(campo) && ! caminho.includes(painel)) {
             fechar();
         }
     });

@@ -236,6 +236,7 @@ no `document`, com `detail: { grupo, aba }`.
 | `prefetch` | Com `source`: busca as primeiras opções assim que o JavaScript liga, e o primeiro clique abre sem esperar. Elas ficam guardadas até alguém digitar. Sem `prefetch`, cada abertura busca de novo |
 | `remember` | Lembra o enviado quando o formulário volta com erro (padrão). `:remember="false"` no select que não foi enviado — o filtro da listagem com o mesmo nome do campo do modal — para ele não mostrar o valor do outro |
 | `hint` | A linha de apoio embaixo do campo, como no `x-ui.input` |
+| `multiple` | Várias escolhas: `<select multiple>` com nome de lista (`roles[]`; sem os colchetes, eles entram sozinhos). As escolhidas vêm do `old()` ou do `selected` (array ou Collection). O gatilho mostra chips com "×"; o painel tem uma caixa por opção, com "Limpar" e "Concluir". `required` é "ao menos uma" |
 
 O `caption` é a segunda linha da opção no painel, em letra menor; o gatilho e o
 select nativo mostram só o rótulo, e a busca local casa no caption também. O
@@ -255,6 +256,24 @@ return SelectOptions::response(
 
 Cada opção vira `{ value, label, caption, extra }`. `caption` e `extra` só vêm
 quando a closure é passada, e valem `null` no item que não tem.
+
+### Várias escolhas (`multiple`)
+
+```blade
+<x-ui.select name="roles[]" label="Papéis" multiple placeholder="Nenhum"
+             :options="$roles" :selected="['customer', 'supplier']" required />
+```
+
+Clicar numa opção (ou Enter/espaço nela, ou Enter na busca, para a primeira)
+alterna a escolha e deixa o painel aberto; Esc, Tab, clique fora e "Concluir"
+fecham. O "×" de cada chip tira aquela escolha. Quando o formulário volta com
+erro, vale a lista que voltou — e nenhuma, se nada foi enviado —, como na caixa
+de lista do `x-ui.checkbox`; no formulário que não foi enviado,
+`:remember="false"`. O erro de um item (`roles.1`) também aparece no campo. Com
+`source`, o `selected-label` é o mapa dos rótulos das escolhidas
+(`:selected-label="$contatos->pluck('name', 'id')"`). No `multiple`, o evento
+`ui:selecionado` e o `escolhaDe` falam em listas: `{ values, labels, extras }`.
+O preenchimento do modal (`data-form-valores`) aceita a lista no nome do campo.
 
 ### A escolha do select
 

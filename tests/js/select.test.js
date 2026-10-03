@@ -1,18 +1,22 @@
 /*
  * O select com busca no servidor (resources/js/select.js): a URL da busca,
  * as opções que o nativo fica depois dela, os dados de cada opção (a
- * segunda linha e o `extra`) e a escolha que a tela lê. Roda com
- * `npm test`, sem navegador.
+ * segunda linha e o `extra`) e a escolha que a tela lê — no simples e no
+ * de várias escolhas (`multiple`). Roda com `npm test`, sem navegador.
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    alternarValor,
+    chipsDasOpcoes,
     escolhaDaOpcao,
     escolhaDe,
+    escolhasDasOpcoes,
     ficaEscondida,
     lerExtra,
     mesclarOpcoes,
+    mesclarVarias,
     textoDoExtra,
     urlDaBusca,
 } from '../../resources/js/select.js';
@@ -156,4 +160,128 @@ test('na busca no servidor, só a opção vazia sai da frente quando há termo',
     assert.equal(ficaEscondida(vazia, '', true), false);
     assert.equal(ficaEscondida(vazia, 'leite', true), true);
     assert.equal(ficaEscondida(outra, 'leite', true), false);
+});
+
+// --- Várias escolhas (`multiple`) ---
+
+test('alternar põe no fim o valor que não estava e tira o que estava', () => {
+    assert.deepEqual(alternarValor(['a', 'b'], 'c'), ['a', 'b', 'c']);
+    assert.deepEqual(alternarValor(['a', 'b', 'c'], 'b'), ['a', 'c']);
+    assert.deepEqual(alternarValor([], 'a'), ['a']);
+    assert.deepEqual(alternarValor(['a'], 'a'), []);
+});
+
+test('alternar compara como texto, devolve textos e não mexe na lista de entrada', () => {
+    const valores = [1, '2'];
+
+    assert.deepEqual(alternarValor(valores, '1'), ['2']);
+    assert.deepEqual(alternarValor(valores, 3), ['1', '2', '3']);
+    assert.deepEqual(valores, [1, '2']);
+    assert.deepEqual(alternarValor(undefined, 'a'), ['a']);
+});
+
+test('os chips: um por escolhida, com o valor e o texto (o caminho no hierárquico)', () => {
+    const chips = chipsDasOpcoes([
+        opcao('customer', '  Cliente '),
+        opcao('3', '   Apartamento', { caminho: 'Residencial › Apartamento' }),
+    ]);
+
+    assert.deepEqual(chips, [
+        { value: 'customer', label: 'Cliente' },
+        { value: '3', label: 'Residencial › Apartamento' },
+    ]);
+});
+
+test('a opção vazia não vira chip; sem escolhidas, nenhum chip', () => {
+    assert.deepEqual(chipsDasOpcoes([opcao('', 'Selecione…'), opcao('a', 'A')]), [{ value: 'a', label: 'A' }]);
+    assert.deepEqual(chipsDasOpcoes([]), []);
+    assert.deepEqual(chipsDasOpcoes(undefined), []);
+});
+
+test('as escolhas de várias são três listas na ordem das opções, uma posição por escolhida', () => {
+    const escolhas = escolhasDasOpcoes([
+        opcao('12', 'Café 500 g', { caption: 'P-0012', extra: '{"price":"19.90"}' }),
+        opcao('13', 'Açúcar 1 kg'),
+        opcao('14', 'Sal', { extra: '{preço' }),
+    ]);
+
+    assert.deepEqual(escolhas, {
+        values: ['12', '13', '14'],
+        labels: ['Café 500 g', 'Açúcar 1 kg', 'Sal'],
+        extras: [{ price: '19.90' }, null, null],
+    });
+});
+
+test('sem escolhida, as listas vêm vazias (nunca null); a opção vazia não entra', () => {
+    const vazias = { values: [], labels: [], extras: [] };
+
+    assert.deepEqual(escolhasDasOpcoes([]), vazias);
+    assert.deepEqual(escolhasDasOpcoes([opcao('', 'Selecione…')]), vazias);
+    assert.deepEqual(escolhasDasOpcoes(undefined), vazias);
+});
+
+test('escolhaDe no select de várias devolve as listas', () => {
+    const nativo = {
+        multiple: true,
+        selectedOptions: [opcao('customer', 'Cliente'), opcao('supplier', 'Fornecedor', { extra: '{"tipo":"pj"}' })],
+    };
+
+    assert.deepEqual(escolhaDe(nativo), {
+        values: ['customer', 'supplier'],
+        labels: ['Cliente', 'Fornecedor'],
+        extras: [null, { tipo: 'pj' }],
+    });
+    assert.deepEqual(escolhaDe({ multiple: true, selectedOptions: [] }), { values: [], labels: [], extras: [] });
+});
+
+test('escolhaDe no de várias guarda as listas enquanto as marcadas forem as mesmas', () => {
+    const cliente = opcao('customer', 'Cliente');
+    const fornecedor = opcao('supplier', 'Fornecedor');
+    const nativo = { multiple: true, selectedOptions: [cliente, fornecedor] };
+    const primeira = escolhaDe(nativo);
+
+    nativo.selectedOptions = [cliente, fornecedor];
+    assert.equal(escolhaDe(nativo), primeira);
+
+    // Uma a menos: lidas de novo.
+    nativo.selectedOptions = [fornecedor];
+    assert.deepEqual(escolhaDe(nativo).values, ['supplier']);
+
+    // A mesma quantidade, outra no lugar: lidas de novo.
+    nativo.selectedOptions = [cliente];
+    assert.deepEqual(escolhaDe(nativo).values, ['customer']);
+});
+
+test('busca com várias: as escolhidas que vieram ficam marcadas; as que não vieram, escondidas no fim, na ordem', () => {
+    const escolhidas = [
+        { value: '2', label: 'Gráfica' },
+        { value: '9', label: 'Antiga', caption: 'inativa', extra: { id: 9 } },
+        { value: '7', label: 'Outra' },
+    ];
+    const opcoes = mesclarVarias(escolhidas, [{ value: 1, label: 'Padaria' }, { value: 2, label: 'Gráfica' }]);
+
+    assert.deepEqual(opcoes, [
+        { value: '1', label: 'Padaria', selected: false, hidden: false },
+        { value: '2', label: 'Gráfica', selected: true, hidden: false },
+        { value: '9', label: 'Antiga', caption: 'inativa', extra: { id: 9 }, selected: true, hidden: true },
+        { value: '7', label: 'Outra', selected: true, hidden: true },
+    ]);
+});
+
+test('busca com várias: sem escolhidas, só as que vieram; escolhida repetida não se duplica', () => {
+    assert.deepEqual(mesclarVarias([], [{ value: 1, label: 'Padaria' }]), [
+        { value: '1', label: 'Padaria', selected: false, hidden: false },
+    ]);
+
+    const repetida = mesclarVarias([{ value: 9, label: 'Antiga' }, { value: '9', label: 'Antiga' }], []);
+
+    assert.deepEqual(repetida, [{ value: '9', label: 'Antiga', selected: true, hidden: true }]);
+});
+
+test('o simples é o de várias com uma escolhida só', () => {
+    const itens = [{ value: 1, label: 'Padaria' }, { value: 2, label: 'Gráfica', caption: 'saldo 3' }];
+
+    assert.deepEqual(mesclarOpcoes({ value: '2', label: 'Gráfica' }, itens), mesclarVarias([{ value: '2', label: 'Gráfica' }], itens));
+    assert.deepEqual(mesclarOpcoes({ value: '9', label: 'Antiga' }, itens), mesclarVarias([{ value: '9', label: 'Antiga' }], itens));
+    assert.deepEqual(mesclarOpcoes(null, itens), mesclarVarias([], itens));
 });

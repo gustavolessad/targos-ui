@@ -36,8 +36,24 @@ export function envelopeDe(campo) {
 export function campoDe(formulario, chave) {
     const nome = chave.includes('.') ? nomeHtml(chave) : chave;
     const escapado = CSS.escape(nome);
+    const campo = formulario.querySelector(`[name="${escapado}"], [name="${escapado}[]"]`);
 
-    return formulario.querySelector(`[name="${escapado}"], [name="${escapado}[]"]`);
+    if (campo) {
+        return campo;
+    }
+
+    /*
+     * `roles.1` é o item 1 de uma lista: não há campo com esse nome, o
+     * que há é o `roles[]` (um select múltiplo, um grupo de caixas). O
+     * erro vai para o campo da lista.
+     */
+    const partes = String(chave).split('.');
+
+    if (partes.length > 1 && /^\d+$/.test(partes.at(-1))) {
+        return campoDe(formulario, partes.slice(0, -1).join('.'));
+    }
+
+    return null;
 }
 
 /** Escreve o erro embaixo do campo (trocando o anterior, se houver). */

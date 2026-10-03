@@ -453,7 +453,8 @@ function montarSeletor(campo) {
         mostrarAviso('Buscando…');
 
         try {
-            const resposta = await fetch(urlDaBusca(fonte, termo, window.location.href), {
+            // A URL é lida a cada busca: a tela pode trocar `data-seletor-fonte` depois (outro depósito, outro filtro).
+            const resposta = await fetch(urlDaBusca(campo.dataset.seletorFonte ?? fonte, termo, window.location.href), {
                 headers: { Accept: 'application/json' },
                 signal: controle.signal,
             });

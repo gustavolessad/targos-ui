@@ -52,6 +52,12 @@
     'trendCompare' => null,
     /** O nome da comparação, na dica do gráfico. */
     'trendCompareLabel' => 'Período anterior',
+    /*
+     * `solid` (padrão) ou `filled`: o card cheio na cor de ação, para o
+     * indicador que resume os outros (o saldo final do extrato) e
+     * precisa saltar da fileira.
+     */
+    'variant' => 'solid',
 ])
 
 {{--
@@ -101,9 +107,18 @@
          * `min-w-0`, o card ficava preso nela e vazava da tela estreita.
          */
         'min-w-0',
-        'dark:border-neutral-800 dark:bg-neutral-900',
+        'dark:border-neutral-800 dark:bg-neutral-900' => $variant !== 'filled',
+        /*
+         * Cheio: fundo e borda na cor de ação, e tudo o que é texto ou
+         * ícone dentro (rótulo, número, dica, ícone) no contraste dela.
+         * Pelos seletores `[&_…]`, para não repetir a decisão em cada
+         * elemento do card.
+         */
+        'border-primary-600 bg-primary-600 text-primary-contrast dark:border-primary-600 dark:bg-primary-600 '
+            .'[&_p]:text-primary-contrast [&_li]:text-primary-contrast/80 [&_svg]:text-primary-contrast/80 [&_span]:text-primary-contrast' => $variant === 'filled',
         // Só o que é clicável reage ao mouse.
-        'transition hover:border-neutral-300 dark:hover:border-neutral-700' => $href !== null,
+        'transition hover:border-neutral-300 dark:hover:border-neutral-700' => $href !== null && $variant !== 'filled',
+        'transition hover:bg-primary-700' => $href !== null && $variant === 'filled',
     ];
 @endphp
 

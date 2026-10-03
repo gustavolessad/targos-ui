@@ -46,7 +46,10 @@ final class SelectOptions
     /** O que a pessoa digitou na busca (vazio ao abrir o select). */
     public static function term(): string
     {
-        return trim((string) request()->query('q', ''));
+        // Só texto: `?q[]=x` na URL não pode derrubar o endpoint.
+        $termo = request()->query('q', '');
+
+        return is_string($termo) ? trim($termo) : '';
     }
 
     /** Quantas opções cada busca traz: `config('ui.select.limit')`. */

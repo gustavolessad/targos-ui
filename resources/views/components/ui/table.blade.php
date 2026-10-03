@@ -124,6 +124,11 @@
                         @else
                             {{ $header['label'] ?? '' }}
                         @endif
+
+                        {{-- `'info' => '…'` no cabeçalho: a explicação da coluna, no mesmo ícone dos rótulos de campo. --}}
+                        @if (! empty($header['info']))
+                            <x-ui.label-info :text="$header['info']" label="Sobre esta coluna" class="ms-1 inline-flex align-middle" />
+                        @endif
                     </th>
                 @endforeach
             </tr>

@@ -62,7 +62,7 @@ export { ligarConfirmacoes, confirmar } from './confirm.js';
 export { ligarMenuLateral } from './nav.js';
 export { ligarBarraLateral } from './sidebar.js';
 export { ligarGraficos } from './chart.js';
-export { ligarRepetidores, adicionarLinha, substituirIndice, proximoIndice, podeRemover, podeAdicionar } from './repeater.js';
+export { ligarRepetidores, adicionarLinha, limparLinhas, substituirIndice, proximoIndice, podeRemover, podeAdicionar } from './repeater.js';
 export { tamanhoLegivel, aceita, resumoDosArquivos, conferirArquivos, ligarArquivos } from './file.js';
 export { ligarImagens, definirImagemGravada } from './image.js';
 export { ligarFiltros, camposForaDaUrl, enviaAoMudar } from './filters.js';

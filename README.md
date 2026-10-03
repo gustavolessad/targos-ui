@@ -739,6 +739,12 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.7.4** — `'info' => '…'` no cabeçalho do `x-ui.table` (o ícone de explicação
+  da coluna; `x-ui.label-info` ganha `label` para o leitor de tela);
+  `x-ui.stat-card variant="filled"`; o select remoto lê `data-seletor-fonte` a
+  cada busca (a tela pode trocar a URL depois); `limparLinhas(envelope)` no
+  repetidor; a barra `data-filtros` religa no `pageshow` só o que ela mesma
+  desligou; `SelectOptions::term()` não cai com `?q[]=x`.
 - **1.7.3** — `remember` em todo campo (`money`, `date`, `date-range`, `number`,
   `percent`, `textarea`, `checkbox`, além de `select`, `toggle` e `repeater`; no
   `input` chama-se `keeps-input`); `hint` no `x-ui.select`; `icon` no

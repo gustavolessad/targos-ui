@@ -236,6 +236,17 @@ function remover(envelope, linha) {
     avisar(envelope, 'removido', linha);
 }
 
+/**
+ * Tira todas as linhas de uma vez (o depósito mudou, e os itens eram
+ * daquele depósito). Ignora o `min`: quem limpa por código decide o
+ * que vem depois, e o `ui:repetidor` sai uma vez só, com `acao: 'limpo'`.
+ */
+export function limparLinhas(envelope) {
+    linhasDe(envelope).forEach((linha) => linha.remove());
+    atualizar(envelope);
+    avisar(envelope, 'limpo', null);
+}
+
 function mover(envelope, linha, sentido, botao) {
     const linhas = linhasDe(envelope);
     const outra = linhas[linhas.indexOf(linha) + sentido];

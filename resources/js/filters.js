@@ -55,8 +55,10 @@ function enviar(formulario) {
      */
     const desligados = camposForaDaUrl([...formulario.elements]).filter((campo) => ! campo.disabled);
 
+    // Marcados: no `pageshow` só estes religam — o que a tela desligou de propósito fica desligado.
     desligados.forEach((campo) => {
         campo.disabled = true;
+        campo.dataset.filtrosDesligado = '';
     });
 
     /*
@@ -76,6 +78,7 @@ function enviar(formulario) {
     setTimeout(() => {
         desligados.forEach((campo) => {
             campo.disabled = false;
+            delete campo.dataset.filtrosDesligado;
         });
         porPagina?.remove();
     });
@@ -134,8 +137,9 @@ export function ligarFiltros(raiz = document) {
     });
 
     window.addEventListener('pageshow', () => {
-        raiz.querySelectorAll('form[data-filtros] :disabled').forEach((campo) => {
+        raiz.querySelectorAll('form[data-filtros] [data-filtros-desligado]').forEach((campo) => {
             campo.disabled = false;
+            delete campo.dataset.filtrosDesligado;
         });
     });
 }

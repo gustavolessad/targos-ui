@@ -2,6 +2,8 @@
     /** O que o campo é, em uma ou duas frases. */
     'text',
     'side' => 'top',
+    /** O nome do botão para o leitor de tela: "Sobre este campo" num campo, "Sobre esta coluna" numa tabela. */
+    'label' => 'Sobre este campo',
 ])
 
 {{--
@@ -32,7 +34,7 @@
                 'flex cursor-help items-center text-neutral-400 transition',
                 'hover:text-neutral-600 dark:hover:text-neutral-200',
             ]) }}
-            aria-label="Sobre este campo">
+            aria-label="{{ $label }}">
         <x-ui.icon name="info" class="size-3.5" />
     </button>
 </x-ui.tooltip>

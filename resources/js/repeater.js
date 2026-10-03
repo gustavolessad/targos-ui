@@ -90,7 +90,8 @@ function linhasDe(envelope) {
 function avisar(envelope, acao, linha) {
     envelope.dispatchEvent(new CustomEvent('ui:repetidor', {
         bubbles: true,
-        detail: { acao, item: linha, indice: linha.dataset.repetidorIndice },
+        // `linha` é nula no 'limpo': não há uma linha de que falar.
+        detail: { acao, item: linha, indice: linha?.dataset.repetidorIndice ?? null },
     }));
 }
 

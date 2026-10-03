@@ -135,7 +135,9 @@ function montar(campo) {
     });
 
     // No tamanho `cell` não há envelope, nem botões.
-    campo.closest('[data-numero]')?.querySelectorAll('[data-numero-menos], [data-numero-mais]').forEach((botao) => {
+    const botoes = [...(campo.closest('[data-numero]')?.querySelectorAll('[data-numero-menos], [data-numero-mais]') ?? [])];
+
+    botoes.forEach((botao) => {
         /*
          * O foco fica no campo. Indo para o botão, o blur ajustaria o
          * valor no meio da conta, e quem estava digitando teria de
@@ -144,6 +146,20 @@ function montar(campo) {
         botao.addEventListener('mousedown', (evento) => evento.preventDefault());
         botao.addEventListener('click', () => somar(botao.dataset.numeroMais !== undefined ? 1 : -1));
     });
+
+    /*
+     * Os botões acompanham a trava do campo, também quando outro script
+     * a liga ou desliga depois (o número de parcelas que só vale no
+     * lançamento parcelado).
+     */
+    if (botoes.length > 0) {
+        const espelharTrava = () => botoes.forEach((botao) => {
+            botao.disabled = travado();
+        });
+
+        espelharTrava();
+        new MutationObserver(espelharTrava).observe(campo, { attributes: true, attributeFilter: ['disabled', 'readonly'] });
+    }
 }
 
 export function ligarNumeros(raiz = document) {

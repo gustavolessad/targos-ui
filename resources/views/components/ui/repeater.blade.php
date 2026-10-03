@@ -39,6 +39,13 @@
     'sortable' => false,
     /** O texto de quando não há linha nenhuma. */
     'empty' => null,
+    /*
+     * Lembra as linhas enviadas quando o formulário volta com erro.
+     * Desligue no repetidor do formulário que não foi enviado — o modal de
+     * criar, quando foi o de editar que voltou —, senão ele mostra as
+     * linhas do outro.
+     */
+    'remember' => true,
     /** O `id` do envelope. Sem ele, sai do nome (`order-items`). */
     'id' => null,
 ])
@@ -66,7 +73,7 @@
      * `addresses.2.zip` é da linha que se chamava `addresses[2]`, e
      * renumerada ela seria outra.
      */
-    $linhas = old($chave, $items);
+    $linhas = $remember ? old($chave, $items) : $items;
 
     // Uma Collection (de models ou não) vira array sem perder as chaves; `?addresses=x` na URL vira nada.
     $linhas = match (true) {

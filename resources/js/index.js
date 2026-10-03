@@ -64,7 +64,7 @@ export { ligarBarraLateral } from './sidebar.js';
 export { ligarGraficos } from './chart.js';
 export { ligarRepetidores, adicionarLinha, substituirIndice, proximoIndice, podeRemover, podeAdicionar } from './repeater.js';
 export { tamanhoLegivel, aceita, resumoDosArquivos, conferirArquivos, ligarArquivos } from './file.js';
-export { ligarImagens } from './image.js';
+export { ligarImagens, definirImagemGravada } from './image.js';
 export { ligarFiltros, camposForaDaUrl, enviaAoMudar } from './filters.js';
 export { ligarPreenchimentos, preencherFormulario, escreverNoCampo } from './form-fill.js';
 

@@ -123,8 +123,8 @@
 
     $marcado = match (true) {
         $name === null || $lista => $checked,
-        // O formulário voltou com erro: desmarcada não vem no envio, então "não veio" é desmarcada (e não o padrão).
-        session()->hasOldInput() => (bool) old($chave),
+        // O formulário voltou com erro: marcada é "o que voltou é o valor da caixa" (com `falsy` de texto, o desmarcado também volta).
+        session()->hasOldInput() => (string) old($chave, '') === (string) $value,
         default => $checked,
     };
 @endphp

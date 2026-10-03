@@ -30,7 +30,8 @@
      * é a sessão. Voltou sem o campo = a pessoa desligou, e assim fica — o
      * padrão da tela religaria um interruptor desligado de propósito.
      */
-    $ligado = $remember && session()->hasOldInput() ? (bool) old($chave) : (bool) $checked;
+    // Ligado é "o que voltou é o valor do ligado": com `falsy` de texto (`inactive`), o desligado também volta, e não é vazio.
+    $ligado = $remember && session()->hasOldInput() ? (string) old($chave, '') === (string) $value : (bool) $checked;
 
     /*
      * `falsy` liga o campo escondido do "desligado". `true` manda "0";

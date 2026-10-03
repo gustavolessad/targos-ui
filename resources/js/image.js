@@ -37,7 +37,7 @@ function montar(envelope) {
     const nome = envelope.querySelector('[data-imagem-nome]');
 
     // A imagem que veio do servidor; e o `{name}_remove` como o Blade o desenhou (1 quando volta de um erro).
-    const gravada = envelope.dataset.imagemGravada || null;
+    let gravada = envelope.dataset.imagemGravada || null;
     const obrigatoria = envelope.dataset.imagemObrigatoria !== undefined;
     const flagInicial = removerFlag?.value ?? '0';
 
@@ -165,6 +165,26 @@ function montar(envelope) {
         });
     });
 
+    /*
+     * Um modal de imagem que serve a várias linhas (a logo de cada marca)
+     * precisa trocar a gravada depois de montado: `definirImagemGravada`
+     * manda a nova por este evento, e o quadro volta ao estado inicial
+     * com ela — sem escolha, sem remoção pedida.
+     */
+    envelope.addEventListener('ui:imagem-gravada', (evento) => {
+        gravada = evento.detail?.src || null;
+
+        nativo.value = '';
+        soltar();
+
+        if (removerFlag) {
+            removerFlag.value = '0';
+        }
+
+        limparErroDoCampo(nativo);
+        desenhar();
+    });
+
     // O navegador pode devolver a escolha ao voltar para a página: ela aparece no quadro.
     const devolvido = nativo.files?.[0];
 
@@ -174,6 +194,16 @@ function montar(envelope) {
     }
 
     desenhar();
+}
+
+/**
+ * Troca a imagem gravada de um `<x-ui.image>` já montado (`envelope` é
+ * o `[data-imagem]`): o quadro passa a mostrar `src` (ou o vazio, com
+ * `null`), sem escolha e sem remoção pedida.
+ */
+export function definirImagemGravada(envelope, src) {
+    envelope.dataset.imagemGravada = src ?? '';
+    envelope.dispatchEvent(new CustomEvent('ui:imagem-gravada', { detail: { src: src ?? null } }));
 }
 
 export function ligarImagens(raiz = document) {

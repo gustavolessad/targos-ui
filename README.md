@@ -457,6 +457,10 @@ nativo ao lado do quadro, e não há como remover.
 No JavaScript, as regras estão em funções puras: `tamanhoLegivel(bytes)`
 ("12 KB", "1,2 MB"), `aceita(arquivo, accept)`, `resumoDosArquivos(lista)` e
 `conferirArquivos(lista, { accept, max })`, que devolve a mensagem ou `null`.
+Um modal de imagem que serve a várias linhas (a logo de cada marca) troca a
+gravada com `definirImagemGravada(envelope, src)` — o `[data-imagem]` volta ao
+estado inicial com a nova imagem (ou com o vazio, com `null`); o título do modal
+está em `[data-modal-titulo]`.
 
 ## Linhas repetidas
 
@@ -496,6 +500,7 @@ erros) e o que vier em `with`. Só isso: as variáveis da tela não chegam sem `
 | `max` | O teto; atingido, o "adicionar" desliga |
 | `sortable` | Botões de subir e descer em cada linha |
 | `empty` | O texto mostrado sem linha nenhuma |
+| `remember` | Lembra as linhas enviadas quando o formulário volta com erro (padrão). `:remember="false"` no repetidor do formulário que não foi enviado (o modal de criar, quando foi o de editar que voltou) |
 | `id` | O id do envelope (padrão: o nome sem colchetes) |
 
 Depois de um erro de validação, o componente aplica `old()` sozinho: voltam as
@@ -713,6 +718,11 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.7.2** — Toggle e checkbox voltam do erro no estado enviado também com `falsy`
+  de texto (ligado é "o que voltou é o valor do ligado"); `remember` no
+  `x-ui.repeater`; `definirImagemGravada(envelope, src)` troca a imagem gravada
+  de um `x-ui.image` já montado (o modal de logo que serve a todas as linhas);
+  `data-modal-titulo` no título do `x-ui.modal`.
 - **1.7.1** — O que as primeiras listagens do ERP pediram: `x-ui.badge variant="outline"`;
   `falsy` do toggle e do checkbox aceita o valor do desligado (`:falsy="'inactive'"`), e o
   escondido ganha `data-falsy`, que o preenchimento do modal (`data-form-valores`) não

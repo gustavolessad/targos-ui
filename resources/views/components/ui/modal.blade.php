@@ -69,7 +69,8 @@
              role="dialog" aria-modal="true"
              @if ($title) aria-label="{{ $title }}" @endif>
             @if ($title)
-                <h2 class="mb-5 text-lg font-semibold text-neutral-900 dark:text-white">{{ $title }}</h2>
+                {{-- `data-modal-titulo`: o gancho para o JavaScript trocar o título num modal que serve a várias linhas. --}}
+                <h2 class="mb-5 text-lg font-semibold text-neutral-900 dark:text-white" data-modal-titulo>{{ $title }}</h2>
             @endif
 
             <button type="button" data-fecha-modal aria-label="Fechar"

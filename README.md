@@ -1190,6 +1190,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.10.1** — O `x-ui.radio-group` fica com a altura do `x-ui.input` do
+  mesmo tamanho (40px no md, 48px no lg): as opções eram 6px mais altas que a
+  moldura comportava, e o grupo ao lado de um campo sobrava na linha. O
+  `x-ui.user-menu` ganha a prop `width` (padrão `w-60`, como antes), para o
+  menu que traz texto comprido no slot (razão social, documento).
 - **1.10.0** — O que a tela de venda e o PDV pediram, sem nada de venda no
   pacote: `x-ui.button variant="warning"` e `warning-soft` (com tema escuro);
   `x-ui.modal static` e `x-ui.offcanvas static` (só os botões fecham;

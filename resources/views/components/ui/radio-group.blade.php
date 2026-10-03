@@ -50,9 +50,15 @@
         default => [$disabled],
     });
 
+    /*
+     * A altura da opção é a do campo do mesmo tamanho menos a moldura
+     * (1px de borda e o `p-1` de cada lado): o grupo inteiro fica com a
+     * altura do `x-ui.input` (40px no md, 48px no lg), e um rádio ao lado
+     * de um campo na mesma linha da grade não sobra nem falta.
+     */
     $tamanhos = [
-        'md' => ['opcao' => 'h-9 px-4 text-sm gap-2', 'icone' => 'size-4'],
-        'lg' => ['opcao' => 'h-12 px-6 text-base gap-2.5', 'icone' => 'size-5'],
+        'md' => ['opcao' => 'h-7.5 px-4 text-sm gap-2', 'icone' => 'size-4'],
+        'lg' => ['opcao' => 'h-9.5 px-6 text-base gap-2.5', 'icone' => 'size-5'],
     ];
     $tamanho = $tamanhos[$size] ?? $tamanhos['md'];
 @endphp

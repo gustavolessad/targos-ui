@@ -108,11 +108,11 @@
                 @if ($pagina === null)
                     <span class="px-1 text-sm text-neutral-400" aria-hidden="true">…</span>
                 @elseif ($pagina === $atual)
-                    <x-ui.button variant="primary" size="xs" class="min-w-7 px-2 tabular-nums" aria-current="page">
+                    <x-ui.button variant="primary" size="xs" class="min-w-7 px-2" aria-current="page">
                         {{ $pagina }}
                     </x-ui.button>
                 @else
-                    <x-ui.button variant="ghost" size="xs" class="min-w-7 px-2 tabular-nums" :href="$paginator->url($pagina)"
+                    <x-ui.button variant="ghost" size="xs" class="min-w-7 px-2" :href="$paginator->url($pagina)"
                                  :aria-label="'Página '.$pagina">
                         {{ $pagina }}
                     </x-ui.button>

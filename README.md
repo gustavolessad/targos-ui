@@ -1193,6 +1193,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.10.3** — Sai a classe `tabular-nums` dos campos `x-ui.money`, `x-ui.number`,
+  `x-ui.percent` e da `x-ui.pagination`: os números usam a fonte com os
+  algarismos dela, como o resto do texto.
 - **1.10.2** — `x-ui.badge variant="filled"`: o fundo cheio na cor (o
   `warning` é o amarelo com texto escuro), para o aviso que salta da tela.
 - **1.10.1** — O `x-ui.radio-group` fica com a altura do `x-ui.input` do

@@ -233,7 +233,7 @@
                placeholder="{{ $placeholder }}"
                data-dinheiro-texto
                {{ $attributes->only([...$doTexto, ...$deAria])->merge($naCelulaAcessivel) }}
-               @class([...$caixa, $recuo, 'text-end tabular-nums'])>
+               @class([...$caixa, $recuo, 'text-end'])>
     </div>
 
     {{-- Na célula, nem erro nem dica: uma linha a mais desalinharia a tabela. --}}

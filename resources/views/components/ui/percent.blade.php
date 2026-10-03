@@ -176,7 +176,7 @@
                placeholder="{{ $placeholder }}"
                data-percentual-texto
                {{ $attributes->only([...$doTexto, ...$deAria])->merge($naCelulaAcessivel) }}
-               @class([...$caixa, $recuo, 'text-end tabular-nums'])>
+               @class([...$caixa, $recuo, 'text-end'])>
 
         <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center {{ $posicaoDoSufixo }} {{ $tamanhoDoSufixo }} text-neutral-500 dark:text-neutral-400">%</span>
     </div>

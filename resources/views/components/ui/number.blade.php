@@ -119,7 +119,7 @@
            data-step="{{ $step }}"
            @if ($nullable) data-nullable @endif
            {{ $attributes->merge(['autocomplete' => 'off', ...$naCelulaAcessivel])->class([
-               'rounded border bg-transparent text-neutral-900 tabular-nums transition',
+               'rounded border bg-transparent text-neutral-900 transition',
                'placeholder:text-neutral-400',
                'focus:ring-2 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',
@@ -150,7 +150,7 @@
                    data-step="{{ $step }}"
                    @if ($nullable) data-nullable @endif
                    {{ $attributes->merge(['autocomplete' => 'off'])->class([
-                       'block w-full rounded-lg border text-neutral-900 tabular-nums',
+                       'block w-full rounded-lg border text-neutral-900',
                        'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
                        // Desligado: cinza e sem cursor de escrita, para se ler sem se tentar editar.
                        'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',

@@ -327,7 +327,7 @@ marcada do servidor.
 
 `variant` (`primary`, `secondary`, `outline`, `success`, `warning`,
 `warning-soft`, `danger`, `danger-soft`, `ghost`, `ghost-contrast`, `inverse`),
-`size` (`xs` a `xl`, ou `icon`, `icon-sm`, `icon-xs` para o botão só de ícone),
+`size` (`xs` a `xl`, ou `icon-xs`, `icon-sm`, `icon`, `icon-lg`, `icon-xl` para o botão só de ícone: 28, 36, 40, 48 e 56px, as alturas de `xs`, `sm`, `md`, `lg` e `xl`),
 `href` (vira `<a>`) e `icon` (um ícone antes do texto; veja "Ícones").
 
 `warning` é a ação que pede atenção antes de seguir, sem ser destrutiva
@@ -1243,6 +1243,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.4** — `x-ui.button` ganha `size="icon-lg"` (48px) e `size="icon-xl"` (56px),
+  os quadrados só de ícone nas alturas do `lg` e do `xl`.
 - **1.11.3** — `x-ui.tooltip`: o texto fica num `<span data-dica-texto>`, para um
   script trocá-lo sem levar a seta junto; e `data-sem-dica` no envelope cala a
   dica sem tirá-la da página (o botão que só se explica quando está desligado).

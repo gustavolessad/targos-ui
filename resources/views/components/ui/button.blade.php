@@ -70,6 +70,8 @@
         // A chamada de uma landing: o botão que a página inteira prepara.
         'xl' => 'h-14 px-8 text-base',
         // Quadrado, para o botão que só tem ícone.
+        'icon-xl' => 'size-14 p-0',
+        'icon-lg' => 'size-12 p-0',
         'icon' => 'size-10 p-0',
         'icon-sm' => 'size-9 p-0',
         'icon-xs' => 'size-7 p-0',
@@ -84,8 +86,12 @@
 @endphp
 
 @php
-    // O ícone acompanha o texto: `size-4` no botão comum, `size-5` no grande.
-    $tamanhoDoIcone = in_array($size, ['lg', 'xl'], true) ? 'size-5' : 'size-4';
+    // O ícone acompanha o botão: `size-4` no comum, `size-5` no grande, `size-6` no quadrado maior.
+    $tamanhoDoIcone = match (true) {
+        $size === 'icon-xl' => 'size-6',
+        in_array($size, ['lg', 'xl', 'icon-lg'], true) => 'size-5',
+        default => 'size-4',
+    };
 @endphp
 
 @if ($href)

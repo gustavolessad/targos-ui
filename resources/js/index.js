@@ -34,6 +34,7 @@ import { ligarArquivos } from './file.js';
 import { ligarImagens } from './image.js';
 import { ligarFiltros } from './filters.js';
 import { ligarPreenchimentos } from './form-fill.js';
+import { ligarNaoSalvo } from './unsaved.js';
 import { ligarEnvios } from './submit.js';
 
 export { MASCARAS, aplicarMascara, ligarMascaras, valorLimpo, mensagemInvalida, validarCpf, validarCnpj, validarTelefone, validarCep } from './masks.js';
@@ -58,7 +59,8 @@ export { ligarAlternancias } from './alternancia.js';
 export { marcarCarregando, desmarcarCarregando, ligarEnvios } from './submit.js';
 export { painelFlutuante } from './floating.js';
 export { paraBusca } from './search.js';
-export { ligarConfirmacoes, confirmar } from './confirm.js';
+export { ligarConfirmacoes, confirmar, confirmacaoPronta } from './confirm.js';
+export { ligarNaoSalvo, marcarSalvo, estaSujo, fotografia, mudou, linkAvisa } from './unsaved.js';
 export { ligarMenuLateral } from './nav.js';
 export { ligarBarraLateral } from './sidebar.js';
 export { ligarGraficos } from './chart.js';
@@ -106,6 +108,9 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarPreenchimentos();
 
     antesDosEnvios();
+
+    // Depois de quem segura o envio para perguntar (data-confirmar, os módulos do projeto); antes do ligarEnvios.
+    ligarNaoSalvo();
 
     ligarEnvios();
 }

@@ -64,6 +64,19 @@ export function confirmar(texto, { perigo = false } = {}) {
     });
 }
 
+/**
+ * Se `confirmar()` tem onde perguntar: o modal está na página e o
+ * `ligarConfirmacoes()` já rodou.
+ *
+ * Para quem precisa decidir antes de segurar uma ação: sem o modal, o
+ * `confirmar()` volta `false` na hora, e uma saída segurada à espera
+ * dele não sairia nunca (o aviso de alterações não salvas, unsaved.js,
+ * deixa a saída com o aviso do navegador nesse caso).
+ */
+export function confirmacaoPronta() {
+    return Boolean(perguntarPelaPromessa) && Boolean(modalLigado?.isConnected);
+}
+
 export function ligarConfirmacoes() {
     const modal = document.getElementById('confirmacao');
 

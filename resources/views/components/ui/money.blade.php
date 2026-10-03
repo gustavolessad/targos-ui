@@ -5,6 +5,10 @@
     'hint' => null,
     'info' => null,
     'required' => false,
+    /*
+     * `xs` a `lg`, ou `cell`: só o campo, para a célula de tabela (os
+     * itens da venda), como no `x-ui.input`.
+     */
     'size' => 'md',
     /*
      * O menor valor aceito. Sem ele, o padrão segue o campo: 0,01 (zero
@@ -45,6 +49,13 @@
      * custar nada sem estar em branco.
      */
     'allowZero' => false,
+    /*
+     * A largura do campo com o seu envelope — rótulo, erro e dica —, como
+     * no `x-ui.input`. Aqui o `class` também vai para o envelope e faria
+     * o mesmo; a prop existe para a tela escrever a largura igual em todo
+     * campo. No `cell`, sem ela, o campo ocupa a célula inteira.
+     */
+    'width' => null,
 ])
 
 @php
@@ -109,9 +120,37 @@
         'md' => ['h-10 text-sm', 'ps-10 pe-3', 'ps-3'],
         'lg' => ['h-12 text-base', 'ps-11 pe-4', 'ps-4'],
     ];
-    [$altura, $recuo, $posicaoDoPrefixo] = $tamanhos[$size] ?? $tamanhos['md'];
 
-    $caixa = [
+    /*
+     * `cell` é o campo dentro de uma célula de tabela: sem rótulo, erro
+     * nem dica, com a borda discreta do `x-ui.input size="cell"`. O
+     * desenho continua o mesmo — o nativo escondido e o visível por
+     * cima —, e o money.js não distingue os dois.
+     *
+     * **Sem o "R$".** Numa coluna de 110px, tirado o recuo da célula da
+     * tabela (`px-4`) e o do campo, sobram uns 60px de texto:
+     * "1.500,00" cabe justo, e o prefixo, mesmo em `text-xs`, levaria
+     * quase metade disso. A moeda vai no cabeçalho da coluna, que é quem
+     * rotula o campo na tabela.
+     */
+    $naCelula = $size === 'cell';
+
+    [$altura, $recuo, $posicaoDoPrefixo] = $naCelula
+        ? ['py-1 text-sm', 'px-2', null]
+        : ($tamanhos[$size] ?? $tamanhos['md']);
+
+    $caixa = $naCelula ? [
+        /*
+         * A borda à vista, sem fundo, e mais escura no hover: numa tabela
+         * cheia de texto, o campo sem contorno não se anuncia como campo.
+         */
+        'block w-full rounded border border-neutral-300 bg-transparent text-neutral-900 transition',
+        'placeholder:text-neutral-400 hover:border-neutral-400',
+        'focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none',
+        'disabled:cursor-not-allowed disabled:text-neutral-400',
+        'dark:border-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:hover:border-neutral-600',
+        $altura,
+    ] : [
         'block w-full rounded-lg border text-neutral-900 bg-white',
         'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
         'dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500',
@@ -122,14 +161,21 @@
         'border-neutral-300 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-700' => ! $temErro,
         'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
     ];
+
+    // O nativo não tem prefixo: o recuo é o mesmo dos dois lados.
+    $recuoDoNativo = $naCelula ? 'px-2' : 'px-3';
+
+    // Na célula, o envelope é a largura do campo: sem `width`, a célula inteira.
+    $envelope = $naCelula ? ['relative', $width ?? 'w-full'] : ['group relative', $width];
 @endphp
 
-<div {{ $attributes->except($doCampo)->class(['group relative']) }}
+<div {{ $attributes->except($doCampo)->class(array_filter($envelope)) }}
      data-dinheiro
      data-dinheiro-escala="{{ $escala }}"
      @if ($allowZero) data-dinheiro-zero @endif
      @if ($negativo) data-dinheiro-negativo @endif>
-    @if ($label)
+    {{-- Na célula, quem rotula é o cabeçalho da coluna. --}}
+    @if ($label && ! $naCelula)
         <x-ui.field-label :label="$label" :for="$id" :required="$required" :info="$info" class="mb-1.5" />
     @endif
 
@@ -144,11 +190,13 @@
            @required($required)
            data-dinheiro-nativo
            {{ $attributes->only($doCampo) }}
-           @class([...$caixa, 'px-3'])>
+           @class([...$caixa, $recuoDoNativo])>
     </div>
 
     <div class="relative" data-dinheiro-campo hidden>
-        <span class="pointer-events-none absolute inset-y-0 start-0 flex items-center {{ $posicaoDoPrefixo }} text-sm text-neutral-500 dark:text-neutral-400">R$</span>
+        @unless ($naCelula)
+            <span class="pointer-events-none absolute inset-y-0 start-0 flex items-center {{ $posicaoDoPrefixo }} text-sm text-neutral-500 dark:text-neutral-400">R$</span>
+        @endunless
 
         {{--
             Números alinhados à direita, como numa coluna de valores.
@@ -167,9 +215,10 @@
                @class([...$caixa, $recuo, 'text-end tabular-nums'])>
     </div>
 
-    @if ($temErro)
+    {{-- Na célula, nem erro nem dica: uma linha a mais desalinharia a tabela. --}}
+    @if ($temErro && ! $naCelula)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
-    @elseif ($hint)
+    @elseif ($hint && ! $naCelula)
         <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{{ $hint }}</p>
     @endif
 </div>

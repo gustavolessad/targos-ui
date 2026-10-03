@@ -411,6 +411,8 @@ ApexCharts fica em `elemento.grafico`.
 | `allow-zero` | "0" digitado vale R$ 0,00 e grava `0.00`; o `min` padrão vira 0 |
 | `min` | O menor valor. Sem ele: 0,01, ou 0 com `allow-zero`. Abaixo de zero, ou `:min="false"` (sem limite), o campo aceita negativo: o "-" troca o sinal e -1.500,00 grava `-1500.00` |
 | `id` | O id do campo. Padrão: o nome sem colchetes (`items-0-cost`); o campo visível é `{id}-texto` |
+| `size` | `xs` a `lg`, ou `cell`: só o campo, para tabela (sem rótulo, erro, dica e sem o "R$" — quem diz a moeda é o cabeçalho da coluna). No `x-ui.percent`, o `cell` mantém o "%" menor |
+| `width` | A largura com o envelope, como no `x-ui.input` |
 
 ```blade
 <x-ui.number name="installments" label="Parcelas" :min="1" :max="48" />
@@ -575,6 +577,27 @@ evento `ui:repetidor`, que sobe do envelope com
 (`item` é o elemento da linha). `adicionarLinha(envelope)` acrescenta uma linha
 por código (o produto escolhido numa busca vira item da venda) e devolve o
 elemento, ou `null` no teto. Repetidor dentro de repetidor não funciona.
+
+## Alterações não salvas
+
+```blade
+<form method="POST" action="{{ route('sales.update', $sale) }}" data-nao-salvo @if ($errors->any()) data-nao-salvo-sujo @endif>
+```
+
+Com `data-nao-salvo`, o formulário guarda ao carregar o que enviaria (`FormData`)
+e compara na hora de sair. Se mudou, um link para outra página do sistema ou o
+envio de outro formulário da página pergunta no modal de confirmação ("Há
+alterações não salvas. Sair e descartá-las?"). Fechar a aba, recarregar ou ir
+para outro site cai no aviso do próprio navegador. Voltar ao valor de antes (ou
+`form.reset()`) deixa o formulário limpo. O envio do próprio formulário não
+pergunta.
+
+- `data-sem-aviso` num link, formulário ou botão: sai sem perguntar, nem pelo navegador.
+- `data-nao-salvo-sujo`: o formulário já nasce sujo (voltou com erro de validação, e o que está na tela não foi salvo).
+- `marcarSalvo(form)`: para quem salva por `fetch` e continua na tela. `estaSujo(form)` diz se mudou.
+- Precisa do `<x-ui.confirm>` na página. Sem ele, só o aviso do navegador.
+- Links com `target="_blank"`, `download`, âncoras (`#…`) e cliques com Ctrl/⌘/Shift não perguntam.
+  Navegação por script (`location.href = …`) e `form.submit()` caem no aviso do navegador: use `requestSubmit()`.
 
 ## Listagem: filtros que se enviam sozinhos
 
@@ -778,6 +801,16 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.8.0** — O que os formulários compostos pedem: `x-ui.select multiple`
+  (chips, caixa por opção, `old()` de lista, busca no servidor também);
+  `x-ui.checkbox-group` (a lista curta de escolhas como um campo só);
+  `data-nao-salvo` (`ligarNaoSalvo`, `marcarSalvo`, `estaSujo`: o aviso de
+  alterações não salvas pelo modal de confirmação); `size="cell"` e `width` no
+  `x-ui.money` e no `x-ui.percent`; `data-modal-titulo` e `data-form` no botão
+  que abre o modal; o preenchimento e os erros do JavaScript entendem listas
+  (`roles[]`, `roles.1`); `ligarPreenchimentos` idempotente. Quem liga os
+  módulos um a um acrescenta `ligarNaoSalvo()` entre os módulos do projeto e o
+  `ligarEnvios()`.
 - **1.7.4** — `'info' => '…'` no cabeçalho do `x-ui.table` (o ícone de explicação
   da coluna; `x-ui.label-info` ganha `label` para o leitor de tela);
   `x-ui.stat-card variant="filled"`; o select remoto lê `data-seletor-fonte` a

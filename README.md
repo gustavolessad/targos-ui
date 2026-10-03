@@ -1243,6 +1243,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.2** — O tamanho `cell` dos campos (`x-ui.input`, `x-ui.number`,
+  `x-ui.money`, `x-ui.percent`) arredonda um pouco mais: `rounded-md` (6px) no
+  lugar de `rounded` (4px). No `x-ui.input`, a prop `radius` continua trocando.
 - **1.11.1** — Muda o `x-ui.badge`, e **quebra o visual**: o padrão passou a se chamar
   `soft` e deixou de pintar `success` e `danger` cheios (agora são claros,
   como as outras cores); `solid` deixou de existir. Quem queria o selo cheio

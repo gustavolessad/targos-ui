@@ -42,10 +42,10 @@
     'size' => 'md',
     /*
      * O arredondamento do campo no tamanho `cell`. Na tabela ele é
-     * discreto (`rounded`); a busca dentro de um painel suspenso pede
+     * discreto (`rounded-md`); a busca dentro de um painel suspenso pede
      * o mesmo `rounded-lg` do painel em volta.
      */
-    'radius' => 'rounded',
+    'radius' => 'rounded-md',
     /*
      * A largura do campo **com o seu envelope** — rótulo, erro e dica.
      *

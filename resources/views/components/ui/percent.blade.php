@@ -143,7 +143,7 @@
 
     $caixa = $naCelula ? [
         // A borda à vista, sem fundo, e mais escura no hover (ver `x-ui.money`).
-        'block w-full rounded border bg-transparent text-neutral-900 transition',
+        'block w-full rounded-md border bg-transparent text-neutral-900 transition',
         'placeholder:text-neutral-400',
         'focus:ring-2 focus:outline-none',
         'disabled:cursor-not-allowed disabled:text-neutral-400',

@@ -296,6 +296,21 @@ da listagem e o modal, o modal de criar e o de editar —, o que **não** foi
 enviado leva `:remember="false"` (no `x-ui.input`, `:keeps-input="false"`),
 senão mostra o valor do outro.
 
+## Grupo de caixas
+
+```blade
+<x-ui.checkbox-group name="roles" label="Papéis" required hint="Ao menos um"
+                     :options="['customer' => 'Cliente', 'supplier' => 'Fornecedor']"
+                     :selected="$person->roles" />
+```
+
+Uma lista curta de escolhas, onde um select pesaria: cada caixa é
+`roles[]`, e o grupo é o campo — tem rótulo, `hint`, `info`, `required` ("ao
+menos uma") e mostra o erro do grupo (`roles`) ou de uma caixa (`roles.0`) uma
+vez só. `options` aceita `valor => rótulo` ou uma lista de
+`['value', 'label', 'hint']`; `inline` põe as caixas lado a lado; `remember`
+como nos outros campos.
+
 ## Selo
 
 ```blade

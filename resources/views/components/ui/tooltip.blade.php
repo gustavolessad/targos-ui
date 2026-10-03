@@ -106,6 +106,13 @@
               */
              'w-max font-medium '.$fundo.' '.$texto.' '.($tamanhos[$size] ?? $tamanhos['md']) => ! $ehMenu,
              'pointer-events-none' => ! $ehMenu && ! $noClique,
+             /*
+              * `data-sem-dica` no envelope cala a dica sem tirá-la da
+              * página: o botão que só se explica quando está desligado
+              * liga e desliga o atributo por script. `invisible`, e não
+              * `hidden`, para não disputar com o `block` do hover.
+              */
+             'group-data-[sem-dica]/dica:invisible',
          ])>
         @unless ($ehMenu)
             {{-- A seta: um quadrado girado, meio escondido atrás da bolha. --}}
@@ -113,6 +120,11 @@
                   class="absolute -z-10 size-2 rotate-45 {{ $fundo }} {{ $posicaoDaSeta }}"></span>
         @endunless
 
-        {{ $ehMenu ? $conteudo : $text }}
+        @if ($ehMenu)
+            {{ $conteudo }}
+        @else
+            {{-- O texto num gancho, para um script trocá-lo sem levar a seta junto. --}}
+            <span data-dica-texto>{{ $text }}</span>
+        @endif
     </div>
 </div>

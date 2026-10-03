@@ -1243,6 +1243,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.3** — `x-ui.tooltip`: o texto fica num `<span data-dica-texto>`, para um
+  script trocá-lo sem levar a seta junto; e `data-sem-dica` no envelope cala a
+  dica sem tirá-la da página (o botão que só se explica quando está desligado).
 - **1.11.2** — O tamanho `cell` dos campos (`x-ui.input`, `x-ui.number`,
   `x-ui.money`, `x-ui.percent`) arredonda um pouco mais: `rounded-md` (6px) no
   lugar de `rounded` (4px). No `x-ui.input`, a prop `radius` continua trocando.

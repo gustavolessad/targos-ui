@@ -356,7 +356,8 @@
      @if ($buscavel) data-seletor-busca @endif
      @if ($source !== null) data-seletor-fonte="{{ $source }}" @endif
      @if ($source !== null && $prefetch) data-seletor-pre-busca @endif>
-    @if ($label)
+    {{-- Na célula não há rótulo à vista: quem rotula é o cabeçalho da coluna, e o `label` vira o nome acessível do gatilho. --}}
+    @if ($label && $size !== 'cell')
         <x-ui.field-label :label="$label"
                           :for="$id"
                           :required="$required"
@@ -425,6 +426,7 @@
             aria-haspopup="listbox"
             aria-expanded="false"
             aria-controls="{{ $idDoPainel }}"
+            @if ($label && $size === 'cell') aria-label="{{ $label }}" @endif
             @if ($readonly) aria-readonly="true" @endif
             @class([
                 ...$caixa,

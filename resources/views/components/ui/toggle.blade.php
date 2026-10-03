@@ -85,7 +85,7 @@
 
         @if ($label)
             <label for="{{ $id }}" class="cursor-pointer text-sm text-neutral-700 select-none dark:text-neutral-300">
-                {{ $label }}
+                <span data-campo-rotulo>{{ $label }}</span>
             </label>
         @endif
     </div>

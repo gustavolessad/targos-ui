@@ -949,6 +949,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.9.1** — Dois acertos da 1.9.0: o `x-ui.toggle` e o `x-ui.checkbox`
+  passam a ter o `<span data-campo-rotulo>` no texto do rótulo, como o README já
+  dizia; e o `x-ui.select size="cell"` deixa de desenhar o rótulo — o `label`
+  vira o `aria-label` do gatilho, como nos outros campos da célula.
 - **1.9.0** — O que as telas de contagem, baixa e resumo pediram:
   `x-ui.number nullable` (o vazio fica vazio; `data-nullable`,
   `somarPasso({ anulavel })`); no `size="cell"` de `input`, `number`, `money`

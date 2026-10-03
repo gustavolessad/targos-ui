@@ -34,6 +34,12 @@
  *   do `old()`, e não foi salvo.
  * - Quem salva por `fetch` e continua na tela chama `marcarSalvo(form)`:
  *   o que está nela vira a nova fotografia.
+ * - `data-nao-salvo-texto="…"` no formulário troca a pergunta do modal
+ *   ("Descartar a venda em andamento?"); sem ele, a de sempre. O aviso
+ *   do navegador não muda: o texto é dele.
+ * - `data-nao-salvo-ignorar` num campo (ou num envelope de campos) o
+ *   deixa fora da fotografia: a aba aberta do `x-ui.tabs`, um filtro de
+ *   busca dentro do formulário — o que muda sem ser uma alteração.
  *
  * Ligado depois do `ligarConfirmacoes()` e antes do `ligarEnvios()`
  * (ver `ligarUi`): o envio que outro módulo segura para perguntar chega
@@ -43,6 +49,16 @@
 import { confirmacaoPronta, confirmar } from './confirm.js';
 
 const PERGUNTA = 'Há alterações não salvas. Sair e descartá-las?';
+
+/**
+ * A pergunta de um formulário: a dele (`data-nao-salvo-texto`), ou a
+ * de sempre quando não tem, ou tem em branco.
+ */
+export function textoDaPergunta(dataset = {}) {
+    const proprio = String(dataset?.naoSalvoTexto ?? '').trim();
+
+    return proprio === '' ? PERGUNTA : proprio;
+}
 
 /** A fotografia do formulário que nasce sujo: não é igual a nenhuma outra. */
 const NASCEU_SUJO = Symbol('nasceu sujo');
@@ -88,9 +104,30 @@ function valorNaFotografia(valor) {
  * arquivo entra pelo nome e pelo tamanho — ler o conteúdo seria ler o
  * arquivo inteiro a cada saída. Em JSON, um texto digitado que por acaso
  * se pareça com a descrição de um arquivo não se confunde com ela.
+ *
+ * `ignorar` são os nomes que ficam de fora (os dos campos com
+ * `data-nao-salvo-ignorar`): o `FormData` só sabe o nome, então é por
+ * ele que se tira — e todo par com aquele nome sai, inclusive o de um
+ * campo homônimo sem a marca.
  */
-export function fotografia(pares) {
-    return JSON.stringify([...pares].map(([nome, valor]) => [String(nome), valorNaFotografia(valor)]));
+export function fotografia(pares, ignorar = []) {
+    const foraDaConta = new Set([...(ignorar ?? [])].map(String));
+
+    return JSON.stringify([...pares]
+        .filter(([nome]) => ! foraDaConta.has(String(nome)))
+        .map(([nome, valor]) => [String(nome), valorNaFotografia(valor)]));
+}
+
+/**
+ * Os nomes dos campos do formulário que não entram na fotografia: os
+ * que têm `data-nao-salvo-ignorar`, ou estão dentro de um elemento que
+ * tem. Pelo `form.elements`, que inclui o campo de fora ligado por
+ * `form="id"` (o da aba, quando as abas ficam fora do formulário).
+ */
+function nomesIgnorados(formulario) {
+    return [...formulario.elements]
+        .filter((campo) => campo.name && campo.closest('[data-nao-salvo-ignorar]'))
+        .map((campo) => campo.name);
 }
 
 /** Se o formulário mudou desde a fotografia `antes`. Sem ela (o formulário não foi ligado), não mudou. */
@@ -152,9 +189,9 @@ export function linkAvisa(href, { origin, atual = origin, target = '', dataset =
     return ancora === -1 || destino.href.slice(0, ancora) !== aqui.href.split('#')[0];
 }
 
-/** O que o formulário enviaria agora, como fotografia. */
+/** O que o formulário enviaria agora, como fotografia — sem os campos que ela ignora. */
 function fotografar(formulario) {
-    return fotografia(new FormData(formulario));
+    return fotografia(new FormData(formulario), nomesIgnorados(formulario));
 }
 
 /**
@@ -177,11 +214,16 @@ export function marcarSalvo(formulario) {
     delete formulario.dataset.naoSalvoLiberado;
 }
 
-/** Se a página tem um formulário ligado que perderia o digitado — fora `exceto`, o que está sendo enviado. */
-function haSujo(exceto = null) {
-    return [...document.querySelectorAll('form[data-nao-salvo-ligado]')].some((formulario) => formulario !== exceto
+/** Os formulários ligados que perderiam o digitado — fora `exceto`, o que está sendo enviado. */
+function sujos(exceto = null) {
+    return [...document.querySelectorAll('form[data-nao-salvo-ligado]')].filter((formulario) => formulario !== exceto
         && ! ('naoSalvoLiberado' in formulario.dataset)
         && estaSujo(formulario));
+}
+
+/** Se a página tem um formulário que perderia o digitado. */
+function haSujo(exceto = null) {
+    return sujos(exceto).length > 0;
 }
 
 function liberarSaida() {
@@ -197,7 +239,8 @@ function envioSai(formulario, botao) {
 }
 
 /**
- * A pergunta, no modal do painel.
+ * A pergunta, no modal do painel — com o texto do primeiro formulário
+ * sujo (`data-nao-salvo-texto`), ou o de sempre.
  *
  * Um passo depois, e não no meio do evento: o envio que o
  * `data-confirmar` acabou de confirmar chega aqui de dentro do clique no
@@ -205,10 +248,10 @@ function envioSai(formulario, botao) {
  * modal logo em seguida. Perguntando já, a pergunta sairia junto com o
  * fechamento.
  */
-async function perguntar() {
+async function perguntar(exceto = null) {
     await null;
 
-    return confirmar(PERGUNTA, { perigo: true });
+    return confirmar(textoDaPergunta(sujos(exceto)[0]?.dataset), { perigo: true });
 }
 
 function aoClicar(evento) {
@@ -327,7 +370,7 @@ function aoEnviar(evento) {
 
     const confirmado = formulario.dataset.confirmado;
 
-    perguntar().then((sim) => {
+    perguntar(formulario).then((sim) => {
         if (sim) {
             seguirComEnvio(formulario, botao, confirmado);
         }

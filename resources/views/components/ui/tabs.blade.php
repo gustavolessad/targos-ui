@@ -142,9 +142,13 @@
 
         O `form` só sai quando foi passado: `form=""` não é "o
         formulário em volta", é formulário nenhum — e a aba não ia junto.
+
+        `data-nao-salvo-ignorar`: trocar de aba não é mexer no formulário.
+        Sem isso, o aviso de alterações não salvas (unsaved.js) veria o
+        campo mudar e perguntaria ao sair de uma tela em que só se olhou.
     --}}
     @unless ($navegacao)
-        <input type="hidden" name="{{ $name }}" value="{{ $atual }}" data-aba-atual
+        <input type="hidden" name="{{ $name }}" value="{{ $atual }}" data-aba-atual data-nao-salvo-ignorar
                @if (filled($attributes->get('form'))) form="{{ $attributes->get('form') }}" @endif>
     @endunless
 

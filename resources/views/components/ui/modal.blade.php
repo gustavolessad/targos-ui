@@ -15,12 +15,21 @@
     'width' => 'max-w-md',
     // Já aberto ao carregar — o formulário que voltou do servidor com erro.
     'open' => false,
+    /*
+     * Só os botões fecham: nem o clique no fundo nem o Esc. Para o
+     * diálogo que não pode ser dispensado por acidente — o documento da
+     * venda que ainda está sendo decidido, o passo que exige uma
+     * resposta. Vai como `data-modal-estatico`, que o layers.js lê.
+     */
+    'static' => false,
 ])
 
 {{--
     Abre com `data-abre-modal="{{ $id }}"` em qualquer botão da página, e
     fecha pelo X, pelo botão do rodapé, clicando no fundo ou com Esc — o
-    que está em resources/js/app.js.
+    que está em resources/js/layers.js. Com `static`, só pelo X e pelos
+    botões. Ao abrir e ao fechar, o próprio elemento dispara
+    `ui:camada-aberta` e `ui:camada-fechada`, com o motivo no `detail`.
 
     A animação é de CSS: o JavaScript só põe e tira `data-aberto`, e a
     transição corre sozinha. Entra com o fundo escurecendo e a caixa
@@ -39,7 +48,7 @@
     acima do fundo escuro por mais alto que este suba. Por isso o header
     do layout minimal usa fundo sólido.
 --}}
-<div id="{{ $id }}" data-modal @if ($open) data-abrir-ao-carregar @endif
+<div id="{{ $id }}" data-modal @if ($open) data-abrir-ao-carregar @endif @if ($static) data-modal-estatico @endif
      class="fixed inset-0 z-60 hidden [&[data-aberto]]:block">
     <div class="fixed inset-0 bg-neutral-300/50 opacity-0 backdrop-blur-[4px] dark:bg-neutral-900/50 transition-opacity duration-200
                 [[data-aberto]_&]:opacity-100"></div>

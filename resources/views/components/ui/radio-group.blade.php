@@ -18,6 +18,8 @@
     'required' => false,
     // A explicação do grupo, num ícone ao lado do rótulo (ver o input).
     'info' => null,
+    // A linha de apoio embaixo das opções, como no `x-ui.input` (some quando há erro).
+    'hint' => null,
     /*
      * As opções que não se escolhem, pelos valores: `['boleto']`. Elas
      * continuam à vista, apagadas — sumir com uma opção esconderia que
@@ -108,5 +110,9 @@
 
     @error($chave)
         <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
+    @else
+        @if ($hint)
+            <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
+        @endif
     @enderror
 </div>

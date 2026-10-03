@@ -243,6 +243,40 @@
 }
 
 /*
+ * A lista que se reordena (sortable.js, `data-arrastavel`): o item
+ * arrastado fica translúcido, e o alvo mostra a linha de onde ele vai
+ * cair — em cima (`antes`) ou embaixo (`depois`); na lista horizontal,
+ * à esquerda ou à direita. A alça (`data-arrastavel-alca`) tem o cursor
+ * de agarrar. É o desenho padrão: a tela que quiser outro redeclara os
+ * mesmos seletores.
+ */
+@layer components {
+    [data-arrastavel-alca] {
+        cursor: grab;
+    }
+
+    [data-arrastavel-item][data-arrastando] {
+        opacity: 0.5;
+    }
+
+    [data-arrastavel-item][data-arrastavel-alvo='antes'] {
+        box-shadow: 0 -2px 0 0 var(--color-primary-500);
+    }
+
+    [data-arrastavel-item][data-arrastavel-alvo='depois'] {
+        box-shadow: 0 2px 0 0 var(--color-primary-500);
+    }
+
+    [data-arrastavel='horizontal'] [data-arrastavel-item][data-arrastavel-alvo='antes'] {
+        box-shadow: -2px 0 0 0 var(--color-primary-500);
+    }
+
+    [data-arrastavel='horizontal'] [data-arrastavel-item][data-arrastavel-alvo='depois'] {
+        box-shadow: 2px 0 0 0 var(--color-primary-500);
+    }
+}
+
+/*
  * Quem pede menos movimento no sistema operacional vê tudo aparecer direto.
  *
  * Pelo nome dentro da classe, e não pela classe: `animate-descer` também

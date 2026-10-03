@@ -35,13 +35,15 @@ import { ligarImagens } from './image.js';
 import { ligarFiltros } from './filters.js';
 import { ligarPreenchimentos } from './form-fill.js';
 import { ligarCondicionais } from './conditional.js';
+import { ligarArrastaveis } from './sortable.js';
+import { ligarEnvioImplicito } from './implicit-submit.js';
 import { ligarNaoSalvo } from './unsaved.js';
 import { ligarEnvios } from './submit.js';
 
 export { MASCARAS, aplicarMascara, ligarMascaras, valorLimpo, mensagemInvalida, validarCpf, validarCnpj, validarTelefone, validarCep } from './masks.js';
 export { mostrarErros, limparErros, mostrarErroNoCampo, limparErroDoCampo, campoDe, nomeHtml } from './errors.js';
 export { requisicaoJson, mensagemDe, xsrfToken, ErroDeRequisicao } from './fetch.js';
-export { ligarCamadas, abrirCamada, fecharCamada } from './layers.js';
+export { ligarCamadas, abrirCamada, fecharCamada, fechadasPeloEsc } from './layers.js';
 export { ligarAbas } from './tabs.js';
 export { ligarSeletores, escolhaDe } from './select.js';
 export { ligarLinhasClicaveis } from './table-row.js';
@@ -61,7 +63,7 @@ export { marcarCarregando, desmarcarCarregando, ligarEnvios } from './submit.js'
 export { painelFlutuante } from './floating.js';
 export { paraBusca } from './search.js';
 export { ligarConfirmacoes, confirmar, confirmacaoPronta } from './confirm.js';
-export { ligarNaoSalvo, marcarSalvo, estaSujo, fotografia, mudou, linkAvisa } from './unsaved.js';
+export { ligarNaoSalvo, marcarSalvo, estaSujo, fotografia, mudou, linkAvisa, textoDaPergunta } from './unsaved.js';
 export { ligarMenuLateral } from './nav.js';
 export { ligarBarraLateral } from './sidebar.js';
 export { ligarGraficos } from './chart.js';
@@ -70,7 +72,9 @@ export { tamanhoLegivel, aceita, resumoDosArquivos, conferirArquivos, ligarArqui
 export { ligarImagens, definirImagemGravada } from './image.js';
 export { ligarFiltros, camposForaDaUrl, enviaAoMudar } from './filters.js';
 export { ligarPreenchimentos, preencherFormulario, escreverNoCampo, textoDoValor, temValor } from './form-fill.js';
-export { ligarCondicionais, interpretarCondicao, condicaoVale } from './conditional.js';
+export { ligarCondicionais, interpretarCondicao, interpretarCondicoes, condicaoVale, condicoesValem, valorDaChave } from './conditional.js';
+export { ligarArrastaveis, indiceAoSoltar, reordenar, passoPelaTecla, ladoDoAlvo, ordemDe } from './sortable.js';
+export { ligarEnvioImplicito, enterEnviaImplicito } from './implicit-submit.js';
 
 /**
  * Liga tudo, na ordem certa.
@@ -109,6 +113,9 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarFiltros();
     ligarPreenchimentos();
     ligarCondicionais();
+    ligarArrastaveis();
+    // O Enter que não envia (`data-sem-envio-implicito`): só barra o padrão, e o evento segue para a tela.
+    ligarEnvioImplicito();
 
     antesDosEnvios();
 

@@ -32,6 +32,17 @@
          * procura, e não o tema da tela.
          */
         'inverse' => 'border-transparent bg-white text-neutral-950 hover:bg-neutral-200 focus:ring-white/30',
+        /*
+         * O que pede atenção antes de seguir: estornar, reabrir, forçar.
+         * O âmbar do token `warning`, com texto escuro, como no toast de
+         * aviso e na dica `warning`: o amarelo não aguenta texto branco.
+         * No escuro, um degrau mais claro, para não apagar sobre o fundo.
+         */
+        'warning' => 'border-transparent bg-warning-500 text-neutral-950 hover:bg-warning-600 focus:ring-warning-500/30'
+            .' dark:bg-warning-400 dark:hover:bg-warning-300',
+        // Âmbar discreto, para a atenção que não é a ação principal (o par do `danger-soft`).
+        'warning-soft' => 'border-transparent bg-warning-50 text-warning-800 hover:bg-warning-100 focus:ring-warning-500/30'
+            .' dark:bg-warning-500/15 dark:text-warning-400 dark:hover:bg-warning-500/25',
         // O que não volta: excluir.
         'danger' => 'border-transparent bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500/30',
         // Vermelho discreto, para a exclusão que não é a ação principal.

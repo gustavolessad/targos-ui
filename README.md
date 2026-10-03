@@ -21,7 +21,7 @@ São duas coisas diferentes:
 | `resources/js` | Um módulo por comportamento, e o `index.js` que reexporta tudo |
 | `config/ui.php` | As poucas decisões que mudam de projeto para projeto |
 | `src/UiServiceProvider.php` | Registra os componentes e a configuração (descoberto sozinho pelo Laravel) |
-| `src/Icons.php` | A lista de ícones do Lucide, usada pelo `<x-ui.icon>` |
+| `src/Icons.php` | A lista de ícones do Lucide e os desenhados pelo projeto, usada pelo `<x-ui.icon>` |
 | `src/Money.php`, `src/DateShortcuts.php`, `src/FieldName.php` | O valor em reais do `<x-ui.money>` (e as 4 casas do `<x-ui.percent>`), os atalhos do `<x-ui.date-range>` e o nome de campo nas três formas (HTML, `old()`, id) |
 | `tests/js` | Testes das funções puras (`npm test`) |
 
@@ -153,7 +153,7 @@ pintura pelo `<x-ui.theme-script />`.
   ganhar a dica, o elemento declara `data-barra-dica="Nome"`.
 
 O topo de cada tela é o `<x-ui.page-header title="…" back="…" :breadcrumbs="[…]">`,
-com as ações no slot.
+com as ações no slot (veja "Cabeçalho da tela").
 
 ## Personalização
 
@@ -217,7 +217,29 @@ Do mais leve ao mais pesado:
 Quando o formulário volta com erro e a aba aberta não tem nenhum, abre a
 primeira aba que tem (a não ser que a tela passe `active`). No teclado, as
 setas trocam de aba, e Home e End vão às pontas. Cada troca dispara `ui:aba`
-no `document`, com `detail: { grupo, aba }`.
+no `document`, com `detail: { grupo, aba }`. O campo escondido da aba leva
+`data-nao-salvo-ignorar`: trocar de aba não conta como alteração para o
+aviso de "Alterações não salvas".
+
+## Cabeçalho da tela
+
+```blade
+<x-ui.page-header title="Venda 1.024" back="{{ route('sales.index') }}">
+    <x-slot:aside>
+        <x-ui.badge color="success">Concluída</x-ui.badge>
+        <x-ui.badge color="warning" variant="outline">NFC-e pendente</x-ui.badge>
+    </x-slot:aside>
+
+    <x-ui.button variant="warning-soft" icon="undo-2">Devolver</x-ui.button>
+</x-ui.page-header>
+```
+
+Props: `title`, `subtitle`, `back` (o "Voltar", antes das ações) e
+`breadcrumbs` (`[[rótulo, url], …]`, o último sem url). O slot recebe as ações,
+à direita. O slot `aside` fica ao lado do título, na linha dele: os selos e
+chips que dizem o estado do que a tela mostra. Centrados na altura do título;
+quando não cabem (no celular), quebram para baixo dele. O envelope do `aside`
+leva `data-cabecalho-selos` e aceita classes (`<x-slot:aside class="ms-1">`).
 
 ## Select
 
@@ -303,10 +325,50 @@ marcada do servidor.
 <x-ui.button variant="secondary" size="sm" icon="download" :href="route('export')">Exportar</x-ui.button>
 ```
 
-`variant` (`primary`, `secondary`, `outline`, `success`, `danger`, `danger-soft`,
-`ghost`, `ghost-contrast`, `inverse`), `size` (`xs` a `xl`, ou `icon`,
-`icon-sm`, `icon-xs` para o botão só de ícone), `href` (vira `<a>`) e `icon`
-(um ícone do Lucide antes do texto).
+`variant` (`primary`, `secondary`, `outline`, `success`, `warning`,
+`warning-soft`, `danger`, `danger-soft`, `ghost`, `ghost-contrast`, `inverse`),
+`size` (`xs` a `xl`, ou `icon`, `icon-sm`, `icon-xs` para o botão só de ícone),
+`href` (vira `<a>`) e `icon` (um ícone antes do texto; veja "Ícones").
+
+`warning` é a ação que pede atenção antes de seguir, sem ser destrutiva
+(estornar, reabrir, forçar): âmbar cheio com texto escuro — o amarelo não
+aguenta texto branco —, um degrau mais claro no tema escuro. `warning-soft` é
+o par discreto, como o `danger-soft`, para quando ela não é a ação principal.
+
+```blade
+<x-ui.button variant="warning" icon="rotate-ccw">Estornar baixa</x-ui.button>
+<x-ui.button variant="warning-soft" size="sm">Reabrir</x-ui.button>
+```
+
+## Ícones
+
+```blade
+<x-ui.icon name="receipt" class="size-4" />
+<x-ui.icon name="pix" class="size-4 text-success-600" />
+```
+
+`name` é um ícone do Lucide (lucide.dev), desenhado no servidor; o tamanho vai
+na classe (`size-5` quando não há). O nome que não existe não desenha nada, e
+a página continua de pé.
+
+**Os do projeto.** O que o Lucide não tem (o Pix, a bandeira de um cartão, a
+marca do cliente) o projeto desenha numa view, sem copiar o componente:
+
+```blade
+{{-- resources/views/components/ui/icons/pix.blade.php --}}
+<svg {{ $attributes }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="…"/>
+</svg>
+```
+
+O arquivo em `resources/views/components/ui/icons/{nome}.blade.php` vira o
+ícone `{nome}`, chamado como qualquer outro — no `x-ui.icon`, no `icon` do
+botão e do selo, no `empty` do `x-ui.image`, nos `icons` do `radio-group`. O
+`$attributes` traz o que o SVG do Lucide receberia: as classes (com o tamanho
+padrão), os atributos soltos e `aria-hidden="true"` (a não ser que a tela
+passe outro). O do projeto vence o do Lucide de mesmo nome. O nome aceita
+letras, números, `-` e `_` (sem ponto nem barra). `Targos\Ui\Icons::exists()`
+conhece os dois conjuntos, e `Icons::isCustom()` diz se o nome é do projeto.
 
 ## Lembrar o enviado (`remember`)
 
@@ -328,8 +390,28 @@ Uma lista curta de escolhas, onde um select pesaria: cada caixa é
 `roles[]`, e o grupo é o campo — tem rótulo, `hint`, `info`, `required` ("ao
 menos uma") e mostra o erro do grupo (`roles`) ou de uma caixa (`roles.0`) uma
 vez só. `options` aceita `valor => rótulo` ou uma lista de
-`['value', 'label', 'hint']`; `inline` põe as caixas lado a lado; `remember`
-como nos outros campos.
+`['value', 'label', 'hint', 'disabled']`; `inline` põe as caixas lado a lado;
+`remember` como nos outros campos; `selected` é uma lista ou uma Collection.
+
+**Caixa desligada.** A que não se marca nem desmarca fica à vista, apagada (a
+caixa, o rótulo e a dica), e marcada se estiver no `selected`:
+
+```blade
+<x-ui.checkbox-group name="warehouses" label="Depósitos do PDV"
+                     :options="$depositos" :selected="$escolhidos" :disabled="['transit']" />
+
+<x-ui.checkbox-group name="roles" :options="[
+    'customer' => 'Cliente',
+    'owner' => ['label' => 'Proprietário', 'hint' => 'Definido na assinatura', 'disabled' => true],
+]" :selected="['owner']" />
+```
+
+`disabled` é a lista dos valores desligados (`[1]` e `['1']` são o mesmo), ou
+`true` para o grupo inteiro; a opção também pode dizer por si
+(`'disabled' => true`). Como no HTML, a caixa desligada **não vai no envio**,
+marcada ou não: o servidor mantém o que já tinha para ela. Por isso, quando o
+formulário volta com erro, ela continua como o `selected` diz — o `old()` nada
+sabe dela.
 
 ## Selo
 
@@ -421,6 +503,9 @@ ApexCharts fica em `elemento.grafico`.
 | `data-codigo-unico` | No modelo do menu, o campo ganha um código novo em cada cópia |
 | `data-confirmar="texto"` | Pergunta antes de enviar o formulário; `data-confirmar-perigo` pinta de vermelho; `data-confirmar-titulo` e `data-confirmar-botao` trocam o título e o texto do "Confirmar" só nessa pergunta (no formulário ou no botão que envia; o botão vence). Um `\n` no texto quebra a linha |
 | `data-mostra-quando="campo=valor"` | O bloco só aparece quando o campo tem aquele valor (veja "Bloco condicional") |
+| `data-sem-envio-implicito` | No `<form>`: o Enter num campo não envia (veja "Enter que não envia") |
+| `data-arrastavel` | Uma lista que se reordena (veja "Lista reordenável") |
+| `data-modal-estatico` / `data-offcanvas-estatico` | A camada só fecha pelos botões (o `static` do componente) |
 | `data-copiar="texto"` | Copia e avisa com um toast; dispara o evento `ui:copiado` |
 | `data-imprimir` | Abre a impressão do navegador |
 | `data-troca-tema` | Alterna claro e escuro |
@@ -673,9 +758,91 @@ pergunta.
 - `data-sem-aviso` num link, formulário ou botão: sai sem perguntar, nem pelo navegador.
 - `data-nao-salvo-sujo`: o formulário já nasce sujo (voltou com erro de validação, e o que está na tela não foi salvo).
 - `marcarSalvo(form)`: para quem salva por `fetch` e continua na tela. `estaSujo(form)` diz se mudou.
+- `data-nao-salvo-texto="Descartar a venda em andamento?"` no formulário: a pergunta do modal
+  passa a ser essa. Com dois formulários sujos, vale a do primeiro. O aviso do navegador não muda
+  (o texto é dele). `textoDaPergunta(form.dataset)` dá o texto que seria usado.
+- `data-nao-salvo-ignorar` num campo, ou num envelope de campos: fica fora da comparação — o que
+  muda sem ser alteração (a aba aberta, um filtro dentro do formulário). Vai pelo `name`: um campo
+  homônimo sem a marca sai junto. O campo da aba do `x-ui.tabs` já vem com ele.
 - Precisa do `<x-ui.confirm>` na página. Sem ele, só o aviso do navegador.
 - Links com `target="_blank"`, `download`, âncoras (`#…`) e cliques com Ctrl/⌘/Shift não perguntam.
   Navegação por script (`location.href = …`) e `form.submit()` caem no aviso do navegador: use `requestSubmit()`.
+
+## Enter que não envia
+
+```blade
+<form method="POST" action="{{ route('sales.store') }}" data-sem-envio-implicito>
+```
+
+O navegador envia o formulário quando se aperta Enter num campo — o "envio
+implícito". Na tela que recebe um leitor de código de barras, que digita o
+código e manda um Enter, isso enviaria o formulário pela metade a cada bipe.
+Com `data-sem-envio-implicito` no `<form>`, o Enter num `<input>` dele (o de
+fora ligado por `form="id"` inclusive) não envia. Continuam enviando: o
+clique nos botões, o Enter com o foco num botão de envio, o
+`requestSubmit()` por script. O `<textarea>` não é tocado (ali o Enter quebra
+a linha). Só o padrão é barrado: o `keydown` segue para os ouvintes da tela,
+que é onde o Enter do leitor é lido.
+
+Fora do `ligarUi()`, é `ligarEnvioImplicito()`; a regra está em
+`enterEnviaImplicito(elemento)`.
+
+## Lista reordenável
+
+```blade
+<ul id="colunas" data-arrastavel class="divide-y">
+    @foreach ($colunas as $coluna)
+        <li data-arrastavel-item data-arrastavel-id="{{ $coluna->key }}" class="flex items-center gap-2 py-2">
+            <x-ui.icon name="grip-vertical" class="size-4 text-neutral-400" data-arrastavel-alca />
+            <span class="flex-1">{{ $coluna->label }}</span>
+            <x-ui.button variant="ghost" size="icon-xs" icon="chevron-up" aria-label="Subir" data-arrastavel-subir />
+            <x-ui.button variant="ghost" size="icon-xs" icon="chevron-down" aria-label="Descer" data-arrastavel-descer />
+        </li>
+    @endforeach
+</ul>
+```
+
+O envelope declara `data-arrastavel` (`data-arrastavel="horizontal"` na lista
+em linha); cada filho que se move é um `[data-arrastavel-item]`, com o
+`data-arrastavel-id` que a tela reconhece. Três jeitos de mover:
+
+- **Arrastar e soltar** (o drag and drop nativo): o item arrastado ganha
+  `data-arrastando`, e o item sob o mouse, `data-arrastavel-alvo="antes"` ou
+  `"depois"`, conforme a metade. O `theme.css` deixa o arrastado translúcido e
+  desenha a linha de destino; a tela que quiser outro desenho redeclara os
+  mesmos seletores. Com `[data-arrastavel-alca]` dentro do item, só a alça
+  começa o arrasto (e ganha o cursor de agarrar) — é o que deixa selecionar
+  texto num campo da linha.
+- **Teclado**: Alt+↑ e Alt+↓ com o foco no item ou num campo dele (menos o
+  `<select>` nativo, em que Alt+↓ abre a lista). Também na lista horizontal:
+  Alt+← e Alt+→ são o voltar e o avançar do navegador. O item sem nada
+  focável dentro ganha `tabindex="0"`.
+- **Botões** `[data-arrastavel-subir]` e `[data-arrastavel-descer]` dentro do
+  item: desligados nas pontas, e sem enviar o formulário em volta.
+
+Cada mudança dispara `ui:reordenado` no envelope (sobe pelo DOM), com
+`detail: { item, de, para, ordem }` — as posições de antes e de depois, e a
+lista dos `data-arrastavel-id` na ordem nova. É só isso: os `name`s não são
+renumerados (a ordem enviada é a da tela, como no repetidor), e gravar a
+ordem é da tela — pelo evento, num `fetch`, ou num escondido por item:
+
+```js
+document.getElementById('colunas').addEventListener('ui:reordenado', (evento) => {
+    requisicaoJson('/colunas/ordem', { method: 'PUT', body: { ordem: evento.detail.ordem } });
+});
+```
+
+**Toque.** Arrastar com o dedo não é garantido: o drag and drop nativo no
+celular depende do navegador e da versão, e onde existe pede um toque longo
+que ninguém adivinha. Onde a ordem importa no celular, desenhe os botões. Quem
+precisar de arrasto por toque usa uma biblioteca no projeto e dispara o mesmo
+evento.
+
+Os ouvintes ficam no `document`, uma vez: o envelope que chega depois já
+funciona (o item fica pronto no primeiro clique). `ligarArrastaveis(raiz)` com
+o que chegou — o envelope ou o item novo — adianta isso e acerta os botões das
+pontas. As regras estão em `indiceAoSoltar`, `reordenar`, `passoPelaTecla`,
+`ladoDoAlvo` e `ordemDe`.
 
 ## Listagem: filtros que se enviam sozinhos
 
@@ -693,6 +860,46 @@ formulário ao mudar; a busca (`type="search"`, ou o campo com
 400 ms por padrão); os campos vazios e o `page` ficam fora da URL, e o
 `por_pagina` escolhido no seletor da paginação vai junto. Sem JavaScript,
 vale o botão "Buscar".
+
+## Modal e gaveta: `static` e os eventos
+
+```blade
+<x-ui.modal id="documento-venda" title="Documento da venda" static>
+    …
+    <x-slot:footer>
+        <x-ui.button variant="secondary" data-fecha-modal>Nenhum</x-ui.button>
+        <x-ui.button>Emitir NFC-e</x-ui.button>
+    </x-slot:footer>
+</x-ui.modal>
+```
+
+Com `static` (no `x-ui.modal` e no `x-ui.offcanvas`), a camada só fecha pelo X
+e pelos botões (`data-fecha-modal`, `fecharModal(id)`): nem o clique no fundo
+nem o Esc. É o diálogo que exige uma resposta e não pode ser dispensado por
+acidente. Aberta por cima de outra, ela segura o Esc também para a de baixo —
+a gaveta atrás do diálogo não some por um Esc que o diálogo recusou. Fora do
+Blade, é `data-modal-estatico` (ou `data-offcanvas-estatico`) no elemento da
+camada.
+
+Ao abrir e ao fechar, o próprio elemento da camada dispara
+`ui:camada-aberta` e `ui:camada-fechada`, subindo pelo DOM, com
+`detail: { tipo, id, motivo }`: `tipo` é `modal` ou `offcanvas`, e `motivo` é
+`botao` (um `data-abre-*`, um `data-fecha-*`, o X, o "Confirmar" do
+`x-ui.confirm`), `fundo` (o clique fora), `esc` ou `script` (`abrirModal`,
+`fecharModal`, `abrirCamada`, o `:open` ao carregar). Cada abertura tem um
+fechamento: fechar o que já está fechado, ou abrir o que já está aberto, não
+avisa de novo.
+
+```js
+document.getElementById('documento-venda').addEventListener('ui:camada-fechada', (evento) => {
+    // Fechou, por onde for: a próxima venda.
+});
+```
+
+Os eventos de antes (`modal:aberto`, `modal:fechado`, `offcanvas:aberto` e
+`offcanvas:fechado` no `document`, com `detail: { id }`) continuam saindo como
+sempre, a cada chamada. `abrirCamada(tipo, id, motivo)` e
+`fecharCamada(tipo, elemento, motivo)` aceitam o motivo (padrão `script`).
 
 ## Modal de editar preenchido pela linha
 
@@ -754,10 +961,39 @@ Um elemento com `data-mostra-quando="campo=valor"` aparece só quando o campo
 | `campo=1` | Numa caixa ou interruptor (`value="1"`), está marcado |
 | `campo=` | Está vazio |
 | `!campo=valor`, `!campo` | O contrário |
+| `a=1&!b=x` | Todas as condições valem ao mesmo tempo (cada uma com o próprio `!`) |
+| `campo.chave=valor`, `campo.chave` | A `chave` do `extra` da opção escolhida vale `valor`; sozinha, tem valor |
 
 Em rádios e caixas, o valor é o do marcado (nenhum marcado é vazio; o
 escondido `data-falsy` do interruptor não conta); num `x-ui.select multiple`,
-basta uma escolhida bater. Escondido, o bloco ganha `hidden`; se é um
+basta uma escolhida bater.
+
+**Pelo `extra` da opção.** `campo.chave` não olha o valor do campo, e sim os
+dados da opção escolhida num `x-ui.select` — o `extra` de `options` ou da
+busca no servidor, que mora no `data-extra` (JSON) da `<option>` e é lido por
+`escolhaDe`. Assim o bloco segue o que a opção **é**, sem a tela listar os
+valores:
+
+```blade
+<x-ui.select name="product_id" label="Produto" :options="[
+    12 => ['label' => 'Café em grão', 'extra' => ['unit' => 'KG', 'tracks_lot' => true]],
+    13 => ['label' => 'Caneca', 'extra' => ['unit' => 'UN', 'tracks_lot' => false]],
+]" />
+
+<fieldset data-mostra-quando="product_id.unit=KG" hidden disabled>…peso…</fieldset>
+<fieldset data-mostra-quando="product_id.tracks_lot&!kind=transfer" hidden disabled>…lote…</fieldset>
+```
+
+O dado compara como texto: `true` é `1`, e `false`, nulo e a chave que não
+existe são vazio (`campo.chave` sozinho é "ligada ou preenchida"); `0` é um
+valor. A chave com ponto desce nos dados (`product_id.fiscal.ncm`). No select
+de várias, basta uma escolhida bater. Num rádio ou caixa escritos à mão, vale o
+`data-extra` (JSON) do marcado. Sem escolha, os dados estão vazios:
+`campo.chave=` vale, `campo.chave=KG` não. O ponto separa o campo da chave, por
+isso o nome do campo não pode ter ponto — o com colchete (`items[0][kind]`)
+fica inteiro.
+
+Escondido, o bloco ganha `hidden`; se é um
 `<fieldset>`, ganha `disabled` também, e nada de dentro vai no envio — o
 servidor não precisa adivinhar se o campo que chegou vazio estava à vista.
 Noutro elemento, `data-mostra-quando-desliga` desliga os campos de dentro um a
@@ -767,8 +1003,10 @@ O servidor desenha o estado inicial (`hidden`, e `disabled` no `fieldset`);
 o JavaScript só confirma ao carregar e reage ao `input`/`change` do campo —
 inclusive ao preenchimento do modal (`data-form-valores`) e às linhas novas do
 repetidor. Fora do `ligarUi()`, é `ligarCondicionais()`, antes do
-`ligarEnvios()`. As regras estão em `interpretarCondicao(texto)` e
-`condicaoVale(condicao, valor)`.
+`ligarEnvios()`. As regras estão em `interpretarCondicoes(texto)` (a lista,
+uma por parte do `&`), `interpretarCondicao(texto)` (uma: `{ campo, chave,
+valores, negado }`), `condicaoVale(condicao, valor)`,
+`condicoesValem(condicoes, valorDe)` e `valorDaChave(extra, chave)`.
 
 ## Máscaras
 
@@ -844,8 +1082,9 @@ o campo digitável fica desligado também.
 `x-ui.field-label` fica num `<span data-campo-rotulo>` (só o texto, sem o
 asterisco do `required`), e o parágrafo do `hint` leva `data-campo-dica` — em
 `input`, `number`, `money`, `percent`, `select`, `textarea`, `date`,
-`date-range`, `password`, `file`, `image`, `toggle`, `checkbox` e
-`checkbox-group`. É para o script trocar o texto sem mexer na estrutura:
+`date-range`, `password`, `file`, `image`, `toggle`, `checkbox`,
+`checkbox-group` e `radio-group`. É para o script trocar o texto sem mexer na
+estrutura:
 
 ```js
 campo.querySelector('[data-campo-rotulo]').textContent = tipo === 'pj' ? 'CNPJ' : 'CPF';
@@ -866,11 +1105,13 @@ como "0"), o valor do desligado: `:falsy="'inactive'"` para um `status` que é
 (`data-form-valores`) não escreve nele.
 
 **`radio-group`** aceita `required` (vai em cada rádio, e o rótulo ganha o
-`*`), `info` (o ícone de explicação ao lado do rótulo) e `disabled` (os valores
-que não se escolhem, à vista mas apagados; `true` desliga o grupo inteiro).
+`*`), `info` (o ícone de explicação ao lado do rótulo), `hint` (a linha de
+apoio embaixo das opções, com `data-campo-dica`; some quando há erro, como no
+`x-ui.input`) e `disabled` (os valores que não se escolhem, à vista mas
+apagados; `true` desliga o grupo inteiro).
 
 ```blade
-<x-ui.radio-group name="forma" label="Forma de pagamento" required
+<x-ui.radio-group name="forma" label="Forma de pagamento" required hint="O Pix cai na hora."
                   :options="['pix' => 'Pix', 'boleto' => 'Boleto']" :disabled="['boleto']" />
 ```
 
@@ -949,6 +1190,35 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.10.0** — O que a tela de venda e o PDV pediram, sem nada de venda no
+  pacote: `x-ui.button variant="warning"` e `warning-soft` (com tema escuro);
+  `x-ui.modal static` e `x-ui.offcanvas static` (só os botões fecham;
+  `data-modal-estatico`, e o Esc não passa da estática para a camada de baixo,
+  `fechadasPeloEsc`); os eventos `ui:camada-aberta` e `ui:camada-fechada` no
+  elemento da camada, com `detail: { tipo, id, motivo }` (`botao`, `fundo`,
+  `esc`, `script`), um por abertura e um por fechamento, e `abrirCamada`/
+  `fecharCamada` aceitam o motivo; o modal aberto e fechado no mesmo quadro
+  fica fechado; `data-nao-salvo-texto` (a pergunta do formulário,
+  `textoDaPergunta`) e `data-nao-salvo-ignorar` (o campo fora da comparação; o
+  da aba do `x-ui.tabs` já vem com ele); `data-sem-envio-implicito` no
+  `<form>` (o Enter do leitor de código de barras não envia;
+  `ligarEnvioImplicito`, `enterEnviaImplicito`); slot `aside` no
+  `x-ui.page-header` (selos ao lado do título); `disabled` no
+  `x-ui.checkbox-group` (pela lista, `true` ou na opção; a desligada continua
+  marcada pelo `selected` quando o formulário volta com erro), e o rótulo do
+  `x-ui.checkbox` desligado apaga junto; `hint` no `x-ui.radio-group`; a
+  lista reordenável `data-arrastavel` (arrastar, Alt+↑/↓, botões, evento
+  `ui:reordenado`; `ligarArrastaveis` e as regras `indiceAoSoltar`,
+  `reordenar`, `passoPelaTecla`, `ladoDoAlvo`, `ordemDe`); no
+  `data-mostra-quando`, várias condições com `&` e a chave do `extra` da opção
+  escolhida (`campo.chave=valor`; `interpretarCondicoes`, `condicoesValem`,
+  `valorDaChave`); ícones do projeto em
+  `resources/views/components/ui/icons/{nome}.blade.php`, sem copiar o
+  `x-ui.icon` (`Icons::isCustom`); o rótulo do `x-ui.checkbox-group` ganha o
+  `data-campo-rotulo` que o README já prometia, e o `selected` dele aceita
+  Collection. Quem liga os módulos um a um
+  acrescenta `ligarArrastaveis()` e `ligarEnvioImplicito()` antes do
+  `ligarNaoSalvo()`.
 - **1.9.1** — Dois acertos da 1.9.0: o `x-ui.toggle` e o `x-ui.checkbox`
   passam a ter o `<span data-campo-rotulo>` no texto do rótulo, como o README já
   dizia; e o `x-ui.select size="cell"` deixa de desenhar o rótulo — o `label`

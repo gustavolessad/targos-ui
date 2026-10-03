@@ -183,7 +183,7 @@ export function ligarConfirmacoes() {
             marcarCarregando(botaoOk.hidden ? botaoOkPerigo : botaoOk);
         } else {
             delete formulario.dataset.confirmado;
-            fecharCamada('modal', modal);
+            fecharCamada('modal', modal, 'botao');
         }
     };
 
@@ -195,7 +195,7 @@ export function ligarConfirmacoes() {
     const aoConfirmar = () => {
         if (resolverPendente) {
             responder(true);
-            fecharCamada('modal', modal);
+            fecharCamada('modal', modal, 'botao');
 
             return;
         }

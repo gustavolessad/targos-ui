@@ -170,9 +170,9 @@ posição (margem, largura).
 <x-ui.button :href="route('clients.create')">Novo cliente</x-ui.button>
 ```
 
-Variantes: `primary`, `secondary`, `outline`, `success`, `danger`,
-`danger-soft`, `ghost`, `inverse`. Tamanhos: `xs`, `sm`, `md`, `lg`, `xl`,
-`icon`.
+Variantes: `primary`, `secondary`, `outline`, `success`, `warning`,
+`warning-soft`, `danger`, `danger-soft`, `ghost`, `ghost-contrast`, `inverse`.
+Tamanhos: `xs`, `sm`, `md`, `lg`, `xl`, `icon`.
 
 ### Campos de formulário
 

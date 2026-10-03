@@ -15,6 +15,11 @@
     O slot recebe as ações (busca, botão de criar); `back` põe o "Voltar"
     antes delas, para a ação principal (Salvar, Nova…) ficar na ponta direita.
     As ações alinham pela base, na linha do título (o caminho fica acima dele).
+
+    O slot `aside` fica ao lado do título, na linha dele: os selos e chips
+    que dizem o estado do que a tela mostra ("Concluída", "Em aberto").
+    Centrados na altura do título; no celular, quando não cabem, quebram
+    para baixo dele.
 --}}
 <div {{ $attributes->class(['mb-6 flex flex-wrap items-end justify-between gap-3']) }}>
     <div class="min-w-0">
@@ -40,7 +45,15 @@
             </nav>
         @endif
 
-        <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">{{ $title }}</h1>
+        @isset($aside)
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">{{ $title }}</h1>
+
+                <div {{ $aside->attributes->class(['flex flex-wrap items-center gap-2']) }} data-cabecalho-selos>{{ $aside }}</div>
+            </div>
+        @else
+            <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">{{ $title }}</h1>
+        @endisset
 
         @if ($subtitle)
             <p class="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{{ $subtitle }}</p>

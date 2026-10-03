@@ -102,7 +102,8 @@
     ];
 
     $classes = [
-        'cursor-pointer rounded border-neutral-300',
+        // `peer`: o rótulo ao lado acompanha a caixa desligada (`peer-disabled:`), sem JavaScript.
+        'peer cursor-pointer rounded border-neutral-300',
         /*
          * `ring-offset-0`: sem ele o anel de foco nasce descolado da
          * caixa, com um halo branco no meio.
@@ -172,8 +173,10 @@
                {{ $attributes->except('id')->class($classes) }}>
 
         @if ($label)
+            {{-- Desligada, o texto apaga junto com a caixa: o visual de "não se mexe" fica inteiro, não só no quadradinho. --}}
             <label for="{{ $idDaCaixa }}"
-                   class="ms-2 cursor-pointer text-sm text-neutral-700 select-none dark:text-neutral-300">
+                   class="ms-2 cursor-pointer text-sm text-neutral-700 select-none dark:text-neutral-300
+                          peer-disabled:cursor-not-allowed peer-disabled:text-neutral-400 dark:peer-disabled:text-neutral-500">
                 <span data-campo-rotulo>{{ $label }}</span>
             </label>
         @endif

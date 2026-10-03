@@ -13,7 +13,7 @@ import test from 'node:test';
  */
 globalThis.window ??= {};
 
-const { fotografia, linkAvisa, mudou } = await import('../../resources/js/unsaved.js');
+const { fotografia, linkAvisa, mudou, textoDaPergunta } = await import('../../resources/js/unsaved.js');
 
 const ORIGEM = 'https://painel.test';
 const AQUI = 'https://painel.test/vendas/12/editar';
@@ -134,4 +134,24 @@ test('sem o endereço atual, os relativos partem da origem', () => {
     assert.equal(linkAvisa('/vendas', { origin: ORIGEM }), true);
     assert.equal(linkAvisa('vendas', { origin: ORIGEM }), true);
     assert.equal(linkAvisa('https://outro.test', { origin: ORIGEM }), false);
+});
+
+test('o campo ignorado (data-nao-salvo-ignorar) fica fora da fotografia: mudar nele não suja', () => {
+    const antes = fotografia([['_token', 'abc'], ['aba', 'geral'], ['nome', 'Ana']], ['aba']);
+
+    assert.equal(fotografia([['_token', 'abc'], ['aba', 'itens'], ['nome', 'Ana']], ['aba']), antes);
+    assert.notEqual(fotografia([['_token', 'abc'], ['aba', 'itens'], ['nome', 'Bia']], ['aba']), antes);
+    // Sem a lista, tudo conta — como sempre contou.
+    assert.notEqual(fotografia([['_token', 'abc'], ['aba', 'itens'], ['nome', 'Ana']]), antes);
+    // A ignorada sai de todo lugar em que aparece, e o nome compara como texto.
+    assert.equal(fotografia([['tags[]', 'a'], ['tags[]', 'b'], ['x', '1']], new Set(['tags[]'])), fotografia([['x', '1']]));
+    assert.equal(fotografia([['x', '1']], null), fotografia([['x', '1']]));
+});
+
+test('a pergunta é a do formulário (data-nao-salvo-texto), ou a de sempre', () => {
+    assert.equal(textoDaPergunta({ naoSalvoTexto: 'Descartar a venda em andamento?' }), 'Descartar a venda em andamento?');
+    assert.equal(textoDaPergunta({ naoSalvoTexto: '  Sair?  ' }), 'Sair?');
+    assert.equal(textoDaPergunta({ naoSalvoTexto: '   ' }), 'Há alterações não salvas. Sair e descartá-las?');
+    assert.equal(textoDaPergunta({}), 'Há alterações não salvas. Sair e descartá-las?');
+    assert.equal(textoDaPergunta(undefined), 'Há alterações não salvas. Sair e descartá-las?');
 });

@@ -11,6 +11,8 @@
     'side' => 'right',
     // Já aberta ao carregar — o cadastro lateral que voltou do servidor com erro.
     'open' => false,
+    // Só os botões fecham (nem o fundo, nem o Esc), como no modal: `data-offcanvas-estatico`.
+    'static' => false,
 ])
 
 @php
@@ -42,7 +44,8 @@
 
     Abre com `data-abre-offcanvas="{{ $id }}"` em qualquer botão da
     página, e fecha pelo X, pelo botão do rodapé, clicando no fundo ou
-    com Esc — o mesmo `resources/js/app.js` que cuida do modal.
+    com Esc — o mesmo `resources/js/layers.js` que cuida do modal (com
+    `static`, só pelo X e pelos botões; os eventos são os mesmos).
 
     A animação é de CSS, como a do modal: o JavaScript só põe e tira
     `data-aberto`. Entra deslizando do lado escolhido e sai pelo caminho
@@ -52,7 +55,7 @@
     para perguntar, a gaveta acompanha o que ficou atrás. Por isso a de
     cá tem rodapé fixo — o conteúdo pode ser mais alto que a tela.
 --}}
-<div id="{{ $id }}" data-offcanvas @if ($open) data-abrir-ao-carregar @endif
+<div id="{{ $id }}" data-offcanvas @if ($open) data-abrir-ao-carregar @endif @if ($static) data-offcanvas-estatico @endif
      class="fixed inset-0 z-60 hidden [&[data-aberto]]:block">
     <div data-offcanvas-fundo
          class="fixed inset-0 bg-neutral-300/50 opacity-0 backdrop-blur-[4px] dark:bg-neutral-900/50 transition-opacity duration-300

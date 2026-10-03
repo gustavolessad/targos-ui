@@ -35,6 +35,18 @@
      * ocupa a célula inteira.
      */
     'width' => null,
+    /*
+     * Os símbolos dentro do campo, antes e depois do número: texto, ou
+     * `false` para tirar. Sem eles, nada antes e "%" depois. O recuo do
+     * texto acompanha o lado que tem símbolo, com o mesmo espaço do
+     * `x-ui.money`: `prefix="%" :suffix="false"` põe o "%" no lugar do
+     * "R$", com o mesmo recuo.
+     */
+    'prefix' => null,
+    'suffix' => null,
+    /* O símbolo vira botão, que anuncia `ui:afixo` (ver `x-ui.money`). */
+    'affixAction' => false,
+    'affixLabel' => null,
 ])
 
 @php
@@ -79,12 +91,19 @@
     // Os `aria-*` soltos também vão para o visível: é nele que o leitor de tela para (ver `x-ui.money`).
     $deAria = array_keys($attributes->filter(fn ($valor, string $chave): bool => str_starts_with($chave, 'aria-'))->getAttributes());
 
-    // A altura, o recuo do texto (o fim livre para o "%") e a posição do "%".
+    /*
+     * Por tamanho: a altura; o recuo do texto sem símbolo (início e fim)
+     * e com ele (o espaço do prefixo e o do sufixo); onde o símbolo fica;
+     * e a letra dele. **A mesma tabela do `x-ui.money`**: o "%" à
+     * esquerda cai no lugar do "R$", com o mesmo recuo.
+     */
     $tamanhos = [
-        'xs' => ['h-7 text-xs', 'ps-2.5 pe-7', 'pe-2.5'],
-        'sm' => ['h-9 text-sm', 'ps-3 pe-8', 'pe-3'],
-        'md' => ['h-10 text-sm', 'ps-3 pe-9', 'pe-3'],
-        'lg' => ['h-12 text-base', 'ps-4 pe-10', 'pe-4'],
+        'xs' => ['h-7 text-xs', 'ps-2.5', 'pe-2.5', 'ps-8', 'pe-7', 'ps-2.5', 'pe-2.5', 'text-sm'],
+        'sm' => ['h-9 text-sm', 'ps-3', 'pe-3', 'ps-9', 'pe-8', 'ps-3', 'pe-3', 'text-sm'],
+        'md' => ['h-10 text-sm', 'ps-3', 'pe-3', 'ps-10', 'pe-9', 'ps-3', 'pe-3', 'text-sm'],
+        'lg' => ['h-12 text-base', 'ps-4', 'pe-4', 'ps-11', 'pe-10', 'ps-4', 'pe-4', 'text-sm'],
+        // Na célula, o símbolo é menor e mais junto da borda (ver `$naCelula`).
+        'cell' => ['py-1 text-sm', 'ps-2', 'pe-2', 'ps-6', 'pe-5', 'ps-1.5', 'pe-1.5', 'text-xs'],
     ];
 
     /*
@@ -98,15 +117,29 @@
      * caracteres ("100,00", uns 46px), e numa coluna de 110px, tirado o
      * recuo da célula da tabela (`px-4`), sobram 48px de texto com o
      * "%" ao lado. É ele que diz, na linha do item, que o 10,00 do
-     * desconto não é o 10,00 do preço vizinho.
+     * desconto não é o 10,00 do preço vizinho. Do mesmo jeito, o
+     * símbolo passado (`prefix`, `suffix`) aparece na célula.
      */
     $naCelula = $size === 'cell';
 
-    [$altura, $recuo, $posicaoDoSufixo] = $naCelula
-        ? ['py-1 text-sm', 'ps-2 pe-5', 'pe-1.5']
-        : ($tamanhos[$size] ?? $tamanhos['md']);
+    [$altura, $inicio, $fim, $comPrefixo, $comSufixo, $noPrefixo, $noSufixo, $letraDoSimbolo] = $tamanhos[$size] ?? $tamanhos['md'];
 
-    $tamanhoDoSufixo = $naCelula ? 'text-xs' : 'text-sm';
+    // `null` é o padrão; `false` ou vazio, nenhum.
+    $simbolo = fn (mixed $valor, ?string $padrao): ?string => match (true) {
+        $valor === null => $padrao,
+        $valor === true => '%',
+        $valor === false, $valor === '' => null,
+        default => (string) $valor,
+    };
+
+    $prefixo = $simbolo($prefix, null);
+    $sufixo = $simbolo($suffix, '%');
+
+    // O recuo do texto: o espaço do símbolo do lado que tem um.
+    $recuo = [$prefixo !== null ? $comPrefixo : $inicio, $sufixo !== null ? $comSufixo : $fim];
+
+    // O botão do símbolo apaga com o campo desligado (só leitura, o affix.js recusa o clique).
+    $campoDesligado = (bool) $attributes->get('disabled');
 
     $caixa = $naCelula ? [
         // A borda à vista, sem fundo, e mais escura no hover (ver `x-ui.money`).
@@ -167,6 +200,11 @@
     </div>
 
     <div class="relative" data-percentual-campo hidden>
+        @if ($prefixo !== null)
+            <x-ui.field-affix side="prefix" :text="$prefixo" :action="$affixAction" :label="$affixLabel"
+                              :disabled="$campoDesligado" class="{{ $noPrefixo }} {{ $letraDoSimbolo }}" />
+        @endif
+
         {{-- Com negativo, o teclado é o de texto: o numérico do iPhone não tem o "-". --}}
         <input type="text"
                id="{{ $id }}-texto"
@@ -176,9 +214,12 @@
                placeholder="{{ $placeholder }}"
                data-percentual-texto
                {{ $attributes->only([...$doTexto, ...$deAria])->merge($naCelulaAcessivel) }}
-               @class([...$caixa, $recuo, 'text-end'])>
+               @class([...$caixa, ...$recuo, 'text-end'])>
 
-        <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center {{ $posicaoDoSufixo }} {{ $tamanhoDoSufixo }} text-neutral-500 dark:text-neutral-400">%</span>
+        @if ($sufixo !== null)
+            <x-ui.field-affix side="suffix" :text="$sufixo" :action="$affixAction" :label="$affixLabel"
+                              :disabled="$campoDesligado" class="{{ $noSufixo }} {{ $letraDoSimbolo }}" />
+        @endif
     </div>
 
     {{-- Na célula, nem erro nem dica: uma linha a mais desalinharia a tabela. --}}

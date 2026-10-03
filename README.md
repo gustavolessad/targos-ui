@@ -529,8 +529,54 @@ ApexCharts fica em `elemento.grafico`.
 | `allow-zero` | "0" digitado vale R$ 0,00 e grava `0.00`; o `min` padrão vira 0 |
 | `min` | O menor valor. Sem ele: 0,01, ou 0 com `allow-zero`. Abaixo de zero, ou `:min="false"` (sem limite), o campo aceita negativo: o "-" troca o sinal e -1.500,00 grava `-1500.00` |
 | `id` | O id do campo. Padrão: o nome sem colchetes (`items-0-cost`); o campo visível é `{id}-texto` |
-| `size` | `xs` a `lg`, ou `cell`: só o campo, para tabela (sem rótulo, dica e sem o "R$" — quem diz a moeda é o cabeçalho da coluna). No `x-ui.percent`, o `cell` mantém o "%" menor |
+| `size` | `xs` a `lg`, ou `cell`: só o campo, para tabela (sem rótulo, dica e sem o "R$" — quem diz a moeda é o cabeçalho da coluna — a não ser que o símbolo seja passado ou clicável; ver abaixo). No `x-ui.percent`, o `cell` mantém o "%" menor |
 | `width` | A largura com o envelope, como no `x-ui.input` |
+| `prefix`, `suffix` | O símbolo antes e depois do número: texto, ou `false` para tirar. Padrão: "R$" antes e nada depois (no `x-ui.percent`, nada antes e "%" depois). O recuo do texto acompanha o lado que tem símbolo |
+| `affix-action` | O símbolo vira botão, que anuncia `ui:afixo` (abaixo) |
+| `affix-label` | O nome do botão para o leitor de tela (`aria-label`), e a dica ao passar o mouse (`title`) |
+
+**O símbolo** (`prefix`, `suffix`, nos dois campos). Os dois componentes têm a
+mesma régua: o prefixo de um cai no mesmo lugar e com o mesmo recuo do prefixo
+do outro, e o mesmo com o sufixo. Assim `<x-ui.percent prefix="%" :suffix="false" />`
+põe o "%" à esquerda exatamente onde o `x-ui.money` põe o "R$". No `cell`, o
+`x-ui.money` continua sem o "R$" — a não ser que o símbolo seja passado
+(`prefix="R$"`) ou clicável (`affix-action`): aí ele é um controle, e não um
+rótulo, e a coluna tem de caber nele. O "%" do `x-ui.percent` aparece no `cell`
+como antes.
+
+```blade
+<x-ui.percent name="discount_percent" prefix="%" :suffix="false" />
+<x-ui.money name="amount" :prefix="false" suffix="BRL" />
+```
+
+**O símbolo clicável** (`affix-action`). O "R$" (ou o "%") vira
+`<button type="button" data-campo-afixo="prefix|suffix" tabindex="-1">`, com o
+mesmo visual e um escurecer discreto no hover. O clique anuncia `ui:afixo` no
+envelope do campo (`[data-dinheiro]`, `[data-percentual]`), subindo pelo DOM,
+com `detail: { lado, campo }` — o lado do símbolo (`prefix` ou `suffix`) e o
+`<input>` em que se digita — e devolve o foco a ele **antes** de anunciar: quem
+escuta pode levar o foco a outro campo. O botão fica fora do Tab (`tabindex="-1"`)
+e não toma o foco ao ser apertado: o teclado segue no campo. Desligado, o botão
+apaga com o campo; desligado ou só leitura (inclusive posto depois, por outro
+script), o clique não anuncia nada. O que o clique faz é da tela — o pacote só
+avisa.
+
+```blade
+<div id="desconto">
+    <x-ui.money name="discount_amount" affix-action affix-label="Trocar para percentual" />
+</div>
+```
+
+```js
+document.getElementById('desconto').addEventListener('ui:afixo', (evento) => {
+    const { lado, campo } = evento.detail; // 'prefix', o <input> visível
+    // trocar a unidade, abrir uma calculadora…
+});
+```
+
+O ouvinte fica no `document`, uma vez (`ligarAfixos()`, no `ligarUi`): o campo
+que entra depois (a linha nova do repetidor) já vale. A regra de quando o
+clique anuncia é `anuncioDoAfixo(lado, campo)`.
 
 **O erro e o rótulo no `cell`** (em `input`, `number`, `money` e `percent`):
 não há onde escrever a mensagem, então o campo ganha a borda de erro do
@@ -577,7 +623,9 @@ ninguém digitar, leva de volta o valor do banco intacto. Props: `value` (como
 o banco guarda: `'3.2500'` ou `3.25`), `max` (teto, padrão 100: o dígito que
 passaria dele não entra), `min` (piso, padrão 0; abaixo de zero ou
 `:min="false"`, o "-" troca o sinal), `id`, `size`, `placeholder`, `hint`,
-`info`, `required`. Colar aceita "3,25", "3.25", "3" e "3.2500".
+`info`, `required`, e os do símbolo, como no `x-ui.money`: `prefix`, `suffix`
+(padrão "%"), `affix-action`, `affix-label`. Colar aceita "3,25", "3.25", "3" e
+"3.2500".
 
 ## Arquivo e imagem
 
@@ -1193,6 +1241,19 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.0** — O símbolo do `x-ui.money` e do `x-ui.percent` configurável e,
+  se a tela quiser, clicável. Props `prefix` e `suffix` nos dois (texto, ou
+  `false` para tirar; os padrões são os de sempre: "R$" antes no money, "%"
+  depois no percent), com a mesma régua de recuo nos dois — `prefix="%"
+  :suffix="false"` põe o "%" no lugar do "R$". No `cell`, o símbolo passado ou
+  clicável aparece; sem isso, o `cell` fica como era. `affix-action` faz do
+  símbolo um `<button data-campo-afixo="prefix|suffix" tabindex="-1">`
+  (`affix-label` é o `aria-label` e o `title`), e o clique anuncia `ui:afixo`
+  no envelope, com `detail: { lado, campo }`, devolvendo o foco ao campo;
+  desligado ou só leitura, não anuncia. Componente interno novo:
+  `x-ui.field-affix`. JS: `ligarAfixos` e a regra `anuncioDoAfixo`
+  (resources/js/affix.js). Quem liga os módulos um a um acrescenta
+  `ligarAfixos()`.
 - **1.10.3** — Sai a classe `tabular-nums` dos campos `x-ui.money`, `x-ui.number`,
   `x-ui.percent` e da `x-ui.pagination`: os números usam a fonte com os
   algarismos dela, como o resto do texto.

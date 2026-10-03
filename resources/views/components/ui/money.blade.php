@@ -56,6 +56,25 @@
      * campo. No `cell`, sem ela, o campo ocupa a célula inteira.
      */
     'width' => null,
+    /*
+     * Os símbolos dentro do campo, antes e depois do número: texto, ou
+     * `false` para tirar. Sem eles, "R$" antes e nada depois. O recuo do
+     * texto acompanha o lado que tem símbolo, com o mesmo espaço do
+     * `x-ui.percent`: o "%" que ele põe à esquerda cai no lugar do "R$".
+     *
+     * Não passado é `null`, e não o "R$": é como o `cell` sabe que o
+     * símbolo foi pedido de propósito (ver `$naCelula`).
+     */
+    'prefix' => null,
+    'suffix' => null,
+    /*
+     * O símbolo vira botão (resources/js/affix.js): o clique anuncia
+     * `ui:afixo` no envelope, com `detail: { lado, campo }`, e devolve o
+     * foco ao campo. O que o clique faz é da tela — o pacote só avisa.
+     * `affixLabel` é o nome do botão para o leitor de tela.
+     */
+    'affixAction' => false,
+    'affixLabel' => null,
 ])
 
 @php
@@ -120,11 +139,20 @@
      */
     $deAria = array_keys($attributes->filter(fn ($valor, string $chave): bool => str_starts_with($chave, 'aria-'))->getAttributes());
 
+    /*
+     * Por tamanho: a altura; o recuo do texto sem símbolo (início e fim)
+     * e com ele (o espaço do prefixo e o do sufixo); onde o símbolo fica;
+     * e a letra dele. **A mesma tabela do `x-ui.percent`**: o "%" à
+     * esquerda cai no lugar do "R$", com o mesmo recuo, e o sufixo daqui
+     * no lugar do "%" de lá.
+     */
     $tamanhos = [
-        'xs' => ['h-7 text-xs', 'ps-8 pe-2.5', 'ps-2.5'],
-        'sm' => ['h-9 text-sm', 'ps-9 pe-3', 'ps-3'],
-        'md' => ['h-10 text-sm', 'ps-10 pe-3', 'ps-3'],
-        'lg' => ['h-12 text-base', 'ps-11 pe-4', 'ps-4'],
+        'xs' => ['h-7 text-xs', 'ps-2.5', 'pe-2.5', 'ps-8', 'pe-7', 'ps-2.5', 'pe-2.5', 'text-sm'],
+        'sm' => ['h-9 text-sm', 'ps-3', 'pe-3', 'ps-9', 'pe-8', 'ps-3', 'pe-3', 'text-sm'],
+        'md' => ['h-10 text-sm', 'ps-3', 'pe-3', 'ps-10', 'pe-9', 'ps-3', 'pe-3', 'text-sm'],
+        'lg' => ['h-12 text-base', 'ps-4', 'pe-4', 'ps-11', 'pe-10', 'ps-4', 'pe-4', 'text-sm'],
+        // Na célula, o símbolo é menor e mais junto da borda (ver `$naCelula`).
+        'cell' => ['py-1 text-sm', 'ps-2', 'pe-2', 'ps-6', 'pe-5', 'ps-1.5', 'pe-1.5', 'text-xs'],
     ];
 
     /*
@@ -133,17 +161,34 @@
      * desenho continua o mesmo — o nativo escondido e o visível por
      * cima —, e o money.js não distingue os dois.
      *
-     * **Sem o "R$".** Numa coluna de 110px, tirado o recuo da célula da
-     * tabela (`px-4`) e o do campo, sobram uns 60px de texto:
-     * "1.500,00" cabe justo, e o prefixo, mesmo em `text-xs`, levaria
-     * quase metade disso. A moeda vai no cabeçalho da coluna, que é quem
-     * rotula o campo na tabela.
+     * **Sem o "R$", a não ser pedido.** Numa coluna de 110px, tirado o
+     * recuo da célula da tabela (`px-4`) e o do campo, sobram uns 60px
+     * de texto: "1.500,00" cabe justo, e o prefixo, mesmo em `text-xs`,
+     * levaria quase metade disso. A moeda vai no cabeçalho da coluna,
+     * que é quem rotula o campo na tabela. O símbolo aparece quando a
+     * tela o passa (`prefix`, `suffix`) ou quando ele é clicável — aí ele
+     * é um controle, e não um rótulo, e a coluna tem de caber nele.
      */
     $naCelula = $size === 'cell';
 
-    [$altura, $recuo, $posicaoDoPrefixo] = $naCelula
-        ? ['py-1 text-sm', 'px-2', null]
-        : ($tamanhos[$size] ?? $tamanhos['md']);
+    [$altura, $inicio, $fim, $comPrefixo, $comSufixo, $noPrefixo, $noSufixo, $letraDoSimbolo] = $tamanhos[$size] ?? $tamanhos['md'];
+
+    // `null` é o padrão; `false` ou vazio, nenhum.
+    $simbolo = fn (mixed $valor, ?string $padrao): ?string => match (true) {
+        $valor === null => $padrao,
+        $valor === true => 'R$',
+        $valor === false, $valor === '' => null,
+        default => (string) $valor,
+    };
+
+    $prefixo = $naCelula && $prefix === null && ! $affixAction ? null : $simbolo($prefix, 'R$');
+    $sufixo = $simbolo($suffix, null);
+
+    // O recuo do texto: o espaço do símbolo do lado que tem um.
+    $recuo = [$prefixo !== null ? $comPrefixo : $inicio, $sufixo !== null ? $comSufixo : $fim];
+
+    // O botão do símbolo apaga com o campo desligado (só leitura, o affix.js recusa o clique).
+    $campoDesligado = (bool) $attributes->get('disabled');
 
     $caixa = $naCelula ? [
         /*
@@ -215,9 +260,10 @@
     </div>
 
     <div class="relative" data-dinheiro-campo hidden>
-        @unless ($naCelula)
-            <span class="pointer-events-none absolute inset-y-0 start-0 flex items-center {{ $posicaoDoPrefixo }} text-sm text-neutral-500 dark:text-neutral-400">R$</span>
-        @endunless
+        @if ($prefixo !== null)
+            <x-ui.field-affix side="prefix" :text="$prefixo" :action="$affixAction" :label="$affixLabel"
+                              :disabled="$campoDesligado" class="{{ $noPrefixo }} {{ $letraDoSimbolo }}" />
+        @endif
 
         {{--
             Números alinhados à direita, como numa coluna de valores.
@@ -233,7 +279,12 @@
                placeholder="{{ $placeholder }}"
                data-dinheiro-texto
                {{ $attributes->only([...$doTexto, ...$deAria])->merge($naCelulaAcessivel) }}
-               @class([...$caixa, $recuo, 'text-end'])>
+               @class([...$caixa, ...$recuo, 'text-end'])>
+
+        @if ($sufixo !== null)
+            <x-ui.field-affix side="suffix" :text="$sufixo" :action="$affixAction" :label="$affixLabel"
+                              :disabled="$campoDesligado" class="{{ $noSufixo }} {{ $letraDoSimbolo }}" />
+        @endif
     </div>
 
     {{-- Na célula, nem erro nem dica: uma linha a mais desalinharia a tabela. --}}

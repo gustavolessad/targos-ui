@@ -136,7 +136,12 @@ export function preencherTexto(texto, valores) {
 
         const valor = valorDoCaminho(valores, caminho);
 
-        return temValor(valor) ? String(valor) : '';
+        if (! temValor(valor)) {
+            return '';
+        }
+
+        // Um objeto ou lista vira JSON: é o que `data-form-valores` espera na linha.
+        return typeof valor === 'object' ? JSON.stringify(valor) : String(valor);
     });
 }
 

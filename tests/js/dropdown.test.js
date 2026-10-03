@@ -60,3 +60,10 @@ test('menu que sobrou só com separadores fica vazio', () => {
     assert.deepEqual(separadoresSobrando([true, true]), [0, 1]);
     assert.deepEqual(separadoresSobrando([]), []);
 });
+
+test('um objeto ou lista no valor vira JSON (o data-form-valores da linha)', () => {
+    const valores = { editar: { url: '/x/1', valores: { name: 'Loja', sells: true } } };
+
+    assert.equal(preencherTexto('{editar.url}', valores), '/x/1');
+    assert.equal(preencherTexto('{editar.valores}', valores), '{"name":"Loja","sells":true}');
+});

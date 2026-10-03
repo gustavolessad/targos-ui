@@ -45,7 +45,13 @@ export function escreverNoCampo(campo, valor) {
 export function preencherFormulario(formulario, valores) {
     Object.entries(valores ?? {}).forEach(([chave, valor]) => {
         const nome = chave.includes('.') ? nomeHtml(chave) : chave;
-        const campos = formulario.querySelectorAll(`[name="${CSS.escape(nome)}"]`);
+        /*
+         * O escondido que acompanha o interruptor (`data-falsy`, o "0" do
+         * desligado) fica como está: é ele que diz "desligado" quando a
+         * caixa não vai, e escrever `true` nele mandaria `true` sempre.
+         */
+        const campos = [...formulario.querySelectorAll(`[name="${CSS.escape(nome)}"]`)]
+            .filter((campo) => ! (campo.type === 'hidden' && 'falsy' in campo.dataset));
 
         if (campos.length === 0) {
             return;

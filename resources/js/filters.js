@@ -59,12 +59,45 @@ function enviar(formulario) {
         campo.disabled = true;
     });
 
+    /*
+     * O "Por página" escolhido vai junto: ele vive na URL (o seletor da
+     * paginação o manda), e o formulário de filtros não o tem. Sem isto,
+     * mudar um filtro voltava ao padrão de 25.
+     */
+    const porPagina = porPaginaDaUrl(window.location.search, [...formulario.elements]);
+
+    if (porPagina) {
+        formulario.append(porPagina);
+    }
+
     formulario.requestSubmit();
 
     // Se o envio foi barrado (validação nativa), nada navega: religa.
-    setTimeout(() => desligados.forEach((campo) => {
-        campo.disabled = false;
-    }));
+    setTimeout(() => {
+        desligados.forEach((campo) => {
+            campo.disabled = false;
+        });
+        porPagina?.remove();
+    });
+}
+
+/**
+ * O campo escondido com o `por_pagina` da URL atual, quando o formulário
+ * ainda não tem um; null quando não há o que levar.
+ */
+export function porPaginaDaUrl(busca, campos, parametro = 'por_pagina') {
+    const valor = new URLSearchParams(busca).get(parametro);
+
+    if (! valor || campos.some((campo) => campo.name === parametro)) {
+        return null;
+    }
+
+    const escondido = document.createElement('input');
+    escondido.type = 'hidden';
+    escondido.name = parametro;
+    escondido.value = valor;
+
+    return escondido;
 }
 
 export function ligarFiltros(raiz = document) {

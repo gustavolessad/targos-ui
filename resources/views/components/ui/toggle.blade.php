@@ -32,7 +32,15 @@
      */
     $ligado = $remember && session()->hasOldInput() ? (bool) old($chave) : (bool) $checked;
 
+    /*
+     * `falsy` liga o campo escondido do "desligado". `true` manda "0";
+     * um texto manda esse texto (`:falsy="'inactive'"` para um
+     * `status` que é `active|inactive`): o valor do desligado é do
+     * formulário, não do componente.
+     */
     $falsy ??= (bool) config('ui.falsy', false);
+    $valorDesligado = is_string($falsy) && $falsy !== '' ? $falsy : '0';
+    $falsy = $falsy !== false && $falsy !== null && $falsy !== '';
 @endphp
 
 {{--
@@ -51,7 +59,7 @@
     <div class="flex items-center gap-3">
         <label class="relative inline-flex cursor-pointer items-center">
             @if ($falsy)
-                <input type="hidden" name="{{ $name }}" value="0" @if ($form) form="{{ $form }}" @endif>
+                <input type="hidden" name="{{ $name }}" value="{{ $valorDesligado }}" data-falsy @if ($form) form="{{ $form }}" @endif>
             @endif
 
             {{-- O `id` é o da prop: um `id` solto nos atributos não pode sair duplicado no campo. --}}

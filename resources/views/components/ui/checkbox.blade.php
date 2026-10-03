@@ -116,7 +116,10 @@
      * `old()` não serve a uma caixa de lista: ali o que vale é a lista
      * inteira, que a tela resolve antes de chamar o componente.
      */
+    // `true` manda "0" no desligado; um texto manda esse texto (`:falsy="'inactive'"`).
     $falsy ??= (bool) config('ui.falsy', false);
+    $valorDesligado = is_string($falsy) && $falsy !== '' ? $falsy : '0';
+    $falsy = $falsy !== false && $falsy !== null && $falsy !== '';
 
     $marcado = match (true) {
         $name === null || $lista => $checked,
@@ -155,7 +158,7 @@
 
                 O `form` acompanha: fora dele, o escondido não é enviado.
             --}}
-            <input type="hidden" name="{{ $name }}" value="0" @if ($form) form="{{ $form }}" @endif>
+            <input type="hidden" name="{{ $name }}" value="{{ $valorDesligado }}" data-falsy @if ($form) form="{{ $form }}" @endif>
         @endif
 
         <input type="checkbox"

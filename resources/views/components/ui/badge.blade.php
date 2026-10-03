@@ -9,6 +9,12 @@
      * caso, dê o nome no `aria-label`.
      */
     'icon' => null,
+    /*
+     * `solid` (padrão) ou `outline`: só o contorno e o texto na cor, sem
+     * fundo. Para o estado que acompanha outro na mesma linha (o
+     * financeiro ao lado do comercial da venda) sem competir com ele.
+     */
+    'variant' => 'solid',
 ])
 
 @php
@@ -52,6 +58,22 @@
 
     // O nome antigo do accent: quem já usava `color="violet"` não muda nada.
     $cores['violet'] = $cores['accent'];
+
+    // O contorno: fundo transparente, texto e anel na cor. As mesmas famílias, mais leves.
+    $contornos = [
+        'neutral' => 'text-neutral-600 ring-neutral-400/60 dark:text-neutral-300 dark:ring-neutral-500/50',
+        'success' => 'text-success-700 ring-success-500/60 dark:text-success-400 dark:ring-success-400/50',
+        'warning' => 'text-warning-800 ring-warning-500/60 dark:text-warning-400 dark:ring-warning-400/50',
+        'info' => 'text-info-800 ring-info-500/60 dark:text-info-300 dark:ring-info-400/50',
+        'accent' => 'text-accent-800 ring-accent-500/60 dark:text-accent-300 dark:ring-accent-400/50',
+        'danger' => 'text-danger-700 ring-danger-500/60 dark:text-danger-400 dark:ring-danger-400/50',
+        'primary' => 'text-primary-800 ring-primary-500/60 dark:text-primary-300 dark:ring-primary-400/50',
+    ];
+    $contornos['violet'] = $contornos['accent'];
+
+    $pintura = $variant === 'outline'
+        ? 'bg-transparent '.($contornos[$color] ?? $contornos['neutral'])
+        : ($cores[$color] ?? $cores['neutral']);
 @endphp
 
 @php
@@ -68,5 +90,5 @@
     'inline-flex items-center rounded-full font-medium ring-1 ring-inset',
     'gap-1' => $icon !== null && ! $soIcone,
     $espaco,
-    $cores[$color] ?? $cores['neutral'],
+    $pintura,
 ]) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$size === 'lg' ? 'size-4' : 'size-3.5'" />@endif{{ $slot }}</span>

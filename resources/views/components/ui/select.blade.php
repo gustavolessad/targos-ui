@@ -50,6 +50,13 @@
     'source' => null,
     /** Com `source`: o texto da opção já escolhida (na edição, ou voltando de um erro), que não vem na página. */
     'selectedLabel' => null,
+    /*
+     * Lembra o que foi enviado quando o formulário volta com erro.
+     * Desligue no select que não foi enviado — o filtro da listagem com o
+     * mesmo nome do campo do modal, o modal que ficou fechado —, senão ele
+     * mostra o valor do outro.
+     */
+    'remember' => true,
     /** Com `source`: a segunda linha da opção já escolhida, como o `caption` da busca. */
     'selectedCaption' => null,
     /** Com `source`: os dados da opção já escolhida, como o `extra` da busca (array). */
@@ -73,7 +80,7 @@
     // `items[0][uf]` no HTML é `items.0.uf` para old() e para os erros.
     $chave = \Targos\Ui\FieldName::key($name);
 
-    $valorAtual = old($chave, $selected);
+    $valorAtual = $remember ? old($chave, $selected) : $selected;
 
     /*
      * Um select tem uma opção escolhida, nunca uma lista.

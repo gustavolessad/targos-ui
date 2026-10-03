@@ -234,6 +234,7 @@ no `document`, com `detail: { grupo, aba }`.
 | `source` | Busca no servidor: a URL chamada com `?q=` ao abrir e ao digitar; o endpoint responde com `Targos\Ui\SelectOptions::response()` |
 | `selected-label`, `selected-caption`, `selected-extra` | Com `source`: o rótulo, a segunda linha e os dados da opção já escolhida, que não vem na página |
 | `prefetch` | Com `source`: busca as primeiras opções assim que o JavaScript liga, e o primeiro clique abre sem esperar. Elas ficam guardadas até alguém digitar. Sem `prefetch`, cada abertura busca de novo |
+| `remember` | Lembra o enviado quando o formulário volta com erro (padrão). `:remember="false"` no select que não foi enviado — o filtro da listagem com o mesmo nome do campo do modal — para ele não mostrar o valor do outro |
 
 O `caption` é a segunda linha da opção no painel, em letra menor; o gatilho e o
 select nativo mostram só o rótulo, e a busca local casa no caption também. O
@@ -273,6 +274,18 @@ Limpar (a opção do placeholder) também avisa, com `value: ''`. Valor trocado
 por script (`select.value = x`) não dispara o evento: leia com
 `escolhaDe(select)`, que serve a qualquer hora, inclusive para a opção que veio
 marcada do servidor.
+
+## Selo
+
+```blade
+<x-ui.badge color="success">Pago</x-ui.badge>
+<x-ui.badge color="warning" variant="outline">Em aberto</x-ui.badge>
+```
+
+`color` é o significado (`neutral`, `success`, `warning`, `info`, `accent`,
+`danger`, `primary`); `variant="outline"` deixa só o contorno e o texto na
+cor, para o estado que acompanha outro na mesma linha sem competir com ele;
+`icon` põe um ícone antes do texto (sem texto, o selo fica redondo).
 
 ## Cartão
 
@@ -516,8 +529,9 @@ elemento, ou `null` no teto. Repetidor dentro de repetidor não funciona.
 Com `data-filtros`, um select, uma data, um período ou uma caixa enviam o
 formulário ao mudar; a busca (`type="search"`, ou o campo com
 `data-filtro-busca`) espera a pessoa parar de digitar (`data-filtros-espera`,
-400 ms por padrão); os campos vazios e o `page` ficam fora da URL. Sem
-JavaScript, vale o botão "Buscar".
+400 ms por padrão); os campos vazios e o `page` ficam fora da URL, e o
+`por_pagina` escolhido no seletor da paginação vai junto. Sem JavaScript,
+vale o botão "Buscar".
 
 ## Modal de editar preenchido pela linha
 
@@ -532,7 +546,13 @@ dela em `data-form-valores` (JSON, `nome do campo => valor`) e o destino em
 `data-form-action`. O `<form>` do modal é preenchido campo a campo pelo `name`
 (texto, caixa, rádio, select, valor, data — os do pacote redesenham sozinhos).
 `preencherFormulario(form, valores)` faz o mesmo por código, com dados vindos de
-um `fetch`. O destino nunca vem dos dados: só de `data-form-action`.
+um `fetch`. O destino nunca vem dos dados: só de `data-form-action`. O escondido
+do interruptor (`data-falsy`, o "0" do desligado) não é tocado: a caixa é que
+diz ligado ou desligado.
+
+Numa listagem com o menu montado por modelo, os valores da linha vão no
+`values` do `x-ui.dropdown` como objeto, e no modelo `{editar.valores}` sai
+como JSON — pronto para o `data-form-valores='{editar.valores}'`.
 
 ## Máscaras
 
@@ -612,6 +632,11 @@ digitável fica desligado também.
 (`name="tags[]"`) o erro não se repete em cada caixa: a tela o mostra uma vez
 para o grupo (`@error('tags')`).
 
+**`falsy` no toggle e no checkbox** aceita, além de `true` (desligado chega
+como "0"), o valor do desligado: `:falsy="'inactive'"` para um `status` que é
+`active|inactive`. O escondido leva `data-falsy`, e o preenchimento do modal
+(`data-form-valores`) não escreve nele.
+
 **`radio-group`** aceita `required` (vai em cada rádio, e o rótulo ganha o
 `*`), `info` (o ícone de explicação ao lado do rótulo) e `disabled` (os valores
 que não se escolhem, à vista mas apagados; `true` desliga o grupo inteiro).
@@ -688,6 +713,11 @@ aviso sem recarregar a página.
 
 Versionamento por tag do Git.
 
+- **1.7.1** — O que as primeiras listagens do ERP pediram: `x-ui.badge variant="outline"`;
+  `falsy` do toggle e do checkbox aceita o valor do desligado (`:falsy="'inactive'"`), e o
+  escondido ganha `data-falsy`, que o preenchimento do modal (`data-form-valores`) não
+  sobrescreve; `remember` no `x-ui.select`; no modelo do menu, `{chave}` com objeto vira
+  JSON; a barra `data-filtros` leva o `por_pagina` da URL.
 - **1.7.0** — As peças de listagem e de formulário composto:
   - `x-ui.repeater` (linhas que se adicionam, removem e movem; `old()` por
     índice; evento `ui:repetidor`; `adicionarLinha()`);

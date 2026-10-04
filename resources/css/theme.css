@@ -62,6 +62,16 @@
     }
 }
 
+/*
+ * O elemento "atual": `atual:bg-primary-50`.
+ *
+ * É o `aria-current` com valor (`step`, `page`, `true`, `location`…): a
+ * etapa, a página ou a aba em que se está. `false` e o valor vazio não
+ * contam — o script que troca a etapa troca o valor entre os botões, e
+ * o atributo continua lá. O `x-ui.button` o usa em cada variante.
+ */
+@custom-variant atual (&[aria-current]:not([aria-current='false'], [aria-current='']));
+
 @theme {
     /*
      * A entrada de tudo que abre por cima da tela — select, multiselect,

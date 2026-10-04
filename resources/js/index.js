@@ -40,6 +40,7 @@ import { ligarArrastaveis } from './sortable.js';
 import { ligarEnvioImplicito } from './implicit-submit.js';
 import { ligarNaoSalvo } from './unsaved.js';
 import { ligarEnvios } from './submit.js';
+import { ligarAlertas } from './alert.js';
 
 export { MASCARAS, aplicarMascara, ligarMascaras, valorLimpo, mensagemInvalida, validarCpf, validarCnpj, validarTelefone, validarCep } from './masks.js';
 export { mostrarErros, limparErros, mostrarErroNoCampo, limparErroDoCampo, campoDe, nomeHtml } from './errors.js';
@@ -77,6 +78,7 @@ export { ligarPreenchimentos, preencherFormulario, escreverNoCampo, textoDoValor
 export { ligarCondicionais, interpretarCondicao, interpretarCondicoes, condicaoVale, condicoesValem, valorDaChave } from './conditional.js';
 export { ligarArrastaveis, indiceAoSoltar, reordenar, passoPelaTecla, ladoDoAlvo, ordemDe } from './sortable.js';
 export { ligarEnvioImplicito, enterEnviaImplicito } from './implicit-submit.js';
+export { ligarAlertas, dispensarAlerta } from './alert.js';
 
 /**
  * Liga tudo, na ordem certa.
@@ -96,6 +98,8 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarDropdowns();
     ligarOlhoDaSenha();
     ligarToasts();
+    // O X do `x-ui.alert dismissible` (`ui:alerta-dispensado`).
+    ligarAlertas();
     ligarCopiar();
     ligarImprimir();
     ligarAlternancias();

@@ -3,6 +3,25 @@
     'rows' => null,
     'sort' => null,
     'empty' => 'Nenhum registro encontrado.',
+    /*
+     * O cabeçalho fica no alto enquanto as linhas rolam.
+     *
+     * Quem rola é o contêiner com altura limitada em volta — ou a própria
+     * tabela, com `class="max-h-96 overflow-y-auto"` (o `class` vai no
+     * cartão). O cabeçalho ganha fundo opaco nos dois temas, para as
+     * linhas não aparecerem por baixo dele, e a linha de baixo dele vai
+     * junto (num `border-b` ela ficaria para trás).
+     */
+    'sticky' => false,
+    /*
+     * Atributos do `<tbody>`, para o script endereçar o corpo — a tela
+     * que clona linhas de um `<template>` e as põe ali, com
+     * `:body-attributes="['data-linhas' => true]"`. Um mapa, como o de
+     * qualquer atributo (`true` sai como o próprio nome; `false` e
+     * `null` não saem). Sem tag de componente aqui: o Blade a compilaria
+     * mesmo dentro do comentário.
+     */
+    'bodyAttributes' => [],
 ])
 
 @php
@@ -53,6 +72,8 @@
      */
     $temPaginacao = $rows instanceof Illuminate\Contracts\Pagination\Paginator
         && ($rows->hasPages() || ($rows instanceof Illuminate\Contracts\Pagination\LengthAwarePaginator && $rows->total() > 0));
+
+    $atributosDoCorpo = new Illuminate\View\ComponentAttributeBag(is_array($bodyAttributes) ? $bodyAttributes : []);
 @endphp
 
 {{--
@@ -85,7 +106,15 @@
         exceção, e quem tiver uma pede `side="top"` no menu da linha.
     --}}
     <table class="w-full text-sm">
-        <thead class="border-b border-neutral-300 text-left dark:border-neutral-800">
+        {{--
+            Fixo, a linha de baixo do cabeçalho é sombra de cada célula, e
+            não borda do `<thead>`: na tabela de bordas colapsadas, a borda
+            fica onde nasceu enquanto a célula sobe com a rolagem.
+        --}}
+        <thead @class([
+            'text-left',
+            'border-b border-neutral-300 dark:border-neutral-800' => ! $sticky,
+        ])>
             <tr>
                 @foreach ($headers as $header)
                     @php
@@ -98,6 +127,9 @@
                     <th scope="col"
                         @class([
                             'px-4 py-3 font-medium text-neutral-500 dark:text-neutral-400',
+                            // Opaco nos dois temas, o mesmo fundo do cartão: as linhas passam por baixo sem aparecer.
+                            'sticky top-0 z-10 bg-white shadow-[inset_0_-1px_0_var(--color-neutral-300)]' => $sticky,
+                            'dark:bg-neutral-900 dark:shadow-[inset_0_-1px_0_var(--color-neutral-800)]' => $sticky,
                             'text-end' => $aoFim,
                             'text-center' => ($header['align'] ?? '') === 'center',
                             // Para a coluna que some em tela estreita (`hidden md:table-cell`); a célula leva a mesma classe.
@@ -140,7 +172,7 @@
             expansão fechada sumia deixando a borda dela para trás. Quem
             separa agora é a própria linha, que some junto com a borda.
         --}}
-        <tbody>
+        <tbody {{ $atributosDoCorpo }}>
             @if ($temLinhas)
                 {{ $slot }}
             @else

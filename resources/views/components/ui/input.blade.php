@@ -41,6 +41,31 @@
     'unmasked' => false,
     'size' => 'md',
     /*
+     * Um ícone do Lucide à esquerda, dentro do campo (`icon="search"`).
+     *
+     * O texto recua o bastante para não passar por baixo dele, em cada
+     * tamanho. Decorativo: quem nomeia o campo é o rótulo (ou o
+     * `aria-label`). Fora do `cell`, que não tem onde pô-lo.
+     */
+    'icon' => null,
+    /*
+     * O indicador de "carregando", girando à direita, dentro do campo.
+     *
+     * Três estados: sem a prop, não há indicador; `:loading="false"`
+     * desenha o indicador apagado, para um script acendê-lo depois; e
+     * `loading` (ou `:loading="true"`) já o desenha aceso. Quem acende
+     * e apaga é o atributo `data-carregando` no `<input>` — o CSS mostra
+     * o indicador quando ele está lá:
+     *
+     *     campo.toggleAttribute('data-carregando', buscando);
+     *
+     * Sem redesenhar o campo: o indicador já está na página, e o
+     * atributo só decide se ele aparece. Fora do `cell`.
+     */
+    'loading' => null,
+    /** O texto do indicador para o leitor de tela. */
+    'loadingLabel' => 'Carregando…',
+    /*
      * O arredondamento do campo no tamanho `cell`. Na tabela ele é
      * discreto (`rounded-md`); a busca dentro de um painel suspenso pede
      * o mesmo `rounded-lg` do painel em volta.
@@ -156,10 +181,43 @@
         'md' => 'h-10 px-3 text-sm',
         // As telas de acesso: um formulário curto, num card, sem mais nada.
         'lg' => 'h-12 px-4 text-base',
+        // O campo que é o centro da tela: a busca do balcão, que se usa de pé e de longe.
+        'xl' => 'h-14 px-4 text-base',
         'cell' => 'px-2 py-1 text-sm',
     ];
 
     $naCelula = $size === 'cell';
+
+    /*
+     * Com ícone ou indicador, o tamanho sem o `px`, e o recuo de cada
+     * lado à parte: `px-3` e `ps-9` no mesmo campo não têm vencedor
+     * previsível (é a ordem no CSS gerado que decide), então só um dos
+     * dois entra. O recuo deixa 8px entre o ícone e o texto em todo
+     * tamanho; o ícone cresce com o campo, como no botão.
+     *
+     * Sem ícone nem indicador, o campo sai com as classes de sempre.
+     */
+    $adornos = [
+        'xs' => ['caixa' => 'h-7 text-xs', 'inicio' => 'ps-2.5', 'fim' => 'pe-2.5', 'comIcone' => 'ps-8', 'comIndicador' => 'pe-8',
+            'icone' => 'start-2.5 size-3.5', 'indicador' => 'end-2.5', 'tamanho' => 'size-3.5'],
+        'sm' => ['caixa' => 'h-9 text-sm', 'inicio' => 'ps-3', 'fim' => 'pe-3', 'comIcone' => 'ps-9', 'comIndicador' => 'pe-9',
+            'icone' => 'start-3 size-4', 'indicador' => 'end-3', 'tamanho' => 'size-4'],
+        'md' => ['caixa' => 'h-10 text-sm', 'inicio' => 'ps-3', 'fim' => 'pe-3', 'comIcone' => 'ps-9', 'comIndicador' => 'pe-9',
+            'icone' => 'start-3 size-4', 'indicador' => 'end-3', 'tamanho' => 'size-4'],
+        'lg' => ['caixa' => 'h-12 text-base', 'inicio' => 'ps-4', 'fim' => 'pe-4', 'comIcone' => 'ps-11', 'comIndicador' => 'pe-11',
+            'icone' => 'start-4 size-5', 'indicador' => 'end-4', 'tamanho' => 'size-5'],
+        'xl' => ['caixa' => 'h-14 text-base', 'inicio' => 'ps-4', 'fim' => 'pe-4', 'comIcone' => 'ps-12', 'comIndicador' => 'pe-12',
+            'icone' => 'start-4 size-6', 'indicador' => 'end-4', 'tamanho' => 'size-6'],
+    ];
+
+    $comIcone = $icon !== null && $icon !== '' && ! $naCelula;
+    $comIndicador = $loading !== null && ! $naCelula;
+    $adornado = $comIcone || $comIndicador;
+    $adorno = $adornos[$size] ?? $adornos['md'];
+
+    $classesDoTamanho = $adornado
+        ? [$adorno['caixa'], $comIcone ? $adorno['comIcone'] : $adorno['inicio'], $comIndicador ? $adorno['comIndicador'] : $adorno['fim']]
+        : [$tamanhos[$size] ?? $tamanhos['md']];
 
     /*
      * Na célula não há rótulo nem linha de erro: o `label` vira o nome
@@ -257,6 +315,19 @@
             </div>
         @endif
 
+        {{--
+            Com ícone ou indicador, uma caixa em volta só do campo: o
+            ícone e o indicador se posicionam por ela, e não pelo
+            envelope inteiro (que tem o rótulo em cima e a dica embaixo).
+        --}}
+        @if ($adornado)
+            <div class="relative">
+            @if ($comIcone)
+                <x-ui.icon :name="$icon"
+                           class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 {{ $adorno['icone'] }}" />
+            @endif
+        @endif
+
         <input type="{{ $type }}"
                @if ($idVisivel !== null) id="{{ $idVisivel }}" @endif
                @if ($name && ! $semPontuacao) name="{{ $name }}" @endif
@@ -267,17 +338,36 @@
                @if ($mask && $validate) data-mascara-valida @endif
                @if ($semPontuacao) data-mascara-destino="{{ $idDoCampo }}" @endif
                @if ($comCaixa) data-campo-valor="{{ $toggleValue }}" @endif
+               @if ($comIndicador && $loading) data-carregando @endif
                {{ $attributes->class([
+                   // `peer`: o indicador, irmão logo depois, aparece pelo `data-carregando` daqui.
+                   'peer' => $comIndicador,
                    'block w-full rounded-lg border text-neutral-900',
                    'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
                    // Desligado: cinza e sem cursor de escrita, para se ler sem se tentar editar.
                    'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                    'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',
-                   $tamanhos[$size] ?? $tamanhos['md'],
+                   ...$classesDoTamanho,
                    'dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500',
                    'border-neutral-300 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-700' => ! $temErro,
                    'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
                ]) }}>
+
+        @if ($adornado)
+            @if ($comIndicador)
+                {{--
+                    Sempre na página, escondido; o `data-carregando` do
+                    campo o mostra (`peer-data-carregando:flex`). O
+                    script não redesenha nada: põe e tira o atributo.
+                --}}
+                <span class="pointer-events-none absolute top-1/2 hidden -translate-y-1/2 items-center peer-data-carregando:flex {{ $adorno['indicador'] }}"
+                      data-campo-carregando>
+                    <x-ui.icon name="loader-circle" class="animate-spin text-neutral-400 {{ $adorno['tamanho'] }}" />
+                    <span class="sr-only">{{ $loadingLabel }}</span>
+                </span>
+            @endif
+            </div>
+        @endif
 
         @if ($semPontuacao)
             {{--

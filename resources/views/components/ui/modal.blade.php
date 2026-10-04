@@ -20,15 +20,28 @@
      * diálogo que não pode ser dispensado por acidente — o documento da
      * venda que ainda está sendo decidido, o passo que exige uma
      * resposta. Vai como `data-modal-estatico`, que o layers.js lê.
+     *
+     * O estático também não tem o X do cabeçalho: quem fecha são os
+     * botões do rodapé, que dizem o que acontece ao fechar.
      */
     'static' => false,
+    /*
+     * O X do cabeçalho. Por padrão, todo modal tem, menos o `static`;
+     * `closable` o devolve ao estático que precisar dele, e
+     * `:closable="false"` o tira de um comum.
+     */
+    'closable' => null,
 ])
+
+@php
+    $comX = $closable ?? ! $static;
+@endphp
 
 {{--
     Abre com `data-abre-modal="{{ $id }}"` em qualquer botão da página, e
     fecha pelo X, pelo botão do rodapé, clicando no fundo ou com Esc — o
-    que está em resources/js/layers.js. Com `static`, só pelo X e pelos
-    botões. Ao abrir e ao fechar, o próprio elemento dispara
+    que está em resources/js/layers.js. Com `static`, só pelos botões (e
+    pelo X, se `closable` o devolver). Ao abrir e ao fechar, o próprio elemento dispara
     `ui:camada-aberta` e `ui:camada-fechada`, com o motivo no `detail`.
 
     A animação é de CSS: o JavaScript só põe e tira `data-aberto`, e a
@@ -76,16 +89,25 @@
                  '[[data-aberto]_&]:translate-y-0 [[data-aberto]_&]:scale-100 [[data-aberto]_&]:opacity-100',
              ]) }}
              role="dialog" aria-modal="true"
-             @if ($title) aria-label="{{ $title }}" @endif>
+             @if ($title) aria-label="{{ $title }}" aria-labelledby="{{ $id }}-titulo" @endif>
             @if ($title)
-                {{-- `data-modal-titulo`: o gancho para o JavaScript trocar o título num modal que serve a várias linhas. --}}
-                <h2 class="mb-5 text-lg font-semibold text-neutral-900 dark:text-white" data-modal-titulo>{{ $title }}</h2>
+                {{--
+                    O gancho para o JavaScript trocar o título (o modal que
+                    serve a várias linhas): `data-camada-titulo`, o mesmo
+                    da gaveta; `data-modal-titulo` continua, para quem já
+                    o usa. O nome acessível da caixa vem daqui
+                    (`aria-labelledby`), e acompanha o texto trocado.
+                --}}
+                <h2 id="{{ $id }}-titulo" class="mb-5 text-lg font-semibold text-neutral-900 dark:text-white"
+                    data-camada-titulo data-modal-titulo>{{ $title }}</h2>
             @endif
 
-            <button type="button" data-fecha-modal aria-label="Fechar"
-                    class="absolute end-4 top-4 cursor-pointer text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">
-                <x-ui.icon name="x" class="size-5" />
-            </button>
+            @if ($comX)
+                <button type="button" data-fecha-modal aria-label="Fechar"
+                        class="absolute end-4 top-4 cursor-pointer text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">
+                    <x-ui.icon name="x" class="size-5" />
+                </button>
+            @endif
 
             <div class="text-sm text-neutral-600 dark:text-neutral-400">{{ $slot }}</div>
 

@@ -86,12 +86,18 @@
                  $lado['aberto'],
              ]) }}
              role="dialog" aria-modal="true"
-             @if ($title) aria-label="{{ $title }}" @endif>
+             @if ($title) aria-label="{{ $title }}" aria-labelledby="{{ $id }}-titulo" @endif>
             <div class="flex items-start justify-between gap-4 border-b border-neutral-300 px-5 py-4
                         dark:border-neutral-800">
                 <div>
                     @if ($title)
-                        <h2 class="font-semibold text-neutral-900 dark:text-white">{{ $title }}</h2>
+                        {{--
+                            `data-camada-titulo`: o gancho para o JavaScript
+                            trocar o título (um contador, o nome do que está
+                            aberto), o mesmo do modal. O nome acessível da
+                            caixa vem daqui (`aria-labelledby`) e acompanha.
+                        --}}
+                        <h2 id="{{ $id }}-titulo" class="font-semibold text-neutral-900 dark:text-white" data-camada-titulo>{{ $title }}</h2>
                     @endif
 
                     @if ($subtitle)

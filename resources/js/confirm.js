@@ -94,7 +94,7 @@ export function ligarConfirmacoes() {
     const botaoOk = modal.querySelector('[data-confirmacao-ok]');
     const botaoOkPerigo = modal.querySelector('[data-confirmacao-ok-perigo]');
     // O título é o do x-ui.modal; a caixa (`role="dialog"`) o repete no `aria-label`.
-    const titulo = modal.querySelector('[data-modal-titulo]');
+    const titulo = modal.querySelector('[data-camada-titulo], [data-modal-titulo]');
     const caixa = modal.querySelector('[role="dialog"]');
 
     /*

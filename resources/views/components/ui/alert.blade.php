@@ -1,4 +1,15 @@
-@props(['type' => 'info'])
+@props([
+    'type' => 'info',
+    /*
+     * Um X no canto, que esconde o aviso.
+     *
+     * O clique põe `hidden` no aviso e dispara `ui:alerta-dispensado`
+     * nele, subindo pelo DOM — quem o mostrou fica sabendo, e decide se
+     * ele volta (resources/js/alert.js). O texto vai num
+     * `[data-alerta-texto]`, que o script reescreve sem levar o X junto.
+     */
+    'dismissible' => false,
+])
 
 @php
     /*
@@ -14,6 +25,19 @@
     ];
 @endphp
 
-<div role="alert" {{ $attributes->class(['rounded-lg border p-4 text-sm', $tipos[$type] ?? $tipos['info']]) }}>
-    {{ $slot }}
-</div>
+@if ($dismissible)
+    <div role="alert" data-alerta {{ $attributes->class(['flex items-start gap-3 rounded-lg border p-4 text-sm', $tipos[$type] ?? $tipos['info']]) }}>
+        <div class="min-w-0 flex-1" data-alerta-texto>{{ $slot }}</div>
+
+        {{-- Na cor do texto do aviso, mais apagado: é a saída, não o assunto. --}}
+        <button type="button" data-fecha-alerta aria-label="Fechar o aviso"
+                class="-m-1 shrink-0 cursor-pointer rounded p-1 opacity-70 transition hover:opacity-100
+                       focus:outline-none focus-visible:ring-2 focus-visible:ring-current">
+            <x-ui.icon name="x" class="size-4" />
+        </button>
+    </div>
+@else
+    <div role="alert" {{ $attributes->class(['rounded-lg border p-4 text-sm', $tipos[$type] ?? $tipos['info']]) }}>
+        {{ $slot }}
+    </div>
+@endif

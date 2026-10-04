@@ -340,6 +340,39 @@ o par discreto, como o `danger-soft`, para quando ela não é a ação principal
 <x-ui.button variant="warning-soft" size="sm">Reabrir</x-ui.button>
 ```
 
+**O botão atual.** Com `aria-current` (`step`, `page`, `true`), o botão se
+pinta como selecionado na variante dele: no `secondary` e no `outline`, borda
+e texto na cor primária e fundo `primary-50`; no `ghost`, o mesmo fundo e
+texto; nas discretas (`warning-soft`, `danger-soft`, `ghost-contrast`), um
+degrau mais forte, que não muda no hover. As cheias (`primary`, `success`,
+`danger`, `warning`, `inverse`) não mudam: já são o destaque — a página atual
+do `x-ui.pagination` é um `primary` com `aria-current="page"`. Para a barra de
+etapas, as abas feitas de botão:
+
+```blade
+<x-ui.button variant="ghost" icon="shopping-cart" data-etapa="items" aria-current="step">Produtos</x-ui.button>
+<x-ui.button variant="ghost" icon="user" data-etapa="customer" aria-current="false">Cliente</x-ui.button>
+```
+
+`aria-current="false"` (e o valor vazio) não conta: o script que troca a etapa
+troca o valor entre os botões, sem tirar o atributo, e o leitor de tela ouve
+"etapa atual" no certo. Por trás está a variante `atual:` do `theme.css`
+(`&[aria-current]` com valor), que serve a qualquer elemento do projeto.
+
+**Empilhado** (`size="stacked"`): altura livre (mínimo 80px), com o ícone em
+cima, o texto e, numa linha própria, o que vier depois no slot — a tecla de
+atalho, um valor. Mantém a borda, o raio e a variante. É a grade de escolhas
+grandes, como as formas de pagamento de um caixa:
+
+```blade
+<x-ui.button variant="secondary" size="stacked" icon="banknote" class="min-w-36" aria-keyshortcuts="1">
+    <span>Dinheiro</span>
+    <kbd class="font-sans text-xs font-normal opacity-70">1</kbd>
+</x-ui.button>
+```
+
+Cada filho do slot é uma linha; texto solto também. O ícone sai em `size-6`.
+
 ## Ícones
 
 ```blade
@@ -369,6 +402,86 @@ padrão), os atributos soltos e `aria-hidden="true"` (a não ser que a tela
 passe outro). O do projeto vence o do Lucide de mesmo nome. O nome aceita
 letras, números, `-` e `_` (sem ponto nem barra). `Targos\Ui\Icons::exists()`
 conhece os dois conjuntos, e `Icons::isCustom()` diz se o nome é do projeto.
+
+## Campo de texto: `xl`, ícone e carregando
+
+```blade
+<x-ui.input type="search" size="xl" icon="search" :loading="false" loading-label="Buscando…"
+            aria-label="Buscar produto" data-busca autocomplete="off" />
+```
+
+- **`size="xl"`**: 56px de altura (`h-14`), texto `text-base`. O campo que é o
+  centro da tela — a busca do balcão. Os outros degraus continuam: `xs` 28,
+  `sm` 36, `md` 40, `lg` 48 (e `cell`, sem envelope).
+- **`icon`**: um ícone do Lucide (ou do projeto) à esquerda, dentro do campo.
+  O texto recua o bastante para não passar por baixo dele em cada tamanho
+  (8px entre o ícone e o texto), e o ícone cresce com o campo (`size-3.5` no
+  `xs` a `size-6` no `xl`). Decorativo: quem nomeia o campo é o `label` ou o
+  `aria-label`.
+- **`loading`**: um indicador girando à direita, dentro do campo, com o texto
+  de `loading-label` para o leitor de tela (padrão "Carregando…"). Três
+  estados: **sem a prop**, não há indicador; **`:loading="false"`** desenha o
+  indicador apagado, à espera do script; **`loading`** (ou `:loading="true"`)
+  já o desenha aceso.
+
+**Quem acende e apaga é o atributo `data-carregando` no `<input>`**: o CSS
+mostra o indicador quando ele está lá. O script não redesenha nada:
+
+```js
+campo.toggleAttribute('data-carregando', buscando);
+```
+
+O indicador fica em `[data-campo-carregando]`, irmão logo depois do campo,
+numa caixa `relative` só em volta dele (o rótulo e a dica ficam fora). Sem
+`icon` nem `loading`, o campo sai exatamente como antes. No `cell`, os dois
+são ignorados: a célula não tem onde pô-los.
+
+## Tabela: cabeçalho fixo e corpo endereçável
+
+```blade
+<x-ui.table sticky :headers="$colunas" class="max-h-96 overflow-y-auto"
+            :body-attributes="['data-linhas' => true]" />
+```
+
+- **`sticky`**: o cabeçalho fica no alto enquanto as linhas rolam. Quem rola
+  é o contêiner com altura limitada em volta — ou o próprio cartão da tabela,
+  com `max-h-*` e `overflow-y-auto` no `class` (que vai nele). O cabeçalho
+  ganha o fundo do cartão, opaco nos dois temas, e a linha de baixo dele vira
+  sombra das células (a borda do `<thead>` ficaria para trás na rolagem).
+- **`body-attributes`**: os atributos do `<tbody>`, num mapa, para o script
+  endereçar o corpo — a tela que clona linhas de um `<template>` e as põe ali.
+  `true` sai como o próprio nome; `false` e `null` não saem; `class` vale.
+
+Linhas escritas à mão no corpo (sem `x-ui.table.row`) não ganham divisor: o
+`class` do `body-attributes` pode trazê-lo (`divide-y divide-neutral-200
+dark:divide-neutral-800`), quando nenhuma linha fica escondida.
+
+## Aviso dispensável
+
+```blade
+<x-ui.alert type="danger" dismissible data-erro-venda hidden></x-ui.alert>
+```
+
+Com `dismissible`, o `x-ui.alert` ganha um X no canto
+(`<button data-fecha-alerta aria-label="Fechar o aviso">`). O clique põe
+`hidden` no aviso (`[data-alerta]`) e dispara **`ui:alerta-dispensado`** nele,
+subindo pelo DOM — quem o mostrou limpa o que o fazia aparecer, para o
+próximo desenho não trazê-lo de volta:
+
+```js
+raiz.addEventListener('ui:alerta-dispensado', (evento) => {
+    if (evento.target.matches('[data-erro-venda]')) {
+        estado.erro = null;
+    }
+});
+```
+
+O texto vai num `[data-alerta-texto]`, que o script reescreve sem levar o X
+junto (`aviso.querySelector('[data-alerta-texto]').textContent = mensagem`).
+Para mostrar de novo, a tela tira o `hidden`. Dispensar o que já está
+escondido não avisa outra vez. JS: `ligarAlertas()` (no `ligarUi`, escutando
+no `document` uma vez) e `dispensarAlerta(aviso)` para fechar por código
+(resources/js/alert.js).
 
 ## Lembrar o enviado (`remember`)
 
@@ -511,6 +624,9 @@ ApexCharts fica em `elemento.grafico`.
 | `data-sem-envio-implicito` | No `<form>`: o Enter num campo não envia (veja "Enter que não envia") |
 | `data-arrastavel` | Uma lista que se reordena (veja "Lista reordenável") |
 | `data-modal-estatico` / `data-offcanvas-estatico` | A camada só fecha pelos botões (o `static` do componente) |
+| `data-camada-titulo` | O título do `x-ui.modal` e do `x-ui.offcanvas`, para o script trocar o texto (veja "Modal e gaveta") |
+| `data-carregando` | No `<input>` de um `x-ui.input` com `loading`: mostra o indicador girando (veja "Campo de texto") |
+| `data-fecha-alerta` | O X do `x-ui.alert dismissible`: esconde o aviso e dispara `ui:alerta-dispensado` |
 | `data-copiar="texto"` | Copia e avisa com um toast; dispara o evento `ui:copiado` |
 | `data-imprimir` | Abre a impressão do navegador |
 | `data-troca-tema` | Alterna claro e escuro |
@@ -926,13 +1042,29 @@ vale o botão "Buscar".
 </x-ui.modal>
 ```
 
-Com `static` (no `x-ui.modal` e no `x-ui.offcanvas`), a camada só fecha pelo X
-e pelos botões (`data-fecha-modal`, `fecharModal(id)`): nem o clique no fundo
-nem o Esc. É o diálogo que exige uma resposta e não pode ser dispensado por
+Com `static` (no `x-ui.modal` e no `x-ui.offcanvas`), a camada só fecha pelos
+botões (`data-fecha-modal`, `fecharModal(id)`): nem o clique no fundo nem o
+Esc. É o diálogo que exige uma resposta e não pode ser dispensado por
 acidente. Aberta por cima de outra, ela segura o Esc também para a de baixo —
 a gaveta atrás do diálogo não some por um Esc que o diálogo recusou. Fora do
 Blade, é `data-modal-estatico` (ou `data-offcanvas-estatico`) no elemento da
 camada.
+
+**O modal estático não tem o X do cabeçalho**: quem fecha são os botões do
+rodapé (ou do corpo), que dizem o que acontece ao fechar. A prop `closable`
+manda no X — por padrão é `! static`: `closable` o devolve ao estático que
+precisar dele, e `:closable="false"` o tira de um modal comum. A gaveta
+estática continua com o X (ela não tem rodapé obrigatório).
+
+**O título num gancho.** O `<h2>` do título, no modal e na gaveta, leva
+`data-camada-titulo` (o do modal leva também o `data-modal-titulo` de antes),
+para o script trocar o texto — um contador, o nome do que está aberto — sem
+procurar o `h2` pela estrutura. O nome acessível da caixa vem dele
+(`aria-labelledby="{id}-titulo"`), e acompanha o texto trocado.
+
+```js
+gaveta.querySelector('[data-camada-titulo]').textContent = `Rascunhos (${quantos})`;
+```
 
 Ao abrir e ao fechar, o próprio elemento da camada dispara
 `ui:camada-aberta` e `ui:camada-fechada`, subindo pelo DOM, com
@@ -1243,6 +1375,24 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.6** — O que o PDV pediu, sem nada de PDV no pacote.
+  `x-ui.input`: `size="xl"` (56px, `text-base`), `icon` (à esquerda, dentro do
+  campo, com o recuo do texto em cada tamanho) e `loading` (o indicador
+  girando à direita; `:loading="false"` o desenha apagado, e o atributo
+  `data-carregando` no `<input>` o acende pelo CSS, sem redesenhar;
+  `loading-label` é o texto para o leitor de tela). `x-ui.table`: `sticky`
+  (cabeçalho fixo, opaco nos dois temas) e `body-attributes` (atributos do
+  `<tbody>`). `x-ui.button`: o estado atual pelo `aria-current` em cada
+  variante (variante `atual:` nova no `theme.css`) e `size="stacked"` (altura
+  livre, conteúdo empilhado). `x-ui.alert dismissible`: o X que esconde e
+  dispara `ui:alerta-dispensado` (`data-fecha-alerta`, `[data-alerta-texto]`;
+  JS `ligarAlertas` — já no `ligarUi` — e `dispensarAlerta`, em
+  resources/js/alert.js; quem liga os módulos um a um acrescenta
+  `ligarAlertas()`). `data-camada-titulo` no título do `x-ui.modal` e do
+  `x-ui.offcanvas`, com `aria-labelledby` na caixa (o `data-modal-titulo`
+  continua, e o preenchimento pela linha e o `x-ui.confirm` acham o título
+  pelos dois). **Muda o `x-ui.modal static`**: o X do cabeçalho sai — quem
+  fecha são os botões; quem dependia do X num estático passa `closable`.
 - **1.11.5** — `x-ui.alert` mais visível no tema claro: fundo no tom 100 (era o
   50) e borda no 200. O tema escuro não muda.
 - **1.11.4** — `x-ui.button` ganha `size="icon-lg"` (48px) e `size="icon-xl"` (56px),

@@ -1376,6 +1376,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.11** — Correção da 1.11.10: o `x-ui.date-range` aparecia
+  desligado em todas as telas. A variante `read-only:` estava na lista de
+  classes que vai também para o gatilho, um `<button>`, e para o CSS todo
+  botão é `:read-only`. Agora ela vai só nos dois campos de data nativos.
 - **1.11.10** — Abas em pílula e com ícone. A aba aberta do `x-ui.tabs`
   deixa de se marcar pela linha embaixo dela: vira uma pílula verde-clara
   (`primary-100`, com contorno `primary-300` e texto `primary-900`; no

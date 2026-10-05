@@ -91,14 +91,22 @@
         // Desligado: cinza e sem cursor de clique, como o select.
         'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
         'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',
-        'read-only:cursor-not-allowed read-only:bg-neutral-100 read-only:text-neutral-500',
-        'dark:read-only:bg-neutral-900/50 dark:read-only:text-neutral-500',
         $tamanhos[$size] ?? $tamanhos['md'],
         // O gatilho é um botão: aberto (aria-expanded), mantém a cara de foco enquanto o calendário está na tela.
         'border-neutral-300 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-700'
             .' aria-expanded:ring-2 aria-expanded:border-primary-500 aria-expanded:ring-primary-500/20' => ! $temErro,
         'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500'
             .' aria-expanded:ring-2 aria-expanded:border-danger-500 aria-expanded:ring-danger-500/20' => $temErro,
+    ];
+
+    /*
+     * Só leitura com a cara do desligado — **só nos dois campos nativos**.
+     * O gatilho é um `<button>`, e para o CSS todo botão é `:read-only`:
+     * na `$caixa`, a variante apagava o período em todas as telas (1.11.10).
+     */
+    $soLeitura = [
+        'read-only:cursor-not-allowed read-only:bg-neutral-100 read-only:text-neutral-500',
+        'dark:read-only:bg-neutral-900/50 dark:read-only:text-neutral-500',
     ];
 @endphp
 
@@ -116,12 +124,12 @@
         <input type="date" id="{{ $idInicio }}" name="{{ $start }}" value="{{ $inicio }}"
                @if ($minimo) min="{{ $minimo }}" @endif @if ($maximo) max="{{ $maximo }}" @endif
                @required($required) aria-label="Início" data-periodo-inicio
-               {{ $attributes->only($doCampo) }} @class($caixa)>
+               {{ $attributes->only($doCampo) }} @class([...$caixa, ...$soLeitura])>
 
         <input type="date" id="{{ $idFim }}" name="{{ $end }}" value="{{ $fim }}"
                @if ($minimo) min="{{ $minimo }}" @endif @if ($maximo) max="{{ $maximo }}" @endif
                @required($required) aria-label="Fim" data-periodo-fim
-               {{ $attributes->only($doFim) }} @class($caixa)>
+               {{ $attributes->only($doFim) }} @class([...$caixa, ...$soLeitura])>
     </div>
 
     <button type="button" hidden data-periodo-gatilho aria-haspopup="dialog" aria-expanded="false"

@@ -1379,7 +1379,11 @@ Versionamento por tag do Git.
   ganham a borda na cor de ação no hover (`hover:border-primary-500`, nos
   dois temas). No `stat-card` o hover era `border-neutral-300`, a mesma cor
   da borda em repouso no tema claro, e só aparecia no escuro; o `x-ui.card`
-  clicável não reagia ao mouse.
+  clicável não reagia ao mouse. E o painel flutuante (o calendário do
+  período e da data, a lista do select) fica dentro da área visível: o
+  limite pela direita usava `window.innerWidth`, que inclui a barra de
+  rolagem, e o painel terminava por baixo dela; agora usa a largura e a
+  altura sem as barras (`document.documentElement.clientWidth`/`clientHeight`).
 - **1.11.8** — Barra lateral: o hover do `x-ui.nav-item` e do título do
   `x-ui.nav-group` ganha o mesmo fundo do item ativo (`bg-primary-50`; no
   escuro, `bg-primary-500/15`). Era cinza (`bg-neutral-100`), e o menu

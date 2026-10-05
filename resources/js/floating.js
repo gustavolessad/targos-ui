@@ -65,9 +65,17 @@ function painelFlutuante(ancora, painel, { larguraPropria = false } = {}) {
             painel.style.width = `${caixa.width}px`;
         }
 
+        /*
+         * A área visível, **sem as barras de rolagem**: `window.innerWidth`
+         * as inclui, e o painel encostado "a 8px da borda" terminava por
+         * baixo da barra vertical da página (cerca de 17px no Windows) — o
+         * "Aplicar" do calendário do período ficava cortado nela.
+         */
+        const visivel = document.documentElement;
+
         // Horizontal: alinhado ao campo, sem vazar pela direita da tela.
         const largura = painel.offsetWidth;
-        const esquerda = Math.max(8, Math.min(caixa.left, window.innerWidth - largura - 8));
+        const esquerda = Math.max(8, Math.min(caixa.left, visivel.clientWidth - largura - 8));
 
         painel.style.left = `${esquerda}px`;
 
@@ -75,7 +83,7 @@ function painelFlutuante(ancora, painel, { larguraPropria = false } = {}) {
             topo: caixa.top,
             base: caixa.bottom,
             altura: painel.offsetHeight,
-            janela: window.innerHeight,
+            janela: visivel.clientHeight,
             folga,
         });
 

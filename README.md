@@ -1375,6 +1375,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.7** — `x-ui.repeater`: o cabeçalho das colunas (slot `header`) tem a
+  altura do texto. A coluna invisível que reserva o lugar dos botões de cada
+  linha dava a ele a altura do botão (36px), e o título ficava 16px longe dos
+  campos; agora ela reserva só a largura (`h-0`).
 - **1.11.6** — O que o PDV pediu, sem nada de PDV no pacote.
   `x-ui.input`: `size="xl"` (56px, `text-base`), `icon` (à esquerda, dentro do
   campo, com o recuo do texto em cada tamanho) e `loading` (o indicador

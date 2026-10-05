@@ -160,8 +160,13 @@
             <div class="flex items-start gap-2" data-repetidor-cabecalho @if ($total === 0) hidden @endif>
                 <div class="min-w-0 flex-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">{{ $header }}</div>
 
+                {{--
+                    Só a largura: com `h-0`, os botões invisíveis não dão ao
+                    cabeçalho a altura deles (36px, contra os 20px do texto),
+                    e o título fica colado nos campos da primeira linha.
+                --}}
                 @if ($comColunaDeBotoes)
-                    <div class="invisible flex shrink-0 items-center gap-0.5" aria-hidden="true">
+                    <div class="invisible flex h-0 shrink-0 items-center gap-0.5 overflow-hidden" aria-hidden="true">
                         @if ($sortable)
                             <x-ui.button variant="ghost" size="icon-sm" tabindex="-1" disabled><x-ui.icon name="chevron-up" class="size-4" /></x-ui.button>
                             <x-ui.button variant="ghost" size="icon-sm" tabindex="-1" disabled><x-ui.icon name="chevron-down" class="size-4" /></x-ui.button>

@@ -20,11 +20,16 @@
     Existe porque input, select, textarea e multiselect repetiam a
     mesma marcação — e a dica de informação teria de ser escrita quatro
     vezes, para divergir na primeira mudança.
+
+    **Sempre na cor normal**, também com o campo desligado ou só leitura
+    (decisão do proprietário de 05/10/2026): quem mostra a trava é a caixa
+    do campo, apagada. O rótulo apagado só no desligado fazia os dois
+    parecerem coisas diferentes, e o nome do campo é o que se precisa ler
+    para entender por que ele está travado.
 --}}
 <div {{ $attributes->class(['flex items-center gap-1.5']) }}>
     <label @if ($for) for="{{ $for }}" @endif
-           class="block text-sm font-medium text-neutral-700 dark:text-neutral-300
-                  group-has-disabled:text-neutral-400 dark:group-has-disabled:text-neutral-500">
+           class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
         {{-- `data-campo-rotulo`: só o texto, para um script trocá-lo ("CPF" → "CNPJ") sem levar o asterisco junto. --}}
         <span data-campo-rotulo>{{ $label }}</span>
 

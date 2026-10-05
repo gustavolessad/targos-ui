@@ -415,10 +415,16 @@
         texto certo do servidor, para a troca não piscar.
     --}}
     {{--
-        Só leitura (`aria-readonly`): o fundo apagado do desligado, mas o
-        texto na cor normal — o valor é para ser lido — e sem o anel de
-        foco de aberto, porque não abre. O gatilho continua no Tab, como
-        um input só de leitura.
+        Só leitura (`aria-readonly`): a mesma cara do desligado — fundo e
+        texto apagados, cursor de bloqueio —, como em todos os campos do
+        pacote (decisão do proprietário de 05/10/2026: quem olha não
+        precisa distinguir "não posso mudar" de "não posso mudar e não
+        vai no envio"). Sem o anel de foco de aberto, porque não abre; o
+        gatilho continua no Tab, como um input só de leitura.
+
+        Pelo `aria-readonly`, e não pela variante `read-only:`: para o CSS,
+        `<button>` e `<select>` são sempre `:read-only`, e ela apagaria todo
+        select.
     --}}
     <button type="button"
             hidden
@@ -433,7 +439,8 @@
                 'flex cursor-pointer items-center gap-2 text-start',
                 'aria-disabled:cursor-not-allowed aria-disabled:bg-neutral-100 aria-disabled:text-neutral-500',
                 'dark:aria-disabled:bg-neutral-900/50',
-                'aria-readonly:cursor-default aria-readonly:bg-neutral-100 dark:aria-readonly:bg-neutral-900/50',
+                'aria-readonly:cursor-not-allowed aria-readonly:bg-neutral-100 aria-readonly:text-neutral-500',
+                'dark:aria-readonly:bg-neutral-900/50',
             ])>
         @if ($multiple)
             {{--

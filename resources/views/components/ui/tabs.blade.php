@@ -32,6 +32,15 @@
      * @var array<string, string>
      */
     'links' => [],
+    /**
+     * Um ícone antes do rótulo, `chave => ícone`: um nome da Lucide
+     * ("package") ou um componente do projeto, pelo nome com ponto
+     * ("brand.pix" → x-brand.pix) — como no `x-ui.radio-group`. A aba sem
+     * ícone no mapa fica só com o rótulo.
+     *
+     * @var array<string, string>
+     */
+    'icons' => [],
 ])
 
 @php
@@ -39,7 +48,8 @@
      * As abas de uma tela.
      *
      * `tabs` é o mapa `chave => rótulo`. Cada painel é um slot com o
-     * nome da chave:
+     * nome da chave (e `icons`, `chave => ícone`, põe um ícone antes do
+     * rótulo):
      *
      *     <x-ui.tabs :tabs="['geral' => 'Geral', 'seo' => 'SEO']">
      *         <x-slot:geral>...</x-slot:geral>
@@ -152,8 +162,26 @@
                @if (filled($attributes->get('form'))) form="{{ $attributes->get('form') }}" @endif>
     @endunless
 
-    <div class="border-b border-neutral-300 dark:border-neutral-800">
-        <nav class="-mb-px flex gap-1 overflow-x-auto" @unless ($navegacao) role="tablist" @endunless>
+    {{--
+        A aba aberta é uma pílula verde-clara (`primary-100`) com contorno
+        (`primary-300`), e o texto e o ícone em `primary-900`. Não o
+        `primary-50` do menu lateral: a barra fica sobre o fundo cinza da
+        área de conteúdo, e não sobre o branco da sidebar, e ali o tom mais
+        claro some; o contorno garante a forma, e o `900` o contraste do
+        texto (6:1 no verde do proprietário). As outras ganham fundo cinza
+        no hover — nunca o da aberta, para as duas não se confundirem.
+
+        Sem linha embaixo da barra (decisão do proprietário de 05/10/2026):
+        a pílula já marca a aberta. O `p-0.5` deixa o anel de foco aparecer
+        dentro do `overflow-x-auto`.
+
+        **O `inline-flex` mora num span dentro da aba, e não nela**: a aba
+        escondida (`hidden`) é mostrada pela tela tirando a classe, e
+        `hidden` e `inline-flex` na mesma tag disputam o `display` — a que
+        vence depende da ordem do CSS, e a aba podia aparecer escondida.
+    --}}
+    <div>
+        <nav class="-m-0.5 flex gap-1 overflow-x-auto p-0.5" @unless ($navegacao) role="tablist" @endunless>
             @foreach ($tabs as $chave => $rotulo)
                 @if ($navegacao)
                     {{--
@@ -169,24 +197,25 @@
                         <a href="{{ $links[$chave] }}"
                            @if ($chave === $atual) aria-current="page" @endif
                            @class([
-                               'cursor-pointer whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium',
-                               'transition border-transparent text-neutral-500',
-                               'hover:border-neutral-300 hover:text-neutral-800',
-                               'dark:text-neutral-400 dark:hover:border-neutral-700 dark:hover:text-neutral-200',
-                               'aria-[current=page]:border-primary-600 aria-[current=page]:text-neutral-900',
-                               'dark:aria-[current=page]:text-white',
+                               'cursor-pointer whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition',
+                               'text-neutral-600 dark:text-neutral-400',
+                               'not-aria-[current=page]:hover:bg-neutral-200/70 not-aria-[current=page]:hover:text-neutral-900',
+                               'dark:not-aria-[current=page]:hover:bg-white/5 dark:not-aria-[current=page]:hover:text-white',
+                               'aria-[current=page]:bg-primary-100 aria-[current=page]:text-primary-900 aria-[current=page]:ring-1 aria-[current=page]:ring-inset aria-[current=page]:ring-primary-300',
+                               'dark:aria-[current=page]:bg-primary-500/15 dark:aria-[current=page]:text-primary-300 dark:aria-[current=page]:ring-primary-500/30',
+                               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30',
                                'hidden' => in_array($chave, $hidden, strict: true),
                            ])>
-                            {{ $rotulo }}@if ($erros[$chave] > 0)<span data-aba-erros class="ms-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger-600 px-1.5 text-xs font-semibold text-white">{{ $erros[$chave] }}</span>@endif
+                            <span class="inline-flex items-center gap-2">@if ($icone = $icons[$chave] ?? null)<span class="contents" data-icone="{{ $chave }}">@if (str_contains($icone, '.'))<x-dynamic-component :component="$icone" class="size-4 shrink-0" />@else<x-ui.icon :name="$icone" class="size-4 shrink-0" />@endif</span>@endif{{ $rotulo }}@if ($erros[$chave] > 0)<span data-aba-erros class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger-600 px-1.5 text-xs font-semibold text-white">{{ $erros[$chave] }}</span>@endif</span>
                         </a>
                     @else
                         <span aria-disabled="true"
                               @class([
-                                  'whitespace-nowrap border-b-2 border-transparent px-4 py-2.5 text-sm font-medium',
+                                  'whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium',
                                   'text-neutral-500 opacity-50 dark:text-neutral-400',
                                   'hidden' => in_array($chave, $hidden, strict: true),
                               ])>
-                            {{ $rotulo }}
+                            <span class="inline-flex items-center gap-2">@if ($icone = $icons[$chave] ?? null)<span class="contents" data-icone="{{ $chave }}">@if (str_contains($icone, '.'))<x-dynamic-component :component="$icone" class="size-4 shrink-0" />@else<x-ui.icon :name="$icone" class="size-4 shrink-0" />@endif</span>@endif{{ $rotulo }}</span>
                         </span>
                     @endif
                 @else
@@ -195,7 +224,7 @@
                         pelo PHP: o JavaScript troca o atributo ao clicar, e
                         classe decidida na renderização só mudaria com F5.
 
-                        A aba aberta se marca pela linha embaixo, não por fundo.
+                        A aba aberta se marca pelo fundo da pílula (ver a barra).
                     --}}
                     {{--
                         A aba escondida existe no HTML, mas não aparece.
@@ -213,15 +242,16 @@
                             aria-selected="{{ $chave === $atual ? 'true' : 'false' }}"
                             aria-controls="painel-{{ $chave }}"
                             @class([
-                                'cursor-pointer whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium',
-                                'transition border-transparent text-neutral-500',
-                                'hover:border-neutral-300 hover:text-neutral-800',
-                                'dark:text-neutral-400 dark:hover:border-neutral-700 dark:hover:text-neutral-200',
-                                'aria-selected:border-primary-600 aria-selected:text-neutral-900',
-                                'dark:aria-selected:text-white',
+                                'cursor-pointer whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition',
+                                'text-neutral-600 dark:text-neutral-400',
+                                'not-aria-selected:hover:bg-neutral-200/70 not-aria-selected:hover:text-neutral-900',
+                                'dark:not-aria-selected:hover:bg-white/5 dark:not-aria-selected:hover:text-white',
+                                'aria-selected:bg-primary-100 aria-selected:text-primary-900 aria-selected:ring-1 aria-selected:ring-inset aria-selected:ring-primary-300',
+                                'dark:aria-selected:bg-primary-500/15 dark:aria-selected:text-primary-300 dark:aria-selected:ring-primary-500/30',
+                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30',
                                 'hidden' => in_array($chave, $hidden, strict: true),
                             ])>
-                        {{ $rotulo }}@if ($erros[$chave] > 0)<span data-aba-erros class="ms-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger-600 px-1.5 text-xs font-semibold text-white">{{ $erros[$chave] }}</span>@endif
+                        <span class="inline-flex items-center gap-2">@if ($icone = $icons[$chave] ?? null)<span class="contents" data-icone="{{ $chave }}">@if (str_contains($icone, '.'))<x-dynamic-component :component="$icone" class="size-4 shrink-0" />@else<x-ui.icon :name="$icone" class="size-4 shrink-0" />@endif</span>@endif{{ $rotulo }}@if ($erros[$chave] > 0)<span data-aba-erros class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-danger-600 px-1.5 text-xs font-semibold text-white">{{ $erros[$chave] }}</span>@endif</span>
                     </button>
                 @endif
             @endforeach

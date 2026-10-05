@@ -254,6 +254,7 @@
                'placeholder:text-neutral-400',
                'focus:ring-2 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',
+               'read-only:cursor-not-allowed read-only:text-neutral-400',
                'dark:text-white dark:placeholder:text-neutral-500',
                $tamanhos['cell'],
                $width ?? 'w-full',
@@ -347,6 +348,8 @@
                    // Desligado: cinza e sem cursor de escrita, para se ler sem se tentar editar.
                    'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                    'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',
+                   'read-only:cursor-not-allowed read-only:bg-neutral-100 read-only:text-neutral-500',
+                   'dark:read-only:bg-neutral-900/50 dark:read-only:text-neutral-500',
                    ...$classesDoTamanho,
                    'dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500',
                    'border-neutral-300 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-700' => ! $temErro,

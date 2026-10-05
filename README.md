@@ -211,6 +211,7 @@ Do mais leve ao mais pesado:
 | `active` | A aba aberta; sem ela, a da URL (`?aba=`) |
 | `hidden` | As abas que existem mas não aparecem |
 | `fields` | Os campos de cada aba: `chave => [nomes ou prefixos]`. Conta os erros de validação de cada aba (`variants` conta `variants.0.sku`) e mostra o número num selo vermelho ao lado do rótulo |
+| `icons` | `chave => ícone`: um ícone antes do rótulo, da Lucide (`package`) ou um componente do projeto pelo nome com ponto (`brand.pix`), como no `x-ui.radio-group`. A aba fora do mapa fica só com o rótulo |
 | `links` | `chave => URL`: as abas viram links para outras telas. Não há painéis nem campo escondido; o slot é o conteúdo da tela, desenhado abaixo da barra. A aba ativa é a de `active` ou, sem ela, a da URL atual |
 | `form` | O `id` do formulário, quando as abas ficam fora dele |
 
@@ -1375,6 +1376,23 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.10** — Abas em pílula e com ícone. A aba aberta do `x-ui.tabs`
+  deixa de se marcar pela linha embaixo dela: vira uma pílula verde-clara
+  (`primary-100`, com contorno `primary-300` e texto `primary-900`; no
+  escuro, `primary-500/15` e texto `primary-300`). O `primary-50` do menu
+  lateral sumia sobre o fundo cinza da área de conteúdo. As outras ficam em
+  cinza, com fundo cinza no hover — nunca o da aberta. A linha embaixo da barra saiu: a pílula já marca
+  a aberta. O foco pelo teclado ganha anel. E o componente
+  aceita `icons` (`chave => ícone`, da Lucide ou um componente com ponto,
+  como no `x-ui.radio-group`), desenhado antes do rótulo e na cor dele.
+  E o campo só leitura fica com a cara do desligado — fundo e texto
+  apagados, cursor de bloqueio — em todos os campos de texto (`read-only:`)
+  e no gatilho do `x-ui.select` (`aria-readonly`, que antes só apagava o
+  fundo). No select não há `read-only:`: para o CSS, `<select>` e
+  `<button>` são sempre `:read-only`.
+  O rótulo do campo (`x-ui.field-label`) fica sempre na cor normal: antes
+  ele clareava com o campo desligado e não com o só leitura, e os dois
+  pareciam coisas diferentes. A trava aparece na caixa do campo.
 - **1.11.9** — Card clicável: com `href`, o `x-ui.card` e o `x-ui.stat-card`
   ganham a borda na cor de ação no hover (`hover:border-primary-500`, nos
   dois temas). No `stat-card` o hover era `border-neutral-300`, a mesma cor

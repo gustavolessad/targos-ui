@@ -35,8 +35,9 @@
     <summary data-barra-rotulo="{{ $label }}" aria-haspopup="true"
              @class([
                  'group flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2.5',
-                 'text-sm font-medium text-neutral-900 transition hover:bg-neutral-100',
-                 'hover:text-neutral-950 dark:text-white dark:hover:bg-white/5',
+                 // O hover com o fundo do item ativo, como no `x-ui.nav-item`.
+                 'text-sm font-medium text-neutral-900 transition hover:bg-primary-50',
+                 'hover:text-neutral-950 dark:text-white dark:hover:bg-primary-500/15',
                  'dark:hover:text-white [&::-webkit-details-marker]:hidden',
                  'recolhida:justify-center recolhida:px-0',
                  'recolhida:bg-primary-50 dark:recolhida:bg-primary-500/15' => $aberto,

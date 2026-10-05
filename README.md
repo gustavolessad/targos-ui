@@ -1375,6 +1375,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.8** — Barra lateral: o hover do `x-ui.nav-item` e do título do
+  `x-ui.nav-group` ganha o mesmo fundo do item ativo (`bg-primary-50`; no
+  escuro, `bg-primary-500/15`). Era cinza (`bg-neutral-100`), e o menu
+  tinha duas cores de destaque. O menu flutuante da barra recolhida copia
+  os itens, e muda junto.
 - **1.11.7** — `x-ui.repeater`: o cabeçalho das colunas (slot `header`) tem a
   altura do texto. A coluna invisível que reserva o lugar dos botões de cada
   linha dava a ele a altura do botão (36px), e o título ficava 16px longe dos

@@ -19,9 +19,14 @@
    {{ $attributes->class([
        'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
        'recolhida:justify-center recolhida:px-0',
-       // Em repouso, a cor do título da página; o hover só ganha fundo. O ativo: fundo azul-claro e texto bem escuro.
-       'text-neutral-900 hover:bg-neutral-100 hover:text-neutral-950' => ! $ativo,
-       'dark:text-white dark:hover:bg-white/5 dark:hover:text-white' => ! $ativo,
+       /*
+        * Em repouso, a cor do título da página. O ativo: o fundo claro da
+        * cor primária e o texto bem escuro — e o hover ganha **o mesmo
+        * fundo do ativo**, para o menu ter uma cor de destaque só (antes
+        * o hover era cinza e o ativo, da cor primária).
+        */
+       'text-neutral-900 hover:bg-primary-50 hover:text-neutral-950' => ! $ativo,
+       'dark:text-white dark:hover:bg-primary-500/15 dark:hover:text-white' => ! $ativo,
        'bg-primary-50 text-neutral-950' => $ativo,
        'dark:bg-primary-500/15 dark:text-white' => $ativo,
    ]) }}>

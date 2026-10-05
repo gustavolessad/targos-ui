@@ -1375,6 +1375,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.9** — Card clicável: com `href`, o `x-ui.card` e o `x-ui.stat-card`
+  ganham a borda na cor de ação no hover (`hover:border-primary-500`, nos
+  dois temas). No `stat-card` o hover era `border-neutral-300`, a mesma cor
+  da borda em repouso no tema claro, e só aparecia no escuro; o `x-ui.card`
+  clicável não reagia ao mouse.
 - **1.11.8** — Barra lateral: o hover do `x-ui.nav-item` e do título do
   `x-ui.nav-group` ganha o mesmo fundo do item ativo (`bg-primary-50`; no
   escuro, `bg-primary-500/15`). Era cinza (`bg-neutral-100`), e o menu

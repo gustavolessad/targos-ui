@@ -68,6 +68,8 @@
     'rounded-2xl border',
     $tons[$tone] ?? $tons['raised'],
     'shadow-lg' => $elevated,
+    // Clicável, a borda vai à cor de ação no hover — como o `x-ui.stat-card` com `href`.
+    'transition hover:border-primary-500 dark:hover:border-primary-500' => (bool) $href,
 ]) }}>
     @if ($temAcoes)
         {{--

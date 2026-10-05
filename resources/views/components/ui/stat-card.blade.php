@@ -130,8 +130,12 @@
          */
         'border-primary-600 bg-primary-600 text-primary-contrast dark:border-primary-600 dark:bg-primary-600 '
             .'[&_p]:text-primary-contrast [&_li]:text-primary-contrast/80 [&_svg]:text-primary-contrast/80 [&_span]:text-primary-contrast' => $variant === 'filled',
-        // Só o que é clicável reage ao mouse.
-        'transition hover:border-neutral-300 dark:hover:border-neutral-700' => $href !== null && $variant !== 'filled',
+        /*
+         * Só o que é clicável reage ao mouse: a borda na cor de ação, nos
+         * dois temas. Era `hover:border-neutral-300`, a mesma da borda em
+         * repouso no claro — o hover só aparecia no escuro.
+         */
+        'transition hover:border-primary-500 dark:hover:border-primary-500' => $href !== null && $variant !== 'filled',
         'transition hover:bg-primary-700' => $href !== null && $variant === 'filled',
     ];
 @endphp

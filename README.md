@@ -195,6 +195,26 @@ Do mais leve ao mais pesado:
 6. **Mudar o pacote.** O que serve a mais de um projeto vira prop ou
    configuração aqui, e sai numa versão nova.
 
+## Animações
+
+Tokens do `theme.css`, usados como classe do Tailwind:
+
+| Classe | O que faz | Onde o pacote usa |
+|---|---|---|
+| `animate-surgir` | Surge de 95% com fade, em 150 ms | Painéis que abrem por cima da tela: select, data, tooltip |
+| `animate-descer` | Desce 4 px com fade, em 150 ms | Itens de um grupo do menu lateral, ao abrir |
+| `animate-entrar` | Sobe 12 px com fade, em 300 ms | — (para o projeto: o cartão das telas de login e cadastro) |
+
+```blade
+<div class="w-full max-w-md animate-entrar">
+    <x-ui.card>…</x-ui.card>
+</div>
+```
+
+Quem pede menos movimento no sistema operacional vê tudo aparecer direto: o
+`theme.css` desliga as três (`prefers-reduced-motion`), também atrás de
+variante (`group-[…]:animate-descer`). Não precisa de `motion-safe:`.
+
 ## Abas
 
 ```blade
@@ -1376,6 +1396,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.12** — Animação `animate-entrar` (sobe 12 px com fade, 300 ms),
+  para o bloco que chega com a página — o cartão das telas de login e
+  cadastro. Nasceu no meu-sistema2 e veio para cá para os outros projetos
+  usarem. Desligada com as outras para quem pede menos movimento. Nova seção
+  "Animações" no README, com as três.
 - **1.11.11** — Correção da 1.11.10: o `x-ui.date-range` aparecia
   desligado em todas as telas. A variante `read-only:` estava na lista de
   classes que vai também para o gatilho, um `<button>`, e para o CSS todo

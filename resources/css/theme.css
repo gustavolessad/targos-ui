@@ -113,6 +113,26 @@
         }
     }
 
+    /*
+     * A entrada de um bloco da página quando ela abre — o cartão das
+     * telas de login e cadastro: `animate-entrar`. Sobe 12px com fade, em
+     * 300ms: mais devagar que o `surgir`, porque é a tela chegando, e não
+     * um painel abrindo por cima dela. O `both` segura o estado inicial
+     * enquanto espera, quando há `animation-delay` (blocos em sequência).
+     */
+    --animate-entrar: entrar 300ms ease-out both;
+
+    @keyframes entrar {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
@@ -295,7 +315,8 @@
  */
 @media (prefers-reduced-motion: reduce) {
     [class*='animate-surgir'],
-    [class*='animate-descer'] {
+    [class*='animate-descer'],
+    [class*='animate-entrar'] {
         animation: none !important;
     }
 }

@@ -1,4 +1,12 @@
-@props(['name' => 'password', 'label' => 'Senha', 'required' => false, 'hint' => null, 'size' => 'md'])
+@props([
+    'name' => 'password',
+    'label' => 'Senha',
+    'required' => false,
+    'hint' => null,
+    'size' => 'md',
+    // A explicação do campo, num ícone ao lado do rótulo (ver o `x-ui.field-label`).
+    'info' => null,
+])
 
 @php
     $temErro = $errors->has($name);
@@ -12,14 +20,25 @@
     ];
 @endphp
 
-{{-- O olho de mostrar a senha: um `onclick` de três linhas resolve. --}}
+{{--
+    O rótulo pelo `x-ui.field-label`, como os outros campos, e o slot
+    `aside` à direita dele, na mesma linha — o "Esqueci minha senha" do
+    login:
+
+        <x-ui.password name="password" label="Senha" required>
+            <x-slot:aside><a href="…">Esqueci minha senha</a></x-slot:aside>
+        </x-ui.password>
+
+    O mesmo nome do slot do `x-ui.page-header`: o que fica ao lado do título.
+--}}
 <div>
-    <label for="{{ $name }}" class="mb-1.5 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-        {{ $label }}
-        @if ($required)
-            <span class="text-danger-500">*</span>
-        @endif
-    </label>
+    <div class="mb-1.5 flex items-center justify-between gap-3">
+        <x-ui.field-label :label="$label" :for="$name" :required="$required" :info="$info" />
+
+        @isset($aside)
+            <div class="shrink-0 text-xs">{{ $aside }}</div>
+        @endisset
+    </div>
 
     <div class="relative">
         <input type="password"

@@ -457,6 +457,24 @@ numa caixa `relative` só em volta dele (o rótulo e a dica ficam fora). Sem
 `icon` nem `loading`, o campo sai exatamente como antes. No `cell`, os dois
 são ignorados: a célula não tem onde pô-los.
 
+## Senha: link ao lado do rótulo
+
+O `x-ui.password` tem o slot `aside`, à direita do rótulo e na mesma linha:
+
+```blade
+<x-ui.password name="password" label="Senha" required>
+    <x-slot:aside>
+        <a href="{{ route('password.request') }}" tabindex="-1" class="text-primary-600 hover:underline">Esqueci minha senha</a>
+    </x-slot:aside>
+</x-ui.password>
+```
+
+O slot vem em `text-xs`, o tamanho das dicas. O `tabindex="-1"` tira o link do
+caminho do Tab: do usuário o Tab vai direto à senha.
+
+Fora isso, as props de sempre: `name`, `label`, `required`, `hint`, `size` e
+`info` (o ícone de explicação ao lado do rótulo).
+
 ## Tabela: cabeçalho fixo e corpo endereçável
 
 ```blade
@@ -1396,6 +1414,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.13** — O `x-ui.password` ganha o slot `aside`, à direita do
+  rótulo, na mesma linha — para o "Esqueci minha senha" do login — e a prop
+  `info`. O rótulo passa a ser o `x-ui.field-label`, como nos outros campos.
 - **1.11.12** — Animação `animate-entrar` (sobe 12 px com fade, 300 ms),
   para o bloco que chega com a página — o cartão das telas de login e
   cadastro. Nasceu no meu-sistema2 e veio para cá para os outros projetos

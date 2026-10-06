@@ -1460,6 +1460,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.16** — O `x-ui.number` lê `data-min`, `data-max` e `data-step` na
+  hora de usar, e não só ao montar: a tela pode mudar os limites depois. O
+  campo de parcelas nascia com máximo 1 (nenhuma forma escolhida) e o + não
+  passava de 1 depois de escolher o cartão.
 - **1.11.15** — O menu do usuário abre com o cartão da conta: o círculo das
   iniciais, o nome com o papel num selo (prop `role`), o e-mail e o slot
   `meta`; com `logout`, o "Sair" ganha uma linha antes.

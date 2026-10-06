@@ -90,10 +90,17 @@ function montar(campo) {
 
     campo.dataset.numeroLigado = '1';
 
-    const min = limite(campo.dataset.min);
-    const max = limite(campo.dataset.max);
-    const step = Math.abs(limite(campo.dataset.step) ?? 1) || 1;
-    const negativo = min === null || min < 0;
+    /*
+     * Os limites lidos na hora de usar, e não ao montar: a tela pode
+     * mudá-los depois (`data-min`, `data-max`, `data-step`) — o máximo de
+     * parcelas muda com a forma de pagamento escolhida. Lidos uma vez só,
+     * o campo que nasceu com máximo 1 nunca passava de 1.
+     */
+    const limites = () => ({
+        min: limite(campo.dataset.min),
+        max: limite(campo.dataset.max),
+        step: Math.abs(limite(campo.dataset.step) ?? 1) || 1,
+    });
 
     /*
      * `data-nullable`: o vazio é um estado, e não um número por escrever
@@ -118,11 +125,13 @@ function montar(campo) {
 
     const somar = (sentido) => {
         if (! travado()) {
-            gravar(somarPasso(campo.value, sentido, { min, max, step, anulavel }));
+            gravar(somarPasso(campo.value, sentido, { ...limites(), anulavel }));
         }
     };
 
     campo.addEventListener('input', () => {
+        const { min } = limites();
+        const negativo = min === null || min < 0;
         const limpo = limparDigitado(campo.value, negativo);
 
         if (limpo === campo.value) {
@@ -139,6 +148,8 @@ function montar(campo) {
     // Ao sair, o valor volta para dentro dos limites, e o vazio vira o mínimo (se houver) — ou fica vazio, no anulável.
     campo.addEventListener('blur', () => {
         if (! travado()) {
+            const { min, max } = limites();
+
             gravar(ajustar(campo.value, { min, max }) ?? (anulavel ? null : min));
         }
     });

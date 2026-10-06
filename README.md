@@ -135,6 +135,27 @@ essa cada projeto aplica no próprio arquivo.
 A barra lateral é desenhada duas vezes pelo layout (fixa no computador, gaveta
 no celular): o que tiver `id` dentro dela precisa de um por desenho.
 
+### Menu do usuário
+
+O `x-ui.user-menu` abre com o cartão da conta: o círculo das iniciais, o nome,
+o papel num selo (`role`), o e-mail e o slot `meta` (o que mais identifica a
+pessoa). O slot principal entra abaixo do cartão, em grupos separados por
+`x-ui.dropdown-separator`:
+
+```blade
+<x-ui.user-menu :name="$user->name" :email="$user->email" role="Proprietário" width="w-80">
+    <x-slot:meta>Usuário: {{ $user->username }}</x-slot:meta>
+
+    <x-ui.dropdown-separator />
+    {{-- … a loja em que se está … --}}
+
+    <x-ui.dropdown-separator />
+    <x-ui.dropdown-item icon="settings" href="/configuracoes">Configurações</x-ui.dropdown-item>
+</x-ui.user-menu>
+```
+
+Com `logout`, o "Sair" vem no fim, depois de uma linha.
+
 ### Barra lateral recolhível
 
 O `<x-ui.sidebar-toggle drawer="menu-painel" />`, no slot `start` da barra
@@ -1439,6 +1460,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.15** — O menu do usuário abre com o cartão da conta: o círculo das
+  iniciais, o nome com o papel num selo (prop `role`), o e-mail e o slot
+  `meta`; com `logout`, o "Sair" ganha uma linha antes.
 - **1.11.14** — Número decimal: o `x-ui.decimal`, com `scale` casas (0 a
   4) e sufixo, digitado como calculadora — o peso em kg (`:scale="3"`
   `suffix="kg"`: "840" é 0,840). As contas do `money.js` aceitam o número de

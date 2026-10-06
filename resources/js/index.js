@@ -22,6 +22,7 @@ import { ligarPeriodos } from './date-range.js';
 import { ligarDinheiro } from './money.js';
 import { ligarNumeros } from './number.js';
 import { ligarPercentuais } from './percent.js';
+import { ligarDecimais } from './decimal.js';
 import { ligarAfixos } from './affix.js';
 import { ligarDicas } from './tooltip.js';
 import { ligarCopiar, ligarImprimir } from './copy.js';
@@ -58,6 +59,7 @@ export { ligarPeriodos } from './date-range.js';
 export { formatarCentavos, textoDeCentavos, reais, centavosColados, centavosDe, decimalDeCentavos, lerDigitado, ligarDinheiro } from './money.js';
 export { ajustar, somarPasso, limparDigitado, ligarNumeros } from './number.js';
 export { centesimosDe, decimalDePercentual, centesimosColados, ligarPercentuais } from './percent.js';
+export { ligarDecimais } from './decimal.js';
 export { ligarAfixos, anuncioDoAfixo } from './affix.js';
 export { ligarDicas } from './tooltip.js';
 export { ligarCopiar, ligarImprimir } from './copy.js';
@@ -107,6 +109,7 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarDinheiro();
     ligarNumeros();
     ligarPercentuais();
+    ligarDecimais();
     // O símbolo clicável do money e do percent (`ui:afixo`).
     ligarAfixos();
     ligarDicas();

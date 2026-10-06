@@ -9,17 +9,25 @@
  * e a vírgula anda sozinha — 19990 vira "199,90".
  *
  * O percentual (<x-ui.percent>, percent.js) se digita do mesmo jeito,
- * em centésimos: por isso a montagem do campo é uma só, aqui
- * (`montarCampoEmCentavos`), e cada um entra com as suas regras.
+ * em centésimos, e o decimal (<x-ui.decimal>, decimal.js) com as casas
+ * que pedir — 3 no peso em kg: "840" vira "0,840". Por isso a montagem
+ * do campo é uma só, aqui (`montarCampoEmCentavos`), e cada um entra com
+ * as suas regras.
+ *
+ * **`casas`: quantas casas a tela mostra.** São 2 no dinheiro e no
+ * percentual (o padrão de todas as funções abaixo, que continuam iguais
+ * para eles); "centavos" é, em geral, o número em unidades da última
+ * casa — milésimos, com 3.
  */
 
 const REAIS = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-/** Centavos (inteiro) → "1.500,00", sem o símbolo e sem o sinal. */
-export function formatarCentavos(centavos) {
-    const texto = String(Math.abs(Math.trunc(centavos))).padStart(3, '0');
+/** Centavos (inteiro) → "1.500,00", sem o símbolo e sem o sinal; com 3 casas, 1500 → "1,500". */
+export function formatarCentavos(centavos, casas = 2) {
+    const texto = String(Math.abs(Math.trunc(centavos))).padStart(casas + 1, '0');
+    const inteiros = (casas > 0 ? texto.slice(0, -casas) : texto).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-    return texto.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + texto.slice(-2);
+    return casas > 0 ? inteiros + ',' + texto.slice(-casas) : inteiros;
 }
 
 /**
@@ -29,8 +37,8 @@ export function formatarCentavos(centavos) {
  * número: o campo mostra "-" sozinho, ou "-0,00", esperando os dígitos,
  * quando o valor ainda não tem sinal nenhum.
  */
-export function textoDeCentavos(centavos, negativo = centavos < 0) {
-    return (negativo ? '-' : '') + (centavos === null || centavos === undefined ? '' : formatarCentavos(centavos));
+export function textoDeCentavos(centavos, negativo = centavos < 0, casas = 2) {
+    return (negativo ? '-' : '') + (centavos === null || centavos === undefined ? '' : formatarCentavos(centavos, casas));
 }
 
 /** Valor em reais (número ou `"1500.00"`) → "R$ 1.500,00". */
@@ -46,7 +54,7 @@ export function reais(valor) {
  * como o `number_format` do PHP (`"3.9550"` → 396), e o resto das casas
  * de um custo (`"3.9505"`) não conta: a tela mostra centavos.
  */
-export function centavosDe(decimal) {
+export function centavosDe(decimal, casas = 2) {
     const texto = String(decimal ?? '').trim();
     const partes = /^([-+]?)(\d*)(?:\.(\d*))?$/.exec(texto);
 
@@ -54,11 +62,11 @@ export function centavosDe(decimal) {
         // O que não é um decimal simples (`1e3`, de outro script) ainda passa pelo Number.
         const numero = texto === '' ? Number.NaN : Number(texto);
 
-        return Number.isFinite(numero) ? Math.round(numero * 100) : null;
+        return Number.isFinite(numero) ? Math.round(numero * 10 ** casas) : null;
     }
 
     const [, sinal, inteiros, decimais = ''] = partes;
-    const centavos = Number((inteiros || '0') + decimais.padEnd(2, '0').slice(0, 2)) + (decimais[2] >= '5' ? 1 : 0);
+    const centavos = Number((inteiros || '0') + decimais.padEnd(casas, '0').slice(0, casas)) + (decimais[casas] >= '5' ? 1 : 0);
 
     return sinal === '-' && centavos !== 0 ? -centavos : centavos;
 }
@@ -70,14 +78,16 @@ export function centavosDe(decimal) {
  * Com inteiros, como o centavosDe: o que se digita é sempre centavos, e
  * as casas a mais do custo entram como zeros.
  */
-export function decimalDeCentavos(centavos, escala = 2) {
+export function decimalDeCentavos(centavos, escala = 2, casas = 2) {
     if (centavos === null || centavos === undefined) {
         return '';
     }
 
-    const texto = String(Math.abs(Math.trunc(centavos))).padStart(3, '0');
+    const texto = String(Math.abs(Math.trunc(centavos))).padStart(casas + 1, '0');
+    const inteiros = casas > 0 ? texto.slice(0, -casas) : texto;
+    const decimais = (casas > 0 ? texto.slice(-casas) : '') + '0'.repeat(Math.max(0, escala - casas));
 
-    return (centavos < 0 ? '-' : '') + texto.slice(0, -2) + '.' + texto.slice(-2) + '0'.repeat(Math.max(0, escala - 2));
+    return (centavos < 0 ? '-' : '') + inteiros + (decimais === '' ? '' : '.' + decimais);
 }
 
 /** 10 dígitos: as colunas são decimal(10,2), até 99.999.999,99. */
@@ -91,14 +101,15 @@ const MAXIMO_DE_DIGITOS = 10;
  * último ponto ou vírgula só é decimal se vier seguido de 1 ou 2 dígitos;
  * com 3, é separador de milhar ("1.500").
  */
-export function centavosColados(colado) {
+export function centavosColados(colado, casas = 2) {
     const texto = String(colado).replace(/[^\d.,]/g, '');
     const separador = Math.max(texto.lastIndexOf(','), texto.lastIndexOf('.'));
     const decimais = separador === -1 ? '' : texto.slice(separador + 1);
-    const temDecimais = decimais.length === 1 || decimais.length === 2;
+    // Com 3 casas (o peso), "1,500" é decimal: 1,5 kg, e não mil e quinhentos.
+    const temDecimais = decimais.length >= 1 && decimais.length <= casas;
 
     const inteiros = (temDecimais ? texto.slice(0, separador) : texto).replace(/\D/g, '');
-    const digitos = (inteiros + (temDecimais ? decimais.padEnd(2, '0') : '00')).replace(/^0+/, '');
+    const digitos = (inteiros + (temDecimais ? decimais.padEnd(casas, '0') : '0'.repeat(casas))).replace(/^0+/, '');
 
     if (inteiros === '' && ! temDecimais) {
         return null;
@@ -141,8 +152,9 @@ export function lerDigitado(texto, { zero = false, negativo = false, apagando = 
  * É o miolo do valor em reais e do percentual (percent.js), que só
  * diferem nas `regras`:
  *
+ * - `casas`: as casas que a tela mostra e que se digitam (2; 3 no peso).
  * - `escala`: as casas do valor gravado no nativo (2, ou 4 no custo e no
- *   percentual). A tela mostra sempre 2.
+ *   percentual); nunca menos que `casas`.
  * - `zero`, `negativo`: ver lerDigitado.
  * - `teto`, `piso`: os limites, em centavos; a tecla que passaria deles
  *   não entra. Só o que se pode barrar durante a digitação: um mínimo
@@ -155,7 +167,9 @@ export function lerDigitado(texto, { zero = false, negativo = false, apagando = 
  * não como os `3,95` que a tela mostra.
  */
 export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, regras = {}) {
-    const { escala = 2, zero = false, negativo = false, teto = null, piso = null, colar = centavosColados } = regras;
+    const { casas = 2, zero = false, negativo = false, teto = null, piso = null } = regras;
+    const escala = Math.max(regras.escala ?? 2, casas);
+    const colar = regras.colar ?? ((colado) => centavosColados(colado, casas));
 
     caixa.classList.add('sr-only');
     nativo.tabIndex = -1;
@@ -199,7 +213,7 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
     let anterior = texto.value;
 
     const mostrar = (centavos, comSinal = centavos < 0) => {
-        texto.value = textoDeCentavos(centavos, comSinal);
+        texto.value = textoDeCentavos(centavos, comSinal, casas);
         mostrado = centavos;
         anterior = texto.value;
     };
@@ -209,7 +223,7 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
 
     const gravar = (centavos, comSinal) => {
         mostrar(centavos, comSinal);
-        nativo.value = decimalDeCentavos(centavos, escala);
+        nativo.value = decimalDeCentavos(centavos, escala, casas);
 
         // Quem escuta o campo (a prévia das parcelas) escuta o nativo.
         nativo.dispatchEvent(new Event('input', { bubbles: true }));
@@ -266,7 +280,7 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
     // Outro código pode gravar no nativo e disparar `change` (o modal de
     // pagamento preenche o valor): o campo visível acompanha.
     nativo.addEventListener('change', () => {
-        let centavos = centavosDe(nativo.value);
+        let centavos = centavosDe(nativo.value, casas);
 
         if (centavos === 0 && ! zero) {
             centavos = null;

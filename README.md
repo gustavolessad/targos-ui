@@ -784,6 +784,31 @@ passaria dele não entra), `min` (piso, padrão 0; abaixo de zero ou
 (padrão "%"), `affix-action`, `affix-label`. Colar aceita "3,25", "3.25", "3" e
 "3.2500".
 
+## Número decimal
+
+O `x-ui.decimal` é para o número com casas que não é dinheiro nem
+percentual: o peso em kg, uma medida fracionária. O mesmo desenho do
+`x-ui.money` e do `x-ui.percent`: se digita como calculadora, e o formulário
+recebe o decimal com ponto.
+
+```blade
+<x-ui.decimal name="net_weight_kg" label="Peso líquido" :scale="3" suffix="kg" :value="$produto->net_weight_kg" />
+```
+
+Com `:scale="3"`, digitar "840" mostra 0,840 kg e envia `0.840`; colado,
+"1,500" é 1,5 (até `scale` dígitos depois do separador são casas).
+
+| Prop | O que é |
+|---|---|
+| `scale` | As casas que a tela mostra e que vão no formulário (0 a 4; padrão 2) |
+| `prefix`, `suffix` | O símbolo antes e depois do número (`kg`, `m`, `L`) |
+| `min`, `max` | Os limites; o `max` é também o teto da digitação |
+| `allowZero` | Zero é valor (0,000); sem ele, zero esvazia o campo — o "não informado" |
+| `size` | `xs` a `lg`, ou `cell` (na célula de tabela) |
+
+Além dessas, as de todo campo: `name`, `label`, `value`, `hint`, `info`,
+`required`, `placeholder`, `id`, `remember`, `width`.
+
 ## Arquivo e imagem
 
 ```blade
@@ -1414,6 +1439,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.14** — Número decimal: o `x-ui.decimal`, com `scale` casas (0 a
+  4) e sufixo, digitado como calculadora — o peso em kg (`:scale="3"`
+  `suffix="kg"`: "840" é 0,840). As contas do `money.js` aceitam o número de
+  casas (`casas`, 2 por padrão), e o dinheiro e o percentual continuam
+  iguais.
 - **1.11.13** — O `x-ui.password` ganha o slot `aside`, à direita do
   rótulo, na mesma linha — para o "Esqueci minha senha" do login — e a prop
   `info`. O rótulo passa a ser o `x-ui.field-label`, como nos outros campos.

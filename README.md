@@ -1477,6 +1477,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.18** — O `x-ui.avatar-cell` quebra o nome longo em vez de cortá-lo:
+  numa tabela, o corte sem largura definida esticava a coluna.
 - **1.11.17** — A barra lateral no celular ganha a gaveta própria,
   `x-ui.sidebar-drawer` (largura fixa, sem cabeçalho; o modelo do layout já a
   usa). O `x-ui.page-header` põe o caminho à direita, em `text-xs`, com as

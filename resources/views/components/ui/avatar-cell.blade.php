@@ -17,20 +17,21 @@
     segunda linha vai no slot.
 
     O link no nome dá o clique do meio, o "abrir em nova aba" e o caminho
-    de quem usa teclado.
+    de quem usa teclado. O nome longo quebra a linha, e não é cortado: na
+    tabela, cortar sem largura definida esticaria a coluna em vez de cortar.
 --}}
 <div {{ $attributes->class(['flex items-center gap-2.5']) }}>
     <x-ui.avatar :name="$name" :src="$src" :size="$size" />
 
     <div class="min-w-0">
         @if ($href !== null)
-            <a href="{{ $href }}" class="block truncate font-medium text-neutral-900 hover:underline dark:text-white">{{ $name }}</a>
+            <a href="{{ $href }}" class="block font-medium text-neutral-900 hover:underline dark:text-white">{{ $name }}</a>
         @else
-            <span class="block truncate font-medium text-neutral-900 dark:text-white">{{ $name }}</span>
+            <span class="block font-medium text-neutral-900 dark:text-white">{{ $name }}</span>
         @endif
 
         @if ($caption !== null && $caption !== '')
-            <span class="block truncate text-xs text-neutral-500 dark:text-neutral-400">{{ $caption }}</span>
+            <span class="block text-xs text-neutral-500 dark:text-neutral-400">{{ $caption }}</span>
         @endif
 
         {{ $slot }}

@@ -3,7 +3,7 @@
     'src' => null,
     /** O nome da pessoa: o `alt` da foto, e de onde saem as iniciais. */
     'name' => '',
-    /** `sm` (32px), `md` (40px), `lg` (64px) ou `xl` (96px). */
+    /** `xs` (24px, nas listagens), `sm` (32px), `md` (40px), `lg` (64px) ou `xl` (96px). */
     'size' => 'md',
     /** `primary` (padrão) ou `danger` — a pessoa com uma pendência a destacar. */
     'color' => 'primary',
@@ -17,6 +17,7 @@
      * parece imagem quebrada; as iniciais parecem escolha.
      */
     $tamanhos = [
+        'xs' => 'size-6 text-[10px]',
         'sm' => 'size-8 text-xs',
         'md' => 'size-10 text-sm',
         'lg' => 'size-16 text-lg',

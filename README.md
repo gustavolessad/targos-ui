@@ -167,6 +167,11 @@ pintura pelo `<x-ui.theme-script />`.
   é a largura: `w-64 recolhida:w-16` na barra e `lg:ps-64 recolhida:ps-16` no
   conteúdo (o modelo `layouts/panel` já vem assim).
 - O slot `symbol` do `x-ui.sidebar` recebe o logo reduzido.
+- No celular, a barra mora num `<x-ui.sidebar-drawer id="menu-painel">`: a
+  mesma barra deslizando da esquerda, com largura fixa (`w-72`, nunca mais de
+  85% da tela), um X discreto no canto e o fundo escuro que fecha ao toque.
+  Não use `x-ui.offcanvas` para o menu: aquela é a gaveta de cadastro, com
+  cabeçalho, recuo e tela cheia no celular.
 - Recolhida, o nome de cada item aparece numa dica à direita, e o grupo abre
   um menu com os itens dele ao passar o mouse.
 - A variante `recolhida:` serve a qualquer classe (`recolhida:hidden`,
@@ -277,8 +282,9 @@ aviso de "Alterações não salvas".
 ```
 
 Props: `title`, `subtitle`, `back` (o "Voltar", antes das ações) e
-`breadcrumbs` (`[[rótulo, url], …]`, o último sem url). O slot recebe as ações,
-à direita. O slot `aside` fica ao lado do título, na linha dele: os selos e
+`breadcrumbs` (`[[rótulo, url], …]`, o último sem url). O caminho fica à
+direita, pequeno (`text-xs`), e as ações embaixo dele; o título fica sozinho à
+esquerda. O slot recebe as ações. O slot `aside` fica ao lado do título, na linha dele: os selos e
 chips que dizem o estado do que a tela mostra. Centrados na altura do título;
 quando não cabem (no celular), quebram para baixo dele. O envelope do `aside`
 leva `data-cabecalho-selos` e aceita classes (`<x-slot:aside class="ms-1">`).
@@ -495,6 +501,17 @@ caminho do Tab: do usuário o Tab vai direto à senha.
 
 Fora isso, as props de sempre: `name`, `label`, `required`, `hint`, `size` e
 `info` (o ícone de explicação ao lado do rótulo).
+
+## Pessoa na listagem
+
+```blade
+<x-ui.avatar-cell :name="$cliente->name" :href="route('people.edit', $cliente)"
+                  :caption="$cliente->trade_name" />
+```
+
+O avatar (`xs`, 24px, por padrão; `size` troca) e o nome, com uma segunda
+linha opcional (`caption`) e um link opcional no nome (`href`). O que for além
+da segunda linha vai no slot. `src` põe a foto no lugar das iniciais.
 
 ## Tabela: cabeçalho fixo e corpo endereçável
 
@@ -1460,6 +1477,12 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.17** — A barra lateral no celular ganha a gaveta própria,
+  `x-ui.sidebar-drawer` (largura fixa, sem cabeçalho; o modelo do layout já a
+  usa). O `x-ui.page-header` põe o caminho à direita, em `text-xs`, com as
+  ações embaixo. O `x-ui.avatar` ganha o tamanho `xs` (24px), e o
+  `x-ui.avatar-cell` junta avatar e nome numa coluna de listagem. As células
+  da tabela ficam mais baixas (`py-2.5`).
 - **1.11.16** — O `x-ui.number` lê `data-min`, `data-max` e `data-step` na
   hora de usar, e não só ao montar: a tela pode mudar os limites depois. O
   campo de parcelas nascia com máximo 1 (nenhuma forma escolhida) e o + não

@@ -35,9 +35,9 @@
     </div>
 
     {{-- No celular a mesma barra vira gaveta, pelo botão da barra superior. --}}
-    <x-ui.offcanvas id="menu-painel" side="left" width="max-w-64" class="lg:hidden">
+    <x-ui.sidebar-drawer id="menu-painel">
         <x-admin.sidebar />
-    </x-ui.offcanvas>
+    </x-ui.sidebar-drawer>
 
     <div class="transition-[padding] duration-200 lg:ps-64 recolhida:ps-16">
         <x-ui.topbar>

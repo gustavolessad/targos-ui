@@ -282,9 +282,9 @@ aviso de "Alterações não salvas".
 ```
 
 Props: `title`, `subtitle`, `back` (o "Voltar", antes das ações) e
-`breadcrumbs` (`[[rótulo, url], …]`, o último sem url). O caminho fica à
-direita, pequeno (`text-xs`), e as ações embaixo dele; o título fica sozinho à
-esquerda. O slot recebe as ações. O slot `aside` fica ao lado do título, na linha dele: os selos e
+`breadcrumbs` (`[[rótulo, url], …]`, o último sem url). O caminho fica logo
+à direita do título, pequeno (`text-xs`) e alinhado pela base dele. O slot
+recebe as ações, na outra ponta. O slot `aside` fica ao lado do título, na linha dele: os selos e
 chips que dizem o estado do que a tela mostra. Centrados na altura do título;
 quando não cabem (no celular), quebram para baixo dele. O envelope do `aside`
 leva `data-cabecalho-selos` e aceita classes (`<x-slot:aside class="ms-1">`).
@@ -1477,6 +1477,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.11.19** — O caminho do `x-ui.page-header` fica logo à direita do título
+  (`flex items-end gap-3`), e as ações voltam sozinhas à ponta direita.
 - **1.11.18** — O `x-ui.avatar-cell` quebra o nome longo em vez de cortá-lo:
   numa tabela, o corte sem largura definida esticava a coluna.
 - **1.11.17** — A barra lateral no celular ganha a gaveta própria,

@@ -225,6 +225,25 @@ quando o formulário volta.
 Se `$clients` for uma paginação do Laravel, a tabela já mostra os links de
 página.
 
+A linha de total vai no slot `foot` — fica dentro do cartão, abaixo das
+linhas, e só aparece quando há linhas. A última linha visível é a do
+rodapé (`last`), e não a do corpo:
+
+```blade
+<x-ui.table :rows="$linhas" :headers="$cabecalhos">
+    @foreach ($linhas as $linha)
+        <x-ui.table.row>…</x-ui.table.row>
+    @endforeach
+
+    <x-slot:foot>
+        <x-ui.table.row last>
+            <x-ui.table.cell>Total</x-ui.table.cell>
+            <x-ui.table.cell align="end">R$ 1.500,00</x-ui.table.cell>
+        </x-ui.table.row>
+    </x-slot:foot>
+</x-ui.table>
+```
+
 ### Menu de ações (⋮)
 
 Numa tela de detalhe, o menu vai pronto, com os itens dentro:

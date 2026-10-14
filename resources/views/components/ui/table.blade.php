@@ -186,6 +186,19 @@
                 </tr>
             @endif
         </tbody>
+
+        {{--
+            A linha de total (`<x-slot:foot>`): dentro do cartão, logo abaixo
+            das linhas. Só aparece quando há linhas — total de nada seria um
+            zero sem sentido ao lado do aviso de vazio. Quem chama marca a
+            última linha visível (`last`) no rodapé, e não no corpo, para o
+            canto de baixo arredondar no lugar certo.
+        --}}
+        @if (isset($foot) && $temLinhas)
+            <tfoot {{ $foot->attributes->class(['border-t border-neutral-300 font-medium dark:border-neutral-700']) }}>
+                {{ $foot }}
+            </tfoot>
+        @endif
     </table>
 
 </div>

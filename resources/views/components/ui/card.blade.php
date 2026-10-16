@@ -26,6 +26,14 @@
     'href' => null,
     /** Classes do corpo, para quando ele precisa ser `flex` ou `grid`. */
     'bodyClass' => '',
+    /*
+     * O arredondamento dos cantos: `none`, `sm` (4px), `md` (6px), `lg`
+     * (8px), `xl` (12px) ou `2xl` (16px, o padrão). Prop, e não classe
+     * de fora, pelo mesmo motivo do `tone`: um `rounded-lg` passado
+     * conviveria com o `rounded-2xl` daqui, e quem venceria seria a
+     * ordem no CSS gerado. E o rodapé acompanha o canto (ver abaixo).
+     */
+    'radius' => '2xl',
 ])
 
 @php
@@ -47,6 +55,22 @@
         'xl' => 'p-5 sm:p-8',
     ];
 
+    /*
+     * O canto do card e o do rodapé, por raio. O do rodapé é o do card
+     * menos a borda (1px): com o mesmo raio, o fundo cinza dele deixaria
+     * uma fresta clara na curva. Escritos por extenso: o Tailwind só gera
+     * a classe que encontra literal no arquivo.
+     */
+    $cantos = [
+        'none' => ['rounded-none', 'rounded-b-none'],
+        'sm' => ['rounded-sm', 'rounded-b-[3px]'],
+        'md' => ['rounded-md', 'rounded-b-[5px]'],
+        'lg' => ['rounded-lg', 'rounded-b-[7px]'],
+        'xl' => ['rounded-xl', 'rounded-b-[11px]'],
+        '2xl' => ['rounded-2xl', 'rounded-b-[15px]'],
+    ];
+    [$canto, $cantoDoRodape] = $cantos[$radius] ?? $cantos['2xl'];
+
     $tag = $href ? 'a' : 'div';
 
     /*
@@ -65,7 +89,8 @@
 @endphp
 
 <{{ $tag }} @if ($href) href="{{ $href }}" @endif {{ $attributes->class([
-    'rounded-2xl border',
+    $canto,
+    'border',
     $tons[$tone] ?? $tons['raised'],
     'shadow-lg' => $elevated,
     // Clicável, a borda vai à cor de ação no hover — como o `x-ui.stat-card` com `href`.
@@ -111,14 +136,15 @@
 
     {{--
         O rodapé tem o respiro do corpo, para o conteúdo dos dois se
-        alinhar. O canto é o do card menos a borda (16 − 1 px): com o
-        mesmo raio, o fundo cinza deixaria uma fresta clara na curva.
+        alinhar. O canto é o do card menos a borda (`$cantoDoRodape`):
+        com o mesmo raio, o fundo cinza deixaria uma fresta clara na curva.
 
         O `@if` na margem é de propósito: sem rodapé, o card sai com o
         mesmo HTML de antes, sem linha em branco a mais.
     --}}
     <div @class([
-        'rounded-b-[15px] border-t border-neutral-300 bg-neutral-50 dark:border-neutral-800 dark:bg-white/5',
+        $cantoDoRodape,
+        'border-t border-neutral-300 bg-neutral-50 dark:border-neutral-800 dark:bg-white/5',
         $respiros[$padding] ?? $respiros['md'],
     ])>{{ $footer }}</div>
 @endif

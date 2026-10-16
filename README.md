@@ -642,6 +642,15 @@ destaque (o resumo de totais):
 <x-ui.card tone="success" title="Resumo">…</x-ui.card>
 ```
 
+`radius` é o arredondamento dos cantos: `none`, `sm` (4px), `md` (6px), `lg`
+(8px), `xl` (12px) ou `2xl` (16px, o padrão). Prop, e não classe: um
+`rounded-*` passado de fora conviveria com o do card, e quem venceria seria a
+ordem no CSS gerado. O rodapé (`footer`) acompanha o canto sozinho:
+
+```blade
+<x-ui.card radius="lg" title="Pagamento">…</x-ui.card>
+```
+
 ### Card de indicador
 
 ```blade

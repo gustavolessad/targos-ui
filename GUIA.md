@@ -184,6 +184,7 @@ Tamanhos: `xs`, `sm`, `md`, `lg`, `xl`, `icon`.
 <x-ui.select name="state" label="Estado" :options="['SC' => 'Santa Catarina', 'SP' => 'São Paulo']" />
 <x-ui.money name="amount" label="Valor" />
 <x-ui.date name="due_date" label="Vencimento" />
+<x-ui.time name="start_time" label="Início" />
 <x-ui.toggle name="active" label="Ativo" :checked="true" />
 <x-ui.checkbox name="terms" label="Li e aceito" />
 ```

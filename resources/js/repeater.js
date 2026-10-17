@@ -18,6 +18,7 @@
 import { ligarMascaras } from './masks.js';
 import { ligarSeletores } from './select.js';
 import { ligarDatas } from './date.js';
+import { ligarHoras } from './time.js';
 import { ligarPeriodos } from './date-range.js';
 import { ligarDinheiro } from './money.js';
 import { ligarNumeros } from './number.js';
@@ -141,7 +142,7 @@ function atualizar(envelope) {
 
 /*
  * Os campos do pacote numa linha que acabou de nascer. Na ordem do
- * `ligarUi()`: a máscara antes da data, que usa uma no campo digitável.
+ * `ligarUi()`: a máscara antes da data e da hora, que usam uma no campo digitável.
  *
  * Depois de a linha entrar na página, não antes: o campo sem pontuação
  * acha o escondido pelo `id` no documento, e o select mede a tela.
@@ -150,6 +151,7 @@ function ligarCampos(linha) {
     ligarMascaras(linha);
     ligarSeletores(linha);
     ligarDatas(linha);
+    ligarHoras(linha);
     ligarDinheiro(linha);
     ligarNumeros(linha);
     ligarPercentuais(linha);

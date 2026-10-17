@@ -856,6 +856,37 @@ Com `:scale="3"`, digitar "840" mostra 0,840 kg e envia `0.840`; colado,
 Além dessas, as de todo campo: `name`, `label`, `value`, `hint`, `info`,
 `required`, `placeholder`, `id`, `remember`, `width`.
 
+## Hora
+
+O `x-ui.time` é a hora com o mesmo desenho do `x-ui.date`: um campo `hh:mm`
+digitável e, no clique, o painel na caixa do calendário (flutuante no
+computador, folha por baixo no celular), com duas colunas que rolam cada
+uma — Hora e Minuto — e o rodapé "Agora" e "Limpar".
+
+```blade
+<x-ui.time name="start_time" label="Início" required />
+<x-ui.time name="end_time" label="Fim" min="08:00" max="20:00" :step="15" />
+```
+
+O formulário recebe `HH:mm` do `<input type="time">` nativo, que continua
+sendo o campo de verdade (`old()`, `required`, `min`/`max`, o `change`) e
+aparece sozinho sem JS. O `value` aceita `14:30`, `14:30:00` (a coluna `time`
+do banco) ou uma data.
+
+No painel, clicar na hora grava já se o minuto também está escolhido e deixa
+o painel aberto; clicar no minuto grava e fecha. Ao abrir sem hora, a coluna
+das horas rola até a hora do relógio. ↑ e ↓ andam na coluna, ← e → trocam de
+coluna.
+
+| Prop | O que é |
+|---|---|
+| `step` | De quantos em quantos minutos a coluna anda (padrão 5). Digitado, vale qualquer minuto |
+| `min`, `max` | `HH:mm`, inclusive. O que fica fora sai riscado no painel e não se aceita digitado. Lidos em `data-min` e `data-max` na hora de usar: a tela pode mudá-los depois |
+| `size` | `xs` a `lg` |
+
+Além dessas, as de todo campo: `name`, `label`, `value`, `hint`, `info`,
+`required`, `placeholder`, `id`, `remember`.
+
 ## Arquivo e imagem
 
 ```blade
@@ -1341,7 +1372,7 @@ e `valorLimpo(valor, mascara)` devolve o valor sem pontuação.
 
 ## Nomes com colchete, `id` próprio e atributos no campo
 
-Todo campo (`input`, `money`, `number`, `percent`, `date`, `date-range`,
+Todo campo (`input`, `money`, `number`, `percent`, `date`, `time`, `date-range`,
 `select`, `textarea`, `toggle`, `checkbox`, `radio-group`, `file`, `image`)
 aceita nome de lista, o das linhas repetidas:
 
@@ -1486,6 +1517,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.12.0** — `x-ui.time`: a hora com o desenho do `x-ui.date`, o campo
+  `hh:mm` digitável e o painel de duas colunas (hora e minuto), com `step`,
+  `min` e `max`. Entra no `ligarUi()` (`ligarHoras`), nas linhas repetidas e
+  no envelope do erro escrito pelo JS (`[data-horario]`).
 - **1.11.19** — O caminho do `x-ui.page-header` fica logo à direita do título
   (`flex items-end gap-3`), e as ações voltam sozinhas à ponta direita.
 - **1.11.18** — O `x-ui.avatar-cell` quebra o nome longo em vez de cortá-lo:

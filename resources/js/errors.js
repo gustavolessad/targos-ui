@@ -7,7 +7,8 @@
  * desenho, no mesmo lugar, e vem daqui.
  *
  * O `<p data-erro-js>` entra no fim do envelope do campo (o `.group`
- * do input, o `[data-dinheiro]` do valor, o `[data-data]` da data…),
+ * do input, o `[data-dinheiro]` do valor, o `[data-data]` da data, o
+ * `[data-horario]` da hora…),
  * que é onde o Blade põe o dele.
  */
 
@@ -22,7 +23,7 @@ export function nomeHtml(chave) {
 
 /** O envelope de um campo: a caixa que o Blade desenhou em volta dele. */
 export function envelopeDe(campo) {
-    return campo.closest('[data-dinheiro], [data-data], [data-periodo], [data-seletor], [data-numero], [data-percentual], .group')
+    return campo.closest('[data-dinheiro], [data-data], [data-horario], [data-periodo], [data-seletor], [data-numero], [data-percentual], .group')
         ?? campo.parentElement;
 }
 

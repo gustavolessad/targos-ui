@@ -187,6 +187,7 @@ Tamanhos: `xs`, `sm`, `md`, `lg`, `xl`, `icon`.
 <x-ui.time name="start_time" label="Início" />
 <x-ui.toggle name="active" label="Ativo" :checked="true" />
 <x-ui.checkbox name="terms" label="Li e aceito" />
+<x-ui.radio name="plan" value="anual" label="Anual" />
 ```
 
 Os campos já mostram o erro de validação embaixo e guardam o que foi digitado

@@ -603,6 +603,26 @@ marcada ou não: o servidor mantém o que já tinha para ela. Por isso, quando o
 formulário volta com erro, ela continua como o `selected` diz — o `old()` nada
 sabe dela.
 
+## Rádio
+
+```blade
+<x-ui.radio name="aplicar" value="" label="Só nesta variação" size="sm" checked />
+<x-ui.radio name="aplicar" value="12" size="sm">
+    Em todas com <strong>Preto</strong>
+</x-ui.radio>
+```
+
+Um rádio com o rótulo ao lado, para a lista de escolhas em coluna, onde cada
+opção é uma frase — o `x-ui.radio-group`, de botões lado a lado, é para as
+escolhas curtas. Tem os tamanhos (`xs`, `sm`, `md`, `lg`) e as cores
+(`primary`, `success`) do `x-ui.checkbox`, `hint` embaixo e `form`; o slot,
+quando há, vale no lugar do `label`, para o rótulo com destaque dentro.
+
+Sem `id`, ele sai do nome e do valor (`aplicar-12`): os rádios de um grupo
+têm o mesmo nome, e só o valor os separa. Quando o formulário volta com erro,
+marcado é o que voltou no `old()` (`remember`, como nos outros campos). O erro
+é do grupo, e a tela o mostra uma vez (`@error('aplicar')`).
+
 ## Selo
 
 ```blade
@@ -1373,7 +1393,7 @@ e `valorLimpo(valor, mascara)` devolve o valor sem pontuação.
 ## Nomes com colchete, `id` próprio e atributos no campo
 
 Todo campo (`input`, `money`, `number`, `percent`, `date`, `time`, `date-range`,
-`select`, `textarea`, `toggle`, `checkbox`, `radio-group`, `file`, `image`)
+`select`, `textarea`, `toggle`, `checkbox`, `radio`, `radio-group`, `file`, `image`)
 aceita nome de lista, o das linhas repetidas:
 
 ```blade
@@ -1394,6 +1414,7 @@ o mesmo campo (o modal de criar e o de editar). O rótulo aponta para ele:
 - No `date-range`, o `id` é o do início, e o fim fica com `{id}-fim`.
 - No `checkbox`, sem `id` ele sai do nome e do valor (`items-0-active-1`). No
   `bare` só há `id` quando é passado.
+- No `radio`, também do nome e do valor (`items-0-tipo-pj`).
 - No `radio-group`, o `id` vai no contorno das opções.
 
 **Atributos no campo nativo.** Em `money`, `date` e `date-range`, `form`,
@@ -1410,7 +1431,7 @@ o campo digitável fica desligado também.
 asterisco do `required`), e o parágrafo do `hint` leva `data-campo-dica` — em
 `input`, `number`, `money`, `percent`, `select`, `textarea`, `date`,
 `date-range`, `password`, `file`, `image`, `toggle`, `checkbox`,
-`checkbox-group` e `radio-group`. É para o script trocar o texto sem mexer na
+`checkbox-group`, `radio` e `radio-group`. É para o script trocar o texto sem mexer na
 estrutura:
 
 ```js
@@ -1517,6 +1538,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.13.0** — `x-ui.radio`: o rádio avulso, com o rótulo ao lado (ou no
+  slot), os tamanhos e as cores do `x-ui.checkbox`, `hint` e o `id` do nome e
+  do valor. Para a lista de escolhas em coluna; o `x-ui.radio-group` segue
+  para os botões lado a lado.
 - **1.12.0** — `x-ui.time`: a hora com o desenho do `x-ui.date`, o campo
   `hh:mm` digitável e o painel de duas colunas (hora e minuto), com `step`,
   `min` e `max`. Entra no `ligarUi()` (`ligarHoras`), nas linhas repetidas e

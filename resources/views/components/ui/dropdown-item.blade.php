@@ -15,8 +15,12 @@
     ];
 @endphp
 
+{{--
+    `data-item-menu` marca o item comum (não o de exclusão): o
+    `x-ui.user-menu` o desenha com o peso e a cor da barra lateral.
+--}}
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->class($classes) }}>
+    <a href="{{ $href }}" @unless ($danger) data-item-menu @endunless {{ $attributes->class($classes) }}>
         @if ($icon)
             <x-ui.icon :name="$icon" class="size-3.5 shrink-0" />
         @endif
@@ -25,7 +29,7 @@
     </a>
 @else
     {{-- `type="submit"` para o item que é a ação de um formulário, como sair. --}}
-    <button type="{{ $type }}" {{ $attributes->class($classes) }}>
+    <button type="{{ $type }}" @unless ($danger) data-item-menu @endunless {{ $attributes->class($classes) }}>
         @if ($icon)
             <x-ui.icon :name="$icon" class="size-3.5 shrink-0" />
         @endif

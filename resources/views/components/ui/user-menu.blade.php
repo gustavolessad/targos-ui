@@ -53,12 +53,21 @@
         </span>
     </button>
 
+    {{--
+        Os itens do menu com o peso e a cor dos da barra lateral (o texto
+        `font-medium` em `neutral-900`, o ícone em `neutral-500`): a conta é
+        navegação, como a barra. Pelo `data-item-menu` do item, e não por
+        classe passada a cada um — vale também para os itens do slot.
+    --}}
     <div id="menu-usuario" data-menu
          class="absolute end-0 z-30 mt-1.5 hidden {{ $width }} max-w-[calc(100vw-2rem)] origin-top-right rounded-xl
                 bg-white p-1 shadow-lg ring-1 ring-neutral-200
                 dark:bg-neutral-900 dark:ring-neutral-800
                 scale-95 opacity-0 transition duration-150 ease-out
-                [&[data-aberto]]:scale-100 [&[data-aberto]]:opacity-100">
+                [&[data-aberto]]:scale-100 [&[data-aberto]]:opacity-100
+                [&_[data-item-menu]]:font-medium [&_[data-item-menu]]:text-neutral-900
+                dark:[&_[data-item-menu]]:text-white
+                [&_[data-item-menu]_svg]:text-neutral-500 dark:[&_[data-item-menu]_svg]:text-neutral-400">
         {{-- O cartão da conta: no celular o botão mostra só o círculo, e é aqui que o nome aparece. --}}
         <div class="flex items-center gap-3 px-2.5 py-2.5" data-conta-usuario>
             <span aria-hidden="true"

@@ -156,6 +156,10 @@ pessoa). O slot principal entra abaixo do cartão, em grupos separados por
 
 Com `logout`, o "Sair" vem no fim, depois de uma linha.
 
+Os itens do menu (os do slot e o "Sair") têm o peso e a cor da barra lateral:
+o texto em `font-medium`, `neutral-900` (branco no tema escuro), e o ícone em
+`neutral-500`. O item `danger` continua vermelho.
+
 ### Barra lateral recolhível
 
 O `<x-ui.sidebar-toggle drawer="menu-painel" />`, no slot `start` da barra
@@ -1538,6 +1542,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.13.1** — Os itens do `x-ui.user-menu` (os do slot e o "Sair") ficam com
+  o peso e a cor da barra lateral: texto `font-medium` em `neutral-900` (branco
+  no escuro), ícone em `neutral-500`. O `x-ui.dropdown-item` comum ganha o
+  `data-item-menu`, que o menu do usuário usa; os outros menus não mudam.
 - **1.13.0** — `x-ui.radio`: o rádio avulso, com o rótulo ao lado (ou no
   slot), os tamanhos e as cores do `x-ui.checkbox`, `hint` e o `id` do nome e
   do valor. Para a lista de escolhas em coluna; o `x-ui.radio-group` segue

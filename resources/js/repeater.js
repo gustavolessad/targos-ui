@@ -19,6 +19,7 @@ import { ligarMascaras } from './masks.js';
 import { ligarSeletores } from './select.js';
 import { ligarDatas } from './date.js';
 import { ligarHoras } from './time.js';
+import { ligarCores } from './color.js';
 import { ligarPeriodos } from './date-range.js';
 import { ligarDinheiro } from './money.js';
 import { ligarNumeros } from './number.js';
@@ -152,6 +153,7 @@ function ligarCampos(linha) {
     ligarSeletores(linha);
     ligarDatas(linha);
     ligarHoras(linha);
+    ligarCores(linha);
     ligarDinheiro(linha);
     ligarNumeros(linha);
     ligarPercentuais(linha);

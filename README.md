@@ -911,6 +911,46 @@ coluna.
 Além dessas, as de todo campo: `name`, `label`, `value`, `hint`, `info`,
 `required`, `placeholder`, `id`, `remember`.
 
+## Cor
+
+O `x-ui.color` é a cor: um campo com o código (`#rrggbb`) e a amostra à
+esquerda e, no clique, o painel na caixa do calendário (flutuante no
+computador, folha por baixo no celular) — a área de saturação e brilho, a
+barra do matiz e, com `alpha`, a da opacidade.
+
+```blade
+<x-ui.color name="primary_color" label="Cor principal" value="#16a34a" required />
+<x-ui.color name="bar_background" label="Fundo da faixa" alpha
+            :swatches="['#16a34a', '#171717', '#fafafa']" />
+```
+
+O campo de texto é o campo do formulário: vai em minúsculas, `#rrggbb`, e com
+`alpha` em `#rrggbbaa` quando a opacidade é menor que 100% — a cor cheia sai
+com seis dígitos, a mesma de quem não usa transparência. Sem JS, continua
+digitável, com a amostra desenhada pelo servidor. O `value` aceita `#abc`,
+`aabbcc` e maiúsculas; ao sair do campo, o digitado fica escrito do jeito do
+campo (`#ABC` → `#aabbcc`), e o que não é cor volta ao último válido.
+
+No painel, arrastar grava a cada movimento (o `input`, para a prévia da tela
+acompanhar) e, ao soltar, o `change`. A área e as barras são `role="slider"`:
+as setas andam 1%, com Shift 10% — na área, ← e → são a saturação, ↑ e ↓ o
+brilho —, e Home e End vão às pontas das barras. No rodapé, o "Conta-gotas"
+(onde o navegador tem: Chrome e Edge, no computador) e o "Limpar" (fora do
+`required`).
+
+| Prop | O que é |
+|---|---|
+| `alpha` | A barra de opacidade e o código de oito dígitos. O xadrez aparece por trás da cor transparente, na amostra e na barra |
+| `swatches` | Cores prontas no painel, um clique cada. As que não forem cor ficam de fora |
+| `size` | `xs` a `lg` |
+
+Além dessas, as de todo campo: `name`, `label`, `value`, `hint`, `info`,
+`required`, `placeholder`, `id`, `remember`.
+
+Para conferir ou converter fora do componente, o `index.js` exporta
+`lerCor(texto, { alfa })` (`{ r, g, b, a }` ou `null`), `hexDe(cor, { alfa })`,
+`normalizarCor(texto, { alfa })`, `rgbParaHsv` e `hsvParaRgb`.
+
 ## Arquivo e imagem
 
 ```blade
@@ -1396,7 +1436,7 @@ e `valorLimpo(valor, mascara)` devolve o valor sem pontuação.
 
 ## Nomes com colchete, `id` próprio e atributos no campo
 
-Todo campo (`input`, `money`, `number`, `percent`, `date`, `time`, `date-range`,
+Todo campo (`input`, `money`, `number`, `percent`, `date`, `time`, `color`, `date-range`,
 `select`, `textarea`, `toggle`, `checkbox`, `radio`, `radio-group`, `file`, `image`)
 aceita nome de lista, o das linhas repetidas:
 
@@ -1542,6 +1582,12 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.14.0** — `x-ui.color`: a cor, com o campo `#rrggbb` digitável e a
+  amostra, e o painel na caixa do calendário — área de saturação e brilho,
+  barra do matiz e, com `alpha`, a da opacidade (`#rrggbbaa`) —, as cores
+  prontas (`swatches`), o conta-gotas e o "Limpar". Entra no `ligarUi()`
+  (`ligarCores`), nas linhas repetidas e no envelope do erro escrito pelo JS
+  (`[data-cor]`).
 - **1.13.1** — Os itens do `x-ui.user-menu` (os do slot e o "Sair") ficam com
   o peso e a cor da barra lateral: texto `font-medium` em `neutral-900` (branco
   no escuro), ícone em `neutral-500`. O `x-ui.dropdown-item` comum ganha o

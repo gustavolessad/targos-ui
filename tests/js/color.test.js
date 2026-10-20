@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { fundoDaAmostra, hexDe, hsvParaRgb, lerCor, normalizarCor, rgbParaHsv, XADREZ } from '../../resources/js/color.js';
+import { fundoDaAmostra, hexDe, hsvParaRgb, lerCor, ligarCores, normalizarCor, rgbParaHsv, XADREZ } from '../../resources/js/color.js';
 
 test('lerCor aceita #rgb e #rrggbb, com ou sem #, em qualquer caixa', () => {
     assert.deepEqual(lerCor('#16a34a'), { r: 22, g: 163, b: 74, a: 1 });
@@ -66,4 +66,26 @@ test('rgbParaHsv e hsvParaRgb vão e voltam', () => {
 test('a amostra é a cor por cima do xadrez; vazia, só o xadrez', () => {
     assert.equal(fundoDaAmostra('#16a34a80'), `linear-gradient(#16a34a80, #16a34a80), ${XADREZ}`);
     assert.equal(fundoDaAmostra(''), XADREZ);
+});
+
+test('ligarCores procura só o seletor de cor, e não o data-cor de outros componentes', () => {
+    const procurados = [];
+    // O número do x-ui.stat-card tem `data-cor` ("neutral", "positive"…), e nada de painel.
+    const numeroDoCartao = { dataset: {}, hasAttribute: () => false, querySelector: () => null };
+    const raiz = {
+        querySelectorAll(seletor) {
+            procurados.push(seletor);
+
+            return seletor === '[data-cor]' ? [numeroDoCartao] : [];
+        },
+    };
+
+    assert.doesNotThrow(() => ligarCores(raiz));
+    assert.deepEqual(procurados, ['[data-seletor-cor]']);
+});
+
+test('sem as peças do campo, o seletor de cor não se monta', () => {
+    const incompleto = { dataset: {}, hasAttribute: () => false, querySelector: () => null };
+
+    assert.doesNotThrow(() => ligarCores({ querySelectorAll: () => [incompleto] }));
 });

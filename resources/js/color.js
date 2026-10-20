@@ -176,14 +176,19 @@ function montar(raiz) {
         return;
     }
 
-    raiz.dataset.corLigada = '1';
-
-    const alfa = raiz.hasAttribute('data-cor-alfa');
-    const opcoes = { alfa };
     const texto = raiz.querySelector('[data-cor-texto]');
     const botao = raiz.querySelector('[data-cor-abrir]');
     const amostra = raiz.querySelector('[data-cor-amostra]');
     const painel = raiz.querySelector('[data-cor-painel]');
+
+    if (!texto || !botao || !amostra || !painel) {
+        return;
+    }
+
+    raiz.dataset.corLigada = '1';
+
+    const alfa = raiz.hasAttribute('data-cor-alfa');
+    const opcoes = { alfa };
     const prontas = JSON.parse(raiz.dataset.corAmostras || '[]');
 
     painel.setAttribute('aria-label', 'Escolher cor');
@@ -552,5 +557,5 @@ function montar(raiz) {
 }
 
 export function ligarCores(raiz = document) {
-    raiz.querySelectorAll('[data-cor]').forEach(montar);
+    raiz.querySelectorAll('[data-seletor-cor]').forEach(montar);
 }

@@ -86,7 +86,7 @@
 @endphp
 
 <div {{ $attributes->except($doCampo)->class(['group relative']) }}
-     data-cor
+     data-seletor-cor
      @if ($alpha) data-cor-alfa @endif
      @if ($prontas !== []) data-cor-amostras="{{ json_encode($prontas) }}" @endif>
     @if ($label)

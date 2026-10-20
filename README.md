@@ -1586,6 +1586,12 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.14.2** — O `x-ui.color` se marca com `data-seletor-cor` (era
+  `data-cor`, o mesmo atributo do número do `x-ui.stat-card`): numa tela com
+  os dois, o `ligarCores` tentava montar o seletor no número do cartão, dava
+  erro e parava o resto do `ligarUi()` — o calendário do período e os
+  gráficos não se ligavam. E o seletor não se monta quando faltam as peças
+  dele.
 - **1.14.1** — O `x-ui.button` leva a variante no próprio elemento
   (`data-variante="secondary"`): o projeto com tema próprio alcança o botão
   por ela, sem depender da lista de classes do pacote.

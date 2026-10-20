@@ -382,6 +382,10 @@ marcada do servidor.
 `size` (`xs` a `xl`, ou `icon-xs`, `icon-sm`, `icon`, `icon-lg`, `icon-xl` para o botão só de ícone: 28, 36, 40, 48 e 56px, as alturas de `xs`, `sm`, `md`, `lg` e `xl`),
 `href` (vira `<a>`) e `icon` (um ícone antes do texto; veja "Ícones").
 
+A variante vai no próprio elemento, em `data-variante` (a desconhecida sai como
+`primary`, que é o desenho que ela recebe): o projeto com tema próprio alcança
+o botão por ela — `[data-variante="secondary"]` —, sem depender das classes.
+
 `warning` é a ação que pede atenção antes de seguir, sem ser destrutiva
 (estornar, reabrir, forçar): âmbar cheio com texto escuro — o amarelo não
 aguenta texto branco —, um degrau mais claro no tema escuro. `warning-soft` é
@@ -1582,6 +1586,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.14.1** — O `x-ui.button` leva a variante no próprio elemento
+  (`data-variante="secondary"`): o projeto com tema próprio alcança o botão
+  por ela, sem depender da lista de classes do pacote.
 - **1.14.0** — `x-ui.color`: a cor, com o campo `#rrggbb` digitável e a
   amostra, e o painel na caixa do calendário — área de saturação e brilho,
   barra do matiz e, com `alpha`, a da opacidade (`#rrggbbaa`) —, as cores

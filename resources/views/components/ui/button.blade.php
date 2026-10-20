@@ -115,6 +115,13 @@
 @endphp
 
 @php
+    /*
+     * A variante no próprio botão (`data-variante="secondary"`): o projeto
+     * que tem tema próprio — as cores que o lojista escolhe na vitrine —
+     * alcança o botão por ela, sem depender da lista de classes daqui.
+     */
+    $varianteDoBotao = array_key_exists($variant, $variantes) ? $variant : 'primary';
+
     // O ícone acompanha o botão: `size-4` no comum, `size-5` no grande, `size-6` no quadrado maior e no empilhado.
     $tamanhoDoIcone = match (true) {
         in_array($size, ['icon-xl', 'stacked'], true) => 'size-6',
@@ -124,7 +131,7 @@
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$tamanhoDoIcone" />@endif{{ $slot }}</a>
+    <a href="{{ $href }}" data-variante="{{ $varianteDoBotao }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$tamanhoDoIcone" />@endif{{ $slot }}</a>
 @else
-    <button type="{{ $type }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$tamanhoDoIcone" />@endif{{ $slot }}</button>
+    <button type="{{ $type }}" data-variante="{{ $varianteDoBotao }}" {{ $attributes->class($classes) }}>@if ($icon !== null)<x-ui.icon :name="$icon" :class="$tamanhoDoIcone" />@endif{{ $slot }}</button>
 @endif

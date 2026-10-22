@@ -33,6 +33,7 @@ import { ligarConfirmacoes } from './confirm.js';
 import { ligarMenuLateral } from './nav.js';
 import { ligarBarraLateral } from './sidebar.js';
 import { ligarGraficos } from './chart.js';
+import { ligarCarregamentos } from './lazy.js';
 import { ligarRepetidores } from './repeater.js';
 import { ligarArquivos } from './file.js';
 import { ligarImagens } from './image.js';
@@ -76,6 +77,7 @@ export { ligarNaoSalvo, marcarSalvo, estaSujo, fotografia, mudou, linkAvisa, tex
 export { ligarMenuLateral } from './nav.js';
 export { ligarBarraLateral } from './sidebar.js';
 export { ligarGraficos } from './chart.js';
+export { ligarCarregamentos, carregarTrecho, resultadoDoCarregamento } from './lazy.js';
 export { ligarRepetidores, adicionarLinha, limparLinhas, substituirIndice, proximoIndice, podeRemover, podeAdicionar } from './repeater.js';
 export { tamanhoLegivel, aceita, resumoDosArquivos, conferirArquivos, ligarArquivos } from './file.js';
 export { ligarImagens, definirImagemGravada } from './image.js';
@@ -124,6 +126,8 @@ export function ligarUi(antesDosEnvios = () => {}) {
     ligarMenuLateral();
     ligarBarraLateral();
     ligarGraficos();
+    // Os trechos que chegam depois (`data-carregar`): depois dos gráficos e das dicas da página, que já estão nela.
+    ligarCarregamentos();
     ligarRepetidores();
     ligarArquivos();
     ligarImagens();

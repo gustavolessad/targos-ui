@@ -698,6 +698,64 @@ numero.dataset.cor = 'success';
 No `variant="filled"` o número fica no contraste do card, seja qual for o
 `data-cor`.
 
+Com `loading`, o card mostra o rótulo e o lugar do número, da dica e do
+gráfico (com `trend`, mesmo vazio) pulsando, nos mesmos tamanhos — o card de
+quando o número ainda vem (veja "Trecho que chega depois"). `value` não
+precisa vir:
+
+```blade
+<x-ui.stat-card label="Sessões" loading :trend="[]" :trend-height="70" />
+```
+
+## Trecho que chega depois
+
+O que é lento de calcular (a consulta a um serviço de fora) não precisa
+segurar a tela inteira: a página abre com o esqueleto no lugar, e o trecho
+vem numa requisição à parte.
+
+```blade
+<div data-carregar="{{ route('painel.visitas') }}">
+    <div class="grid gap-4 sm:grid-cols-4">
+        <x-ui.stat-card label="Sessões" loading />
+        …
+    </div>
+
+    {{-- Opcional: o desenho do aviso quando não der certo. --}}
+    <template data-carregar-erro>
+        <x-ui.alert type="warning"><span data-carregar-mensagem></span></x-ui.alert>
+    </template>
+</div>
+```
+
+- **`data-carregar="url"`**: o `ligarUi()` busca a URL por GET, com a sessão
+  (`Accept: text/html`), e o HTML da resposta substitui o conteúdo do
+  elemento. O servidor responde só o trecho, sem layout. Os gráficos, as dicas
+  e os `data-carregar` de dentro se ligam, e o elemento dispara
+  `ui:carregado` (subindo), para a tela ligar os módulos dela no que chegou.
+- **Enquanto busca**, o elemento fica `aria-busy="true"`.
+- **Quando não dá certo**, o motivo vai no lugar do esqueleto: a sessão
+  vencida (o redirecionamento para o login não entra na tela), a falta de
+  permissão, o erro do servidor, a falta de conexão. Com um
+  `<template data-carregar-erro>` dentro do elemento, a mensagem vai no
+  `[data-carregar-mensagem]` dele; sem, num parágrafo simples. O elemento
+  dispara `ui:carregamento-falhou`, com a mensagem em `detail.mensagem`.
+- Para o HTML que entra depois (um fragmento trocado pela tela),
+  `ligarCarregamentos(trecho)`. Cada elemento é buscado uma vez.
+
+O esqueleto avulso é o `<x-ui.skeleton>`: o bloco cinza pulsando no tamanho do
+que vem. O tamanho e o canto vêm do `class`; sem altura, a de uma linha de
+texto, sem largura, a toda, e sem canto, o `rounded-md`. Com `lines`, vira
+esse tanto de linhas de texto, a última mais curta:
+
+```blade
+<x-ui.skeleton class="h-8 w-24" />
+<x-ui.skeleton class="size-10 rounded-full" />
+<x-ui.skeleton lines="3" />
+```
+
+É decorativo (`aria-hidden`): quem anuncia o carregamento é o contêiner, com
+`aria-busy`. Quem pede menos movimento vê o bloco parado.
+
 ## Gráficos
 
 ```blade
@@ -741,6 +799,7 @@ ApexCharts fica em `elemento.grafico`.
 | `data-camada-titulo` | O título do `x-ui.modal` e do `x-ui.offcanvas`, para o script trocar o texto (veja "Modal e gaveta") |
 | `data-carregando` | No `<input>` de um `x-ui.input` com `loading`: mostra o indicador girando (veja "Campo de texto") |
 | `data-fecha-alerta` | O X do `x-ui.alert dismissible`: esconde o aviso e dispara `ui:alerta-dispensado` |
+| `data-carregar="url"` | Busca o trecho na URL e o põe no lugar do esqueleto; dispara `ui:carregado` ou `ui:carregamento-falhou` (veja "Trecho que chega depois") |
 | `data-copiar="texto"` | Copia e avisa com um toast; dispara o evento `ui:copiado` |
 | `data-imprimir` | Abre a impressão do navegador |
 | `data-troca-tema` | Alterna claro e escuro |
@@ -1586,6 +1645,13 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.0** — O trecho que chega depois: `data-carregar="url"` busca o HTML
+  do trecho e o põe no lugar do esqueleto, liga os gráficos, as dicas e os
+  trechos de dentro, e dispara `ui:carregado` (ou `ui:carregamento-falhou`,
+  com o motivo no lugar: a sessão vencida não põe a tela de login no meio da
+  página). Entra no `ligarUi()` (`ligarCarregamentos`). O esqueleto avulso é o
+  `x-ui.skeleton` (bloco ou `lines`), e o `x-ui.stat-card` ganha o `loading`:
+  o rótulo fica, e o número, a dica e o gráfico pulsam nos mesmos tamanhos.
 - **1.14.2** — O `x-ui.color` se marca com `data-seletor-cor` (era
   `data-cor`, o mesmo atributo do número do `x-ui.stat-card`): numa tela com
   os dois, o `ligarCores` tentava montar o seletor no número do cartão, dava

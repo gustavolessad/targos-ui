@@ -1,7 +1,8 @@
 @props([
     /** O que o número significa. */
     'label',
-    'value',
+    /** O número. No `loading`, não precisa vir. */
+    'value' => null,
     /**
      * O que o número é, em uma ou duas frases: vira um ícone de
      * informação no canto do card, com o texto na dica. É para o que o
@@ -58,6 +59,13 @@
      * precisa saltar da fileira.
      */
     'variant' => 'solid',
+    /**
+     * O card antes de o número chegar (o trecho que vem depois, pelo
+     * `data-carregar`): o rótulo fica, e o número, a dica e o gráfico —
+     * com `trend`, mesmo vazio — dão lugar ao `x-ui.skeleton`, nos mesmos
+     * tamanhos. O card de verdade entra no lugar sem a tela pular.
+     */
+    'loading' => false,
 ])
 
 {{--
@@ -93,6 +101,13 @@
         'sm' => 'text-2xl font-bold tracking-tight',
         'lg' => 'text-4xl font-bold tracking-tight',
         default => 'text-3xl font-bold tracking-tight',
+    };
+
+    // No `loading`, a altura da linha do número, para o esqueleto ocupar o mesmo lugar.
+    $alturaDoNumero = match ($size) {
+        'sm' => 'h-8',
+        'lg' => 'h-10',
+        default => 'h-9',
     };
 
     // O gráfico na cor do número; o card sem cor usa a de ação.
@@ -142,13 +157,20 @@
 
 <{{ $href !== null ? 'a' : 'div' }}
     @if ($href !== null) href="{{ $href }}" @endif
+    @if ($loading) aria-busy="true" @endif
     {{ $attributes->class($classes) }}>
     <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
             <p class="truncate text-sm font-medium text-neutral-900 dark:text-white">{{ $label }}</p>
 
-            {{-- `data-stat-valor`: o gancho para o script que troca o número (e a cor, pelo `data-cor`). --}}
-            <p class="mt-1 {{ $classesDoTamanho }} {{ $classesDoNumero }}" data-stat-valor data-cor="{{ $corDoNumero }}">{{ $value }}</p>
+            @if ($loading)
+                <div class="mt-1 flex items-center {{ $alturaDoNumero }}">
+                    <x-ui.skeleton class="h-3/4 w-28" />
+                </div>
+            @else
+                {{-- `data-stat-valor`: o gancho para o script que troca o número (e a cor, pelo `data-cor`). --}}
+                <p class="mt-1 {{ $classesDoTamanho }} {{ $classesDoNumero }}" data-stat-valor data-cor="{{ $corDoNumero }}">{{ $value }}</p>
+            @endif
         </div>
 
         @if ($info !== null)
@@ -170,7 +192,15 @@
         @endif
     </div>
 
-    @if ((is_array($hint) && $hint !== []) || (is_string($hint) && $hint !== ''))
+    @if ($loading)
+        {{-- A dica no mesmo lugar da de verdade: logo abaixo do número com gráfico, no pé sem ele. --}}
+        <div @class(['mt-2' => $trend !== null, 'mt-auto pt-3' => $trend === null])>
+            {{-- A altura da linha do `text-xs`, por dentro: com o `pt-3` na mesma caixa, o `h-4` contaria o respiro. --}}
+            <div class="flex h-4 items-center">
+                <x-ui.skeleton class="h-3 w-32 max-w-full" />
+            </div>
+        </div>
+    @elseif ((is_array($hint) && $hint !== []) || (is_string($hint) && $hint !== ''))
         {{--
             Com gráfico, as informações ficam logo abaixo do número, e o
             gráfico no pé. Sem gráfico, elas vão para o pé do card: numa
@@ -195,7 +225,11 @@
         </div>
     @endif
 
-    @if ($trend !== null)
+    @if ($trend !== null && $loading)
+        <div class="-mx-4 -mb-4 mt-auto pt-3">
+            <x-ui.skeleton class="w-full rounded-none rounded-b-[11px]" :style="'height: '.(int) $trendHeight.'px'" />
+        </div>
+    @elseif ($trend !== null)
         {{--
             Margens negativas do tamanho do padding do card (`p-4`): o
             gráfico encosta na base e nas laterais. O canto de baixo do

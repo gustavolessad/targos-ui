@@ -15,8 +15,12 @@
 
     Recolhida (`recolhida:`, pelo botão `ui.sidebar-toggle`), vira uma
     coluna de ícones: o logo dá lugar ao símbolo. As margens laterais
-    ficam as mesmas (`px-3`), e o item vira um quadrado de 40px numa barra
-    de 64px. A largura é do layout, que é quem a posiciona.
+    ficam as mesmas (`px-3`), e o item vira um bloco de 40px de largura
+    (36px de altura) numa barra de 64px. A largura é do layout, que é
+    quem a posiciona.
+
+    Compacta: os itens com `py-2` e os blocos a `space-y-1` um do outro —
+    o menu de uma loja inteira cabe numa tela de notebook sem rolar.
 --}}
 <nav data-barra {{ $attributes->class(['flex h-full flex-col bg-white text-sm dark:bg-neutral-900']) }}>
     @isset($logo)
@@ -40,7 +44,7 @@
         </div>
     @endisset
 
-    <div class="scroll-discreto flex-1 space-y-4 overflow-y-auto px-3 py-2">
+    <div class="scroll-discreto flex-1 space-y-1 overflow-y-auto px-3 py-2">
         {{ $slot }}
     </div>
 </nav>

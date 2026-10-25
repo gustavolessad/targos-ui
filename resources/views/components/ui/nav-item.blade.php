@@ -17,7 +17,7 @@
    @if ($ativo) aria-current="page" @endif
    data-barra-dica="{{ trim(strip_tags((string) $slot)) }}"
    {{ $attributes->class([
-       'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
+       'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
        'recolhida:justify-center recolhida:px-0',
        /*
         * Em repouso, a cor do título da página. O ativo: o fundo claro da

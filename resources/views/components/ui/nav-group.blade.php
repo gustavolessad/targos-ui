@@ -34,7 +34,7 @@
     --}}
     <summary data-barra-rotulo="{{ $label }}" aria-haspopup="true"
              @class([
-                 'group flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2.5',
+                 'group flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2',
                  // O hover com o fundo do item ativo, como no `x-ui.nav-item`.
                  'text-sm font-medium text-neutral-900 transition hover:bg-primary-50',
                  'hover:text-neutral-950 dark:text-white dark:hover:bg-primary-500/15',
@@ -63,8 +63,8 @@
         principais, cor um pouco mais fraca (o ativo fica de fora: segue
         bem escuro; o hover volta a escurecer).
 
-        Mais baixos que os itens do nível de cima (`py-2` contra o `py-2.5`
-        deles): a lista aberta fica compacta e se lê como parte do grupo.
+        Na altura dos itens do nível de cima (`py-2`): quem os liga ao
+        grupo é o recuo e o fio, e a lista aberta fica compacta.
 
         Ao abrir, entram descendo de leve (`animate-descer`); o grupo
         que já veio aberto do servidor fica parado.

@@ -1645,6 +1645,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.1** — O menu lateral mais compacto: os itens e os títulos dos
+  grupos (`x-ui.nav-item`, `x-ui.nav-group`) com `py-2` (era `py-2.5`), na
+  altura dos subitens, e os blocos da barra (`x-ui.sidebar`) a `space-y-1`
+  um do outro (era `space-y-4`). Recolhida, o item fica com 40×36px.
 - **1.15.0** — O trecho que chega depois: `data-carregar="url"` busca o HTML
   do trecho e o põe no lugar do esqueleto, liga os gráficos, as dicas e os
   trechos de dentro, e dispara `ui:carregado` (ou `ui:carregamento-falhou`,

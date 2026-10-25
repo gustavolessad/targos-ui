@@ -17,7 +17,7 @@
    @if ($ativo) aria-current="page" @endif
    data-barra-dica="{{ trim(strip_tags((string) $slot)) }}"
    {{ $attributes->class([
-       'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
+       'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition',
        'recolhida:justify-center recolhida:px-0',
        /*
         * Em repouso, a cor do título da página. O ativo: o fundo claro da
@@ -32,7 +32,7 @@
    ]) }}>
     @if ($icon)
         <x-ui.icon :name="$icon" @class([
-            'size-5 shrink-0 transition',
+            'size-4 shrink-0 transition',
             'text-neutral-500 group-hover:text-neutral-800' => ! $ativo,
             'dark:text-neutral-400 dark:group-hover:text-neutral-200' => ! $ativo,
             'text-primary-600 dark:text-primary-400' => $ativo,

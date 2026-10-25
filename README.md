@@ -1645,6 +1645,10 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.2** — O menu lateral ainda mais compacto: os itens, os títulos dos
+  grupos e os subitens com `py-1.5`, o ícone com 16px (`size-4`, era
+  `size-5`), e os blocos da barra a `space-y-2` um do outro. Recolhida, o
+  item fica com 40×28px.
 - **1.15.1** — O menu lateral mais compacto: os itens e os títulos dos
   grupos (`x-ui.nav-item`, `x-ui.nav-group`) com `py-2` (era `py-2.5`), na
   altura dos subitens, e os blocos da barra (`x-ui.sidebar`) a `space-y-1`

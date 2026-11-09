@@ -31,6 +31,13 @@
      * `:closable="false"` o tira de um comum.
      */
     'closable' => null,
+    /*
+     * O modal de criar: fechado sem salvar, os campos voltam ao que vieram
+     * da página, e o que foi digitado não fica para a próxima vez. Vai como
+     * `data-modal-limpar`, que o layers.js lê. Em todo modal, fechar tira
+     * os erros da tentativa que passou.
+     */
+    'reset' => false,
 ])
 
 @php
@@ -61,7 +68,7 @@
     acima do fundo escuro por mais alto que este suba. Por isso o header
     do layout minimal usa fundo sólido.
 --}}
-<div id="{{ $id }}" data-modal @if ($open) data-abrir-ao-carregar @endif @if ($static) data-modal-estatico @endif
+<div id="{{ $id }}" data-modal @if ($open) data-abrir-ao-carregar @endif @if ($static) data-modal-estatico @endif @if ($reset) data-modal-limpar @endif
      class="fixed inset-0 z-60 hidden [&[data-aberto]]:block">
     <div class="fixed inset-0 bg-neutral-300/50 opacity-0 backdrop-blur-[4px] dark:bg-neutral-900/50 transition-opacity duration-200
                 [[data-aberto]_&]:opacity-100"></div>

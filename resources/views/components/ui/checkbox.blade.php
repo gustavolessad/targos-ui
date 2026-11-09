@@ -184,7 +184,7 @@
 
     @if ($temErro || $hint)
         @if ($temErro)
-            <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
+            <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $errors->first($chave) }}</p>
         @else
             <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
         @endif

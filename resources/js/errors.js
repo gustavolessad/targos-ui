@@ -109,3 +109,42 @@ export function limparErros(formulario) {
     formulario.querySelectorAll('[data-erro-js]').forEach((erro) => erro.remove());
     formulario.querySelectorAll('[aria-invalid="true"]').forEach((campo) => campo.removeAttribute('aria-invalid'));
 }
+
+/*
+ * A borda vermelha que o Blade desenha no campo com erro, e a de sempre que
+ * a substitui quando o erro sai. São as classes dos campos do pacote
+ * (`x-ui.input`, `x-ui.select`, `x-ui.money`…): `border-danger-400` com o
+ * foco e o tema escuro em vermelho.
+ */
+const BORDA_DE_ERRO = {
+    'border-danger-400': 'border-neutral-300',
+    'focus:border-danger-500': 'focus:border-primary-500',
+    'focus:ring-danger-500/20': 'focus:ring-primary-500/20',
+    'dark:border-danger-500': 'dark:border-neutral-700',
+    'aria-expanded:border-danger-500': 'aria-expanded:border-primary-500',
+    'aria-expanded:ring-danger-500/20': 'aria-expanded:ring-primary-500/20',
+};
+
+/** As classes de um campo com erro → as do campo sem erro; as outras ficam. */
+export function classesSemErro(classes) {
+    return [...classes].map((classe) => BORDA_DE_ERRO[classe] ?? classe);
+}
+
+/**
+ * Tira todos os erros do formulário: os que o servidor desenhou (o
+ * `<p data-erro-servidor>` e a borda vermelha) e os do JavaScript.
+ *
+ * O erro do servidor é de uma tentativa que já passou. O modal que serve a
+ * várias linhas o mostrava na linha seguinte — o "nome repetido" da marca A
+ * aparecia na edição da Nike —, e o que a pessoa fechou desistindo voltava
+ * com ele (teste no navegador do meu-sistema2, 09/11/2026).
+ */
+export function limparErrosDoFormulario(formulario) {
+    formulario.querySelectorAll('[data-erro-js], [data-erro-servidor]').forEach((erro) => erro.remove());
+
+    formulario.querySelectorAll('.border-danger-400').forEach((campo) => {
+        campo.className = classesSemErro(campo.classList).join(' ');
+    });
+
+    formulario.querySelectorAll('[aria-invalid="true"]').forEach((campo) => campo.removeAttribute('aria-invalid'));
+}

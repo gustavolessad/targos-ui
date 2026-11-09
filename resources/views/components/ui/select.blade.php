@@ -72,6 +72,12 @@
      * mostra o valor do outro.
      */
     'remember' => true,
+    /*
+     * Mostra o erro de validação que tem o nome do campo. Desligue no
+     * filtro da listagem: o `status` que o modal enviou e voltou com erro
+     * não é do filtro, e ele ficava vermelho com a mensagem do modal.
+     */
+    'showError' => true,
     /** Com `source`: a segunda linha da opção já escolhida, como o `caption` da busca. */
     'selectedCaption' => null,
     /** Com `source`: os dados da opção já escolhida, como o `extra` da busca (array). */
@@ -151,9 +157,9 @@
     $marcada = fn (string $valor): bool => $multiple ? in_array($valor, $valoresAtuais, true) : $valor === $valorAtual;
 
     // No múltiplo, o erro de uma das escolhidas (`roles.1`: "inválido") também aparece no campo.
-    $erro = $errors->first($chave);
+    $erro = $showError ? $errors->first($chave) : '';
 
-    if ($erro === '' && $multiple) {
+    if ($erro === '' && $multiple && $showError) {
         $erro = $errors->first($chave.'.*');
     }
 
@@ -525,7 +531,7 @@
     </div>
 
     @if ($temErro)
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $erro }}</p>
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $erro }}</p>
     @elseif ($hint)
         <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
     @endif

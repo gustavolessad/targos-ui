@@ -576,6 +576,11 @@ da listagem e o modal, o modal de criar e o de editar —, o que **não** foi
 enviado leva `:remember="false"` (no `x-ui.input`, `:keeps-input="false"`),
 senão mostra o valor do outro.
 
+O erro é igual: o campo mostra o erro de validação que tem o seu nome. No
+filtro da listagem, passe `:show-error="false"` (no `x-ui.input`, no
+`x-ui.select` e no `x-ui.date-range`), senão o `status` que o modal enviou e
+voltou com erro deixa o filtro vermelho, com a mensagem do modal.
+
 ## Grupo de caixas
 
 ```blade
@@ -908,9 +913,11 @@ Blade, é `data-nullable` no campo; no JavaScript, `somarPasso` aceita
 <x-ui.percent name="markup" label="Margem" min="-50" max="50" />
 ```
 
-`x-ui.percent` digita-se como o valor em reais, em centésimos: "325" vira
-3,25% e envia `3.2500`. A tela mostra 2 casas; o formulário recebe 4 e, se
-ninguém digitar, leva de volta o valor do banco intacto. Props: `value` (como
+`x-ui.percent` digita-se como se escreve, e não como calculadora: "10" é 10%,
+"3,25" é 3,25% e envia `3.2500`; o ponto vale como vírgula, e a terceira casa
+não entra. A tela mostra até 2 casas, sem os zeros do fim ("10", "10,5"); o
+formulário recebe 4 e, se ninguém digitar, leva de volta o valor do banco
+intacto. Props: `value` (como
 o banco guarda: `'3.2500'` ou `3.25`), `max` (teto, padrão 100: o dígito que
 passaria dele não entra), `min` (piso, padrão 0; abaixo de zero ou
 `:min="false"`, o "-" troca o sinal), `id`, `size`, `placeholder`, `hint`,
@@ -1325,6 +1332,15 @@ manda no X — por padrão é `! static`: `closable` o devolve ao estático que
 precisar dele, e `:closable="false"` o tira de um modal comum. A gaveta
 estática continua com o X (ela não tem rodapé obrigatório).
 
+**Fechar o modal tira os erros da tentativa que passou**: as mensagens que o
+servidor desenhou (`data-erro-servidor`) e as do JavaScript, e a borda
+vermelha dos campos. O mesmo acontece quando o botão de uma linha preenche o
+modal (`data-form-valores`): o erro da linha anterior não é da seguinte. Com
+`reset` (o modal de criar), fechar sem salvar também volta os campos ao que
+vieram da página (`voltarAoInicio(form)`, de resources/js/form-fill.js), e o
+que foi digitado não fica para a próxima vez. Fora do Blade, é
+`data-modal-limpar` no elemento do modal.
+
 **O título num gancho.** O `<h2>` do título, no modal e na gaveta, leva
 `data-camada-titulo` (o do modal leva também o `data-modal-titulo` de antes),
 para o script trocar o texto — um contador, o nome do que está aberto — sem
@@ -1647,6 +1663,18 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.4** — O `x-ui.percent` se digita como se escreve: "10" é 10%, e não
+  0,10% (quem dava 10% de desconto digitava "10" e dava 0,10% sem perceber);
+  a vírgula e o ponto separam as casas, e o campo mostra "10" e "10,5", sem os
+  zeros do fim. No `x-ui.money` e no `x-ui.decimal`, o dígito entra sempre no
+  fim e o Backspace apaga o último, onde quer que o clique tenha posto o
+  cursor: no "0,00" com o cursor no começo, "2500" virava R$ 25.000,00.
+  Fechar o modal tira os erros da tentativa que passou (as mensagens do
+  servidor, agora com `data-erro-servidor`, e a borda vermelha), e o mesmo ao
+  preencher o modal com outra linha (`data-form-valores`); com `reset`, o
+  modal de criar também volta os campos ao início. E `show-error` no
+  `x-ui.input`, no `x-ui.select` e no `x-ui.date-range`: `false` no filtro da
+  listagem, que mostrava o erro do modal com o mesmo nome de campo.
 - **1.15.3** — O telefone aceita os números sem DDD que empresa usa para
   atender: 0800, 0300 e 0500 (`0800 123 4567`) e 4003 e 4004 (`4004-1234`), na
   máscara e no `validarTelefone`. Antes, o 0800 do fornecedor era recusado.

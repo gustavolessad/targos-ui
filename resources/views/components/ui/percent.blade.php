@@ -20,7 +20,7 @@
      */
     'max' => '100',
     'min' => '0',
-    'placeholder' => '0,00',
+    'placeholder' => '0',
     /*
      * O `id` do campo nativo. Sem ele, sai do nome (`items[0][rate]` →
      * `items-0-rate`). Passe um quando dois formulários da mesma tela têm
@@ -57,9 +57,9 @@
      * a fonte da verdade, vai no formulário com 4 casas (`3.2500`) e
      * recebe `old()`, `min`/`max`/`required` e os eventos. O JS
      * (resources/js/percent.js) o esconde e mostra por cima o campo com
-     * "%", que se digita como calculadora, em centésimos: "325" é 3,25.
-     * A tela mostra 2 casas; enquanto ninguém digita, o nativo leva de
-     * volta as 4 que vieram do banco.
+     * "%", que se digita como se escreve (1.15.4): "10" é 10%, "3,25" é
+     * 3,25%. A tela mostra até 2 casas, sem os zeros do fim; enquanto
+     * ninguém digita, o nativo leva de volta as 4 que vieram do banco.
      */
     // `items[0][rate]` no HTML é `items.0.rate` para old() e para os erros.
     $chave = \Targos\Ui\FieldName::key($name);
@@ -67,9 +67,14 @@
 
     $valor = \Targos\Ui\Money::normalize($remember ? old($chave, $value) : $value, 4);
 
-    // `3.2500` → 3,25. O Money::format deixa o sinal de fora.
-    $valorNegativo = $valor !== null && (float) \Targos\Ui\Money::normalize($valor) < 0;
-    $exibido = $valor !== null ? ($valorNegativo ? '-' : '').\Targos\Ui\Money::format($valor) : '';
+    /*
+     * `3.2500` → 3,25; `10.0000` → 10; `10.5000` → 10,5 — como se escreve, e
+     * como o percent.js mostra (`textoDoPercentual`). Sem separador de
+     * milhar: no campo, o ponto digitado é vírgula.
+     */
+    $exibido = $valor !== null
+        ? rtrim(rtrim(str_replace('.', ',', \Targos\Ui\Money::normalize($valor) ?? ''), '0'), ',')
+        : '';
 
     // Sem piso (`:min="false"`), ou com piso abaixo de zero, o "-" troca o sinal.
     $minimo = $min === false ? null : $min;
@@ -227,7 +232,7 @@
 
     {{-- Na célula, nem erro nem dica: uma linha a mais desalinharia a tabela. --}}
     @if ($temErro && ! $naCelula)
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $errors->first($chave) }}</p>
     @elseif ($hint && ! $naCelula)
         <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
     @endif

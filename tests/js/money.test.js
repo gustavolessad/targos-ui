@@ -12,6 +12,7 @@ import {
     decimalDeCentavos,
     formatarCentavos,
     lerDigitado,
+    textoDaTecla,
     textoDeCentavos,
 } from '../../resources/js/money.js';
 
@@ -141,4 +142,28 @@ test('negativo: o "-" troca o sinal, e um segundo o desfaz', () => {
 
 test('sem negativo, o "-" não conta', () => {
     assert.deepEqual(lerDigitado('-1.500,00'), { centavos: 150000, negativo: false });
+});
+
+/*
+ * Na calculadora, o dígito entra sempre no fim (1.15.4). O clique no
+ * "0,00" punha o cursor no começo, e o "2500" de quem queria R$ 25,00
+ * entrava antes dos zeros: R$ 25.000,00 (teste no navegador do
+ * meu-sistema2, 08/11/2026).
+ */
+test('o dígito digitado no meio do campo entra no fim', () => {
+    assert.equal(textoDaTecla('0,00', { inputType: 'insertText', data: '2', inicio: 0, fim: 0 }), '0,002');
+    assert.equal(textoDaTecla('25,00', { inputType: 'insertText', data: '5', inicio: 2, fim: 2 }), '25,005');
+});
+
+test('o Backspace no meio do campo apaga o último dígito', () => {
+    assert.equal(textoDaTecla('25,00', { inputType: 'deleteContentBackward', data: null, inicio: 1, fim: 1 }), '25,0');
+    assert.equal(textoDaTecla('25,00', { inputType: 'deleteContentBackward', data: null, inicio: 0, fim: 0 }), '25,0');
+});
+
+test('no fim do campo, ou com texto selecionado, a tecla segue o caminho de sempre', () => {
+    assert.equal(textoDaTecla('0,00', { inputType: 'insertText', data: '2', inicio: 4, fim: 4 }), null);
+    assert.equal(textoDaTecla('25,00', { inputType: 'insertText', data: '1', inicio: 0, fim: 5 }), null);
+    assert.equal(textoDaTecla('25,00', { inputType: 'deleteContentBackward', data: null, inicio: 5, fim: 5 }), null);
+    // Colar e o resto ficam com os seus próprios tratamentos.
+    assert.equal(textoDaTecla('25,00', { inputType: 'insertFromPaste', data: null, inicio: 0, fim: 0 }), null);
 });

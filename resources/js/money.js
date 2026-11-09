@@ -146,6 +146,34 @@ export function lerDigitado(texto, { zero = false, negativo = false, apagando = 
 }
 
 /**
+ * Na calculadora, a tecla com o cursor no meio do campo → o texto como se
+ * ela tivesse caído no fim; null quando segue o caminho de sempre.
+ *
+ * O dígito entra sempre no fim, e o Backspace apaga o último: é assim que
+ * a vírgula anda. O clique no "0,00" punha o cursor no começo, e o "2500"
+ * de quem queria R$ 25,00 entrava antes dos zeros — R$ 25.000,00 (teste no
+ * navegador do meu-sistema2, 08/11/2026). Com texto selecionado, a tecla o
+ * substitui como sempre; colar tem o seu próprio caminho.
+ */
+export function textoDaTecla(valor, { inputType, data, inicio, fim }) {
+    const texto = String(valor ?? '');
+
+    if (inicio !== fim || fim === texto.length) {
+        return null;
+    }
+
+    if (inputType === 'insertText') {
+        return texto + (data ?? '');
+    }
+
+    if (inputType === 'deleteContentBackward') {
+        return texto.slice(0, -1);
+    }
+
+    return null;
+}
+
+/**
  * Liga um campo que se digita em centavos: o nativo escondido, que vai
  * no formulário, e o visível por cima, que se digita como calculadora.
  *
@@ -161,6 +189,11 @@ export function lerDigitado(texto, { zero = false, negativo = false, apagando = 
  *   positivo não (para chegar a 10,00 se passa por 0,10), e fica com o
  *   `min` do nativo, na validação do navegador.
  * - `colar`: o texto colado → centavos, sem sinal; null o recusa.
+ * - `ler` e `exibir`: o campo que se digita como se escreve, e não como
+ *   calculadora (o percentual, percent.js). `ler(texto, { negativo })` dá
+ *   `{ centavos, texto, negativo }`, ou null para a tecla que não vale;
+ *   `exibir(centavos, comSinal)` dá o texto do campo. O cursor fica onde a
+ *   pessoa o pôs, e ao sair o texto se arruma ("10," vira "10").
  *
  * **O nativo só muda quando a pessoa digita.** Montar o campo não o
  * regrava: o custo `3.9505` que veio do banco volta a ele como está, e
@@ -170,6 +203,8 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
     const { casas = 2, zero = false, negativo = false, teto = null, piso = null } = regras;
     const escala = Math.max(regras.escala ?? 2, casas);
     const colar = regras.colar ?? ((colado) => centavosColados(colado, casas));
+    const ler = regras.ler ?? null;
+    const exibir = regras.exibir ?? ((centavos, comSinal) => textoDeCentavos(centavos, comSinal, casas));
 
     caixa.classList.add('sr-only');
     nativo.tabIndex = -1;
@@ -208,12 +243,15 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
     new MutationObserver(espelharTrava).observe(nativo, { attributes: true, attributeFilter: ['disabled', 'readonly'] });
 
     // O que está à vista, em centavos: é com ele que se compara o nativo mudado por outro script.
-    let mostrado = lerDigitado(texto.value, { zero: true, negativo: true }).centavos;
+    let mostrado = ler
+        ? (ler(texto.value, { negativo: true })?.centavos ?? null)
+        : lerDigitado(texto.value, { zero: true, negativo: true }).centavos;
     // O texto da última tecla aceita, para onde o campo volta quando a seguinte passa do limite.
     let anterior = texto.value;
 
-    const mostrar = (centavos, comSinal = centavos < 0) => {
-        texto.value = textoDeCentavos(centavos, comSinal, casas);
+    // `digitado`: o texto como a pessoa o escreveu, no campo que se escreve (`ler`).
+    const mostrar = (centavos, comSinal = centavos < 0, digitado = null) => {
+        texto.value = digitado ?? exibir(centavos, comSinal);
         mostrado = centavos;
         anterior = texto.value;
     };
@@ -221,8 +259,8 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
     const cabe = (centavos) => centavos === null
         || ((teto === null || centavos <= teto) && (piso === null || centavos >= piso));
 
-    const gravar = (centavos, comSinal) => {
-        mostrar(centavos, comSinal);
+    const gravar = (centavos, comSinal, digitado = null) => {
+        mostrar(centavos, comSinal, digitado);
         nativo.value = decimalDeCentavos(centavos, escala, casas);
 
         // Quem escuta o campo (a prévia das parcelas) escuta o nativo.
@@ -230,7 +268,44 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
         nativo.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
+    // Na calculadora, a tecla cai no fim do campo, onde quer que esteja o cursor (ver textoDaTecla).
+    texto.addEventListener('beforeinput', (evento) => {
+        if (ler || texto.readOnly || texto.disabled) {
+            return;
+        }
+
+        const novo = textoDaTecla(texto.value, {
+            inputType: evento.inputType,
+            data: evento.data,
+            inicio: texto.selectionStart,
+            fim: texto.selectionEnd,
+        });
+
+        if (novo === null) {
+            return;
+        }
+
+        evento.preventDefault();
+        texto.value = novo;
+        texto.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: evento.inputType, data: evento.data }));
+    });
+
     texto.addEventListener('input', (evento) => {
+        if (ler) {
+            const lido = ler(texto.value, { negativo });
+
+            // A tecla que não vale (a terceira casa, a segunda vírgula), ou além do limite, não entra.
+            if (lido === null || ! cabe(lido.centavos)) {
+                texto.value = anterior;
+
+                return;
+            }
+
+            gravar(lido.centavos === 0 && ! zero ? null : lido.centavos, lido.negativo, lido.texto);
+
+            return;
+        }
+
         const lido = lerDigitado(texto.value, {
             zero,
             negativo,
@@ -246,6 +321,13 @@ export function montarCampoEmCentavos(raiz, { caixa, nativo, campo, texto }, reg
 
         gravar(lido.centavos, lido.negativo);
     });
+
+    // O campo que se escreve se arruma ao sair: "10," vira "10", e o "-" sozinho some.
+    if (ler) {
+        texto.addEventListener('blur', () => {
+            mostrar(mostrado);
+        });
+    }
 
     // O valor colado substitui o do campo, lido como valor inteiro (ver centavosColados).
     texto.addEventListener('paste', (evento) => {

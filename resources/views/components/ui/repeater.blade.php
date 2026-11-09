@@ -269,6 +269,6 @@
 
     {{-- O erro da lista inteira ("adicione ao menos um endereço"): o de cada campo fica embaixo do campo. --}}
     @if ($errors->has($chave))
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $errors->first($chave) }}</p>
     @endif
 </div>

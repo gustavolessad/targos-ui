@@ -104,6 +104,12 @@
      * acrescentar um caminho que reflita a entrada.
      */
     'keepsInput' => true,
+    /*
+     * Mostra o erro de validação que tem o nome do campo. Desligue no
+     * filtro da listagem: o `status` que o modal enviou e voltou com erro
+     * não é do filtro, e ele ficava vermelho com a mensagem do modal.
+     */
+    'showError' => true,
 ])
 
 @php
@@ -128,7 +134,7 @@
      */
     $valorAtual = is_array($valorAtual) ? null : $valorAtual;
 
-    $temErro = $name !== null && $errors->has($chave);
+    $temErro = $showError && $name !== null && $errors->has($chave);
 
     // `items[0][price]` → `items-0-price`: `id` com colchete não serve ao `for` nem ao seletor.
     $idDoCampo = $id ?? ($name !== null ? \Targos\Ui\FieldName::id($name) : null);
@@ -387,7 +393,7 @@
         @endif
 
         @if ($temErro)
-            <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $errors->first($chave) }}</p>
+            <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $errors->first($chave) }}</p>
         @elseif ($hint)
             <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
         @endif

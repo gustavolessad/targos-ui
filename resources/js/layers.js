@@ -10,6 +10,10 @@
  * as classes do Tailwind — então o fundo é uma div nossa, e o estado é
  * uma classe `hidden`.
  */
+
+import { limparErrosDoFormulario } from './errors.js';
+import { voltarAoInicio } from './form-fill.js';
+
 const CAMADAS = {
     // O `duration-200` do <x-ui.modal>.
     modal: 200,
@@ -197,8 +201,25 @@ function fecharCamada(tipo, camada, motivo = 'script') {
     document.dispatchEvent(new CustomEvent(`${tipo}:fechado`, { detail: { id: camada.id } }));
 
     if (estavaAberta) {
+        limparAoFechar(camada);
         avisarCamada(camada, 'fechada', tipo, motivo);
     }
+}
+
+/**
+ * O que o modal fechado deixa para trás: o erro de uma tentativa que
+ * passou, sempre; e, no de criar (`<x-ui.modal reset>`,
+ * `data-modal-limpar`), também o que foi digitado. Quem enviou e voltou
+ * com erro reabre o modal pela página, que desenha tudo de novo.
+ */
+function limparAoFechar(camada) {
+    camada.querySelectorAll('form').forEach((formulario) => {
+        if ('modalLimpar' in camada.dataset) {
+            voltarAoInicio(formulario);
+        } else {
+            limparErrosDoFormulario(formulario);
+        }
+    });
 }
 
 /** Liga um tipo de camada: `data-abre-modal="id"` e `data-fecha-modal`. */

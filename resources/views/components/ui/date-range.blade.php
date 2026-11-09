@@ -23,6 +23,12 @@
     'id' => null,
     /* Lembra o enviado quando o formulário volta com erro; desligue no formulário que não foi enviado (o outro modal da tela). */
     'remember' => true,
+    /*
+     * Mostra o erro de validação que tem o nome do campo. Desligue no
+     * filtro da listagem: o `status` que o modal enviou e voltou com erro
+     * não é do filtro, e ele ficava vermelho com a mensagem do modal.
+     */
+    'showError' => true,
 ])
 
 @php
@@ -57,7 +63,7 @@
         $maximo ? \Carbon\CarbonImmutable::parse($maximo) : null,
     );
 
-    $temErro = $errors->has($chaveInicio) || $errors->has($chaveFim);
+    $temErro = $showError && ($errors->has($chaveInicio) || $errors->has($chaveFim));
     $mensagem = $errors->first($chaveInicio) ?: $errors->first($chaveFim);
 
     /*
@@ -144,7 +150,7 @@
     <div data-calendario-painel hidden></div>
 
     @if ($temErro)
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $mensagem }}</p>
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $mensagem }}</p>
     @elseif ($hint)
         <p class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-campo-dica>{{ $hint }}</p>
     @endif

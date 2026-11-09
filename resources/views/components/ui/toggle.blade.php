@@ -91,7 +91,7 @@
     </div>
 
     @error($chave)
-        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>
+        <p class="mt-1.5 text-sm text-danger-600 dark:text-danger-400" data-erro-servidor>{{ $message }}</p>
     @enderror
 
     @if ($hint && ! $errors->has($chave))

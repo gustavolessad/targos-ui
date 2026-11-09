@@ -17,6 +17,8 @@
  * é exportada para quem busca os dados de outro lugar (um fetch).
  */
 
+import { limparErrosDoFormulario } from './errors.js';
+
 /** Escreve um valor num campo, do jeito que aquele tipo de campo entende. */
 export function escreverNoCampo(campo, valor) {
     // O select múltiplo recebe a lista: marca as opções que estão nela.
@@ -46,6 +48,30 @@ export function escreverNoCampo(campo, valor) {
 
     // O visível dos campos do pacote (valor, data, select) acompanha o nativo pelo `change`.
     campo.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+/*
+ * Os campos do pacote que têm um visível por cima do nativo: depois de
+ * mexer no nativo, o visível acompanha pelo `change`.
+ */
+const NATIVOS = '[data-dinheiro-nativo], [data-percentual-nativo], [data-decimal-nativo], [data-data-nativo], '
+    + '[data-horario-nativo], [data-seletor-nativo], select';
+
+/**
+ * Volta o formulário ao que veio da página: os valores e os erros.
+ *
+ * É o modal de criar que a pessoa abandonou (`<x-ui.modal reset>`): sem
+ * isto, ele reabria com o que foi digitado, e o que se digitava em seguida
+ * entrava depois — o nome repetido duas vezes, e o saldo inicial de
+ * R$ 55.000.000,00 (teste no navegador do meu-sistema2, 09/11/2026).
+ */
+export function voltarAoInicio(formulario) {
+    formulario.reset();
+    limparErrosDoFormulario(formulario);
+
+    formulario.querySelectorAll(NATIVOS).forEach((campo) => {
+        campo.dispatchEvent(new Event('change', { bubbles: true }));
+    });
 }
 
 /** O valor como texto, para quem o mostra e não o envia: nulo é nada, a lista vem separada por vírgula. */
@@ -164,6 +190,9 @@ export function ligarPreenchimentos() {
         }
 
         if (botao.dataset.formValores) {
+            // Outra linha no mesmo modal: o erro da anterior não é dela (ver limparErrosDoFormulario).
+            limparErrosDoFormulario(formulario);
+
             let valores = {};
 
             try {

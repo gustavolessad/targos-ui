@@ -1663,6 +1663,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.5** — O `x-ui.avatar-cell` define o tamanho do nome (`text-sm`, o da
+  tabela). Ele herdava, e fora de tabela — a lista das últimas vendas de um
+  painel — saía com os 16px da página, maior que o resto.
 - **1.15.4** — O `x-ui.percent` se digita como se escreve: "10" é 10%, e não
   0,10% (quem dava 10% de desconto digitava "10" e dava 0,10% sem perceber);
   a vírgula e o ponto separam as casas, e o campo mostra "10" e "10,5", sem os

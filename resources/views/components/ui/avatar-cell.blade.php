@@ -19,15 +19,19 @@
     O link no nome dá o clique do meio, o "abrir em nova aba" e o caminho
     de quem usa teclado. O nome longo quebra a linha, e não é cortado: na
     tabela, cortar sem largura definida esticaria a coluna em vez de cortar.
+
+    **O tamanho é o do componente** (1.15.5): o nome em `text-sm`, o da
+    tabela. Antes ele herdava, e fora de tabela — a lista das últimas vendas
+    de um painel — saía com os 16px da página, maior que o resto.
 --}}
 <div {{ $attributes->class(['flex items-center gap-2.5']) }}>
     <x-ui.avatar :name="$name" :src="$src" :size="$size" />
 
     <div class="min-w-0">
         @if ($href !== null)
-            <a href="{{ $href }}" class="block font-medium text-neutral-900 hover:underline dark:text-white">{{ $name }}</a>
+            <a href="{{ $href }}" class="block text-sm font-medium text-neutral-900 hover:underline dark:text-white">{{ $name }}</a>
         @else
-            <span class="block font-medium text-neutral-900 dark:text-white">{{ $name }}</span>
+            <span class="block text-sm font-medium text-neutral-900 dark:text-white">{{ $name }}</span>
         @endif
 
         @if ($caption !== null && $caption !== '')

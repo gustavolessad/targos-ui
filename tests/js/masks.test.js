@@ -214,6 +214,36 @@ test('telefone inválido: DDD fora de 11 a 99, celular sem o 9, tamanho errado',
     assert.equal(validarTelefone(''), false);
 });
 
+test('telefone não geográfico: 0800, 0300 e 0500 com 7 dígitos, 4003 e 4004 com 4', () => {
+    assert.equal(validarTelefone('08001234567'), true);
+    assert.equal(validarTelefone('03001234567'), true);
+    assert.equal(validarTelefone('05001234567'), true);
+    assert.equal(validarTelefone('40041234'), true);
+    assert.equal(validarTelefone('40031234'), true);
+});
+
+test('telefone não geográfico inválido: outro prefixo ou tamanho errado', () => {
+    assert.equal(validarTelefone('0800123456'), false);
+    assert.equal(validarTelefone('080012345678'), false);
+    assert.equal(validarTelefone('09001234567'), false);
+    assert.equal(validarTelefone('40051234'), false);
+    assert.equal(validarTelefone('400412345'), false);
+});
+
+test('máscara do telefone não geográfico: 0800 123 4567 e 4004-1234', () => {
+    const gratuito = campoFalso({ mascara: 'telefone', mascaraDestino: 'phone' });
+    const capitais = campoFalso({ mascara: 'telefone', mascaraDestino: 'phone' });
+
+    gratuito.digitar('08001234567');
+    capitais.digitar('40041234');
+
+    assert.equal(gratuito.value, '0800 123 4567');
+    assert.equal(gratuito.destino.value, '08001234567');
+    assert.equal(capitais.value, '4004-1234');
+    assert.equal(mensagemInvalida('telefone', '0800 123 4567'), null);
+    assert.equal(mensagemInvalida('telefone', '4004-1234'), null);
+});
+
 test('CEP: 8 dígitos', () => {
     assert.equal(validarCep('80000000'), true);
     assert.equal(validarCep('88015420'), true);

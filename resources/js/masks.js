@@ -33,9 +33,22 @@ export const MASCARAS = {
  * Fixo tem 8 dígitos e celular tem 9; uma máscara só para os dois evita
  * a tela ter de adivinhar qual usar antes de a pessoa digitar.
  */
-const MASCARA_TELEFONE = (digitos) => (digitos.length > 10
-    ? '(99) 99999-9999'
-    : '(99) 9999-9999');
+const MASCARA_TELEFONE = (digitos) => {
+    /*
+     * Os números sem DDD: 0800, 0300 e 0500 começam por 0, e 4003 e 4004
+     * por 40 — nenhum DDD começa por 0, e não há DDD 40. Muito fornecedor
+     * só atende por eles.
+     */
+    if (digitos.startsWith('0')) {
+        return '9999 999 9999';
+    }
+
+    if (digitos.startsWith('40')) {
+        return '9999-9999';
+    }
+
+    return digitos.length > 10 ? '(99) 99999-9999' : '(99) 9999-9999';
+};
 
 /**
  * O documento é CPF até o 11º caractere e CNPJ a partir do 12º.
@@ -210,12 +223,18 @@ export function validarCnpj(valor) {
 
 /**
  * O telefone: DDD de 11 a 99 e 8 ou 9 dígitos depois dele — e, com 9,
- * o primeiro é o 9 do celular.
+ * o primeiro é o 9 do celular. Ou um dos números sem DDD que empresa
+ * usa para atender: 0800, 0300 e 0500 (11 dígitos) e 4003 e 4004 (8).
  *
- * Recebe o valor limpo (`48999991234`).
+ * Recebe o valor limpo (`48999991234`, `08001234567`).
  */
 export function validarTelefone(digitos) {
     const telefone = String(digitos ?? '');
+
+    // Os sem DDD: 0800, 0300 e 0500 com 7 dígitos depois; 4003 e 4004 com 4.
+    if (/^0[358]00\d{7}$/.test(telefone) || /^400[34]\d{4}$/.test(telefone)) {
+        return true;
+    }
 
     if (! /^\d{10,11}$/.test(telefone) || Number(telefone.slice(0, 2)) < 11) {
         return false;

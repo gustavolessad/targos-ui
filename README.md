@@ -1473,12 +1473,14 @@ valores, negado }`), `condicaoVale(condicao, valor)`,
 
 Máscaras: `cpf`, `cnpj` (aceita o CNPJ alfanumérico da Receita, de 2026),
 `documento` (CPF até o 11º caractere; CNPJ a partir do 12º, ou assim que
-aparece uma letra), `telefone` (fixo ou celular, cresce com o que se digita),
+aparece uma letra), `telefone` (fixo ou celular, cresce com o que se digita;
+0800, 0300 e 0500 saem `0800 123 4567`, e 4003 e 4004 saem `4004-1234`),
 `cep`, `cartao`, `validade`, `cvv`, ou um padrão próprio (`9` é dígito, `A` é
 letra ou dígito, o resto é literal).
 
 `validate` avisa ao sair do campo quando o valor não passa: CPF e CNPJ pelo
-dígito verificador, telefone pelo DDD (11 a 99) e pelo 9 do celular, CEP pelos
+dígito verificador, telefone pelo DDD (11 a 99) e pelo 9 do celular — ou como
+0800, 0300 e 0500 com 11 dígitos e 4003 e 4004 com 8 —, CEP pelos
 8 dígitos. O aviso aparece embaixo do campo, no lugar do erro do servidor, e
 sai na tecla seguinte. É só aviso: campo vazio não é acusado (obrigatório é do
 `required` e do servidor) e não há `setCustomValidity`. Valide no servidor
@@ -1645,6 +1647,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.3** — O telefone aceita os números sem DDD que empresa usa para
+  atender: 0800, 0300 e 0500 (`0800 123 4567`) e 4003 e 4004 (`4004-1234`), na
+  máscara e no `validarTelefone`. Antes, o 0800 do fornecedor era recusado.
 - **1.15.2** — O menu lateral ainda mais compacto: os itens, os títulos dos
   grupos e os subitens com `py-1.5`, o ícone com 16px (`size-4`, era
   `size-5`), e os blocos da barra a `space-y-2` um do outro. Recolhida, o

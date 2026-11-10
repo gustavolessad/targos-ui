@@ -1,5 +1,7 @@
 @props([
     'name' => 'password',
+    // O id do campo; sem ele, o nome. Com vários campos de mesmo nome na página (um modal por usuário), dê um id a cada.
+    'id' => null,
     'label' => 'Senha',
     'required' => false,
     'hint' => null,
@@ -10,6 +12,7 @@
 
 @php
     $temErro = $errors->has($name);
+    $id ??= $name;
 
     // Mesma tabela do <x-ui.input>, com espaço à direita para o olho.
     $tamanhos = [
@@ -33,7 +36,7 @@
 --}}
 <div>
     <div class="mb-1.5 flex items-center justify-between gap-3">
-        <x-ui.field-label :label="$label" :for="$name" :required="$required" :info="$info" />
+        <x-ui.field-label :label="$label" :for="$id" :required="$required" :info="$info" />
 
         @isset($aside)
             <div class="shrink-0 text-xs">{{ $aside }}</div>
@@ -42,7 +45,7 @@
 
     <div class="relative">
         <input type="password"
-               id="{{ $name }}"
+               id="{{ $id }}"
                name="{{ $name }}"
                @required($required)
                {{ $attributes->class([
@@ -69,7 +72,7 @@
             sai é só a parada automática.
         --}}
         <button type="button"
-                data-ve-senha="{{ $name }}"
+                data-ve-senha="{{ $id }}"
                 tabindex="-1"
                 aria-label="Mostrar ou esconder a senha"
                 class="absolute inset-y-0 end-0 flex cursor-pointer items-center pe-3 text-neutral-400 hover:text-neutral-600

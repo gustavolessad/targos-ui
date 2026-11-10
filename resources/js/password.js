@@ -1,6 +1,19 @@
 // --- Ver a senha ---
 
 /**
+ * O campo que o olho mostra: o que está ao lado dele, no mesmo bloco do
+ * componente. Só sem ele, o do `id` que o botão declara.
+ *
+ * Pelo bloco, e não pelo `id`, porque a página pode ter vários campos de
+ * mesmo nome — um modal de "Nova senha" por usuário, todos com
+ * `name="password"` —, e o `id` repetido levava o olho a mostrar o campo do
+ * primeiro modal, e não o do que está aberto.
+ */
+function campoDoOlho(botao, documento) {
+    return botao.parentElement?.querySelector('input') ?? documento.getElementById(botao.dataset.veSenha);
+}
+
+/**
  * Alterna entre esconder e mostrar o que está sendo digitado.
  *
  * O botão declara `data-ve-senha="nome-do-campo"`. O clique é ouvido no
@@ -15,7 +28,7 @@ function ligarOlhoDaSenha() {
             return;
         }
 
-        const campo = document.getElementById(botao.dataset.veSenha);
+        const campo = campoDoOlho(botao, document);
 
         if (! campo) {
             return;
@@ -27,4 +40,4 @@ function ligarOlhoDaSenha() {
     });
 }
 
-export { ligarOlhoDaSenha };
+export { campoDoOlho, ligarOlhoDaSenha };

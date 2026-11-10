@@ -25,7 +25,7 @@ final class DateShortcuts
         'hoje', 'ontem', 'amanha',
         'ultimos_7_dias', 'ultimos_30_dias', 'proximos_7_dias', 'proximos_30_dias',
         'este_mes', 'mes_passado', 'proximo_mes',
-        'este_ano', 'ate_fim_do_ano',
+        'este_ano', 'ano_inteiro', 'ate_fim_do_ano',
     ];
 
     /**
@@ -111,6 +111,8 @@ final class DateShortcuts
             'mes_passado' => ['Mês passado', $mesPassado, $fimDoMes($mesPassado)],
             'proximo_mes' => ['Próximo mês', $proximoMes, $fimDoMes($proximoMes)],
             'este_ano' => ['Este ano', $hoje->startOfYear(), $hoje],
+            // O ano todo, de janeiro a dezembro: para o que olha para a frente (o vencimento, o fluxo de caixa).
+            'ano_inteiro' => ['Este ano', $hoje->startOfYear(), $hoje->endOfYear()->startOfDay()],
             'ate_fim_do_ano' => ['Até o fim do ano', $hoje, $hoje->endOfYear()->startOfDay()],
         ];
     }

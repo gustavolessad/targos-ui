@@ -19,7 +19,8 @@
     **No celular e no tablet** (abaixo do `lg`) os campos vão para uma gaveta
     que entra pela direita, aberta pelo botão "Filtros" (com um ponto quando
     há filtro em uso). Ali nada envia ao mudar: a lista vem no "Aplicar" do
-    rodapé, e o "Limpar" fica ao lado dele.
+    rodapé, e o "Limpar" fica ao lado dele. Embaixo do botão, uma etiqueta por
+    filtro em uso, com o X que o tira.
 
     **Um formulário só**: os campos são os mesmos nos dois tamanhos, e é o CSS
     que decide onde ficam. Nada se duplica — nem o nome do campo, nem o `id`.
@@ -48,6 +49,13 @@
             <x-ui.button :href="$clear" variant="danger-soft" size="sm">Limpar</x-ui.button>
         @endif
     </div>
+
+    {{--
+        Abaixo do lg, uma etiqueta por filtro em uso (o que a URL traz), com o X
+        que leva à mesma lista sem ele. Quem as desenha é o filters.js, a partir
+        dos campos da gaveta: o rótulo e o que está escolhido.
+    --}}
+    <div data-filtros-etiquetas hidden class="mt-2 flex flex-wrap gap-1.5 lg:hidden"></div>
 
     {{--
         A gaveta abaixo do lg; a própria linha a partir dele. `data-offcanvas`
@@ -82,7 +90,7 @@
                 {{-- Na gaveta, um campo por linha, na largura toda; no computador, lado a lado. --}}
                 <div class="scroll-discreto flex-1 overflow-y-auto px-5 py-5 lg:overflow-visible lg:p-0">
                     @isset($top)
-                        <div class="mb-4 lg:mb-3">{{ $top }}</div>
+                        <div data-filtro-campo class="mb-4 lg:mb-3">{{ $top }}</div>
                     @endisset
 
                     <div class="flex flex-col gap-4 max-lg:*:w-full! lg:flex-row lg:flex-wrap lg:items-end lg:gap-3">

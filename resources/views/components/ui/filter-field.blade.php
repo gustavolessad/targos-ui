@@ -19,6 +19,7 @@
     ];
 @endphp
 
-<div {{ $attributes->class([$larguras[$kind] ?? $larguras['select']]) }}>
+{{-- `data-filtro-campo`: um filtro da barra, para a etiqueta do filtro em uso (filters.js). --}}
+<div data-filtro-campo {{ $attributes->class([$larguras[$kind] ?? $larguras['select']]) }}>
     {{ $slot }}
 </div>

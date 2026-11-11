@@ -1303,7 +1303,8 @@ de campos lado a lado, e o "Limpar" no fim quando `clear` tem o endereço. **Nã
 há botão "Buscar"**: tudo envia sozinho. No celular e no tablet (abaixo do
 `lg`) os campos vão para uma gaveta pela direita, aberta pelo botão "Filtros"
 (com um ponto quando há filtro em uso); ali nada envia ao mudar, e a lista vem
-no "Aplicar" do rodapé. É um formulário só: o CSS decide onde os campos ficam,
+no "Aplicar" do rodapé; embaixo do botão, uma etiqueta por filtro em uso (o que
+a URL traz), com o X que o tira. É um formulário só: o CSS decide onde os campos ficam,
 e nada se duplica. `top` é o que fica acima da linha (o "Agrupar por" de um
 relatório); `id` muda o da gaveta, para duas barras na mesma página; os outros
 atributos vão para o `<form>`.
@@ -1675,6 +1676,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.9** — A gaveta da `x-ui.filter-bar` enviava o formulário vazio: ao abrir, ela vai
+  para o fim do `<body>`, fora do `<form>`. Os campos dela passam a ficar ligados ao
+  formulário pelo atributo `form`, e ela volta ao lugar ao fechar. Embaixo do botão
+  "Filtros", uma etiqueta por filtro em uso (o que a URL traz), com o X que leva à
+  mesma lista sem ele; o `x-ui.filter-field` ganha o `data-filtro-campo`.
 - **1.15.8** — A barra de filtros das listagens, `x-ui.filter-bar`: a linha de
   sempre no computador, sem botão "Buscar"; abaixo do `lg`, os mesmos campos
   numa gaveta pela direita, aberta pelo botão "Filtros", com "Aplicar" e

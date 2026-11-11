@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { camposForaDaUrl, enviaAoMudar } from '../../resources/js/filters.js';
+import { camposForaDaUrl, enviaAoMudar, esperaOAplicar } from '../../resources/js/filters.js';
 
 const campo = (props) => ({ name: '', type: 'text', value: '', checked: false, tagName: 'INPUT', dataset: {}, ...props });
 
@@ -44,4 +44,12 @@ test('select, data, caixa e os nativos do pacote enviam ao mudar; a busca não',
     assert.equal(enviaAoMudar(campo({ type: 'text' })), false);
     // Quem se declara busca espera o atraso, mesmo sendo select.
     assert.equal(enviaAoMudar(campo({ tagName: 'SELECT', dataset: { filtroBusca: '' } })), false);
+});
+
+test('na gaveta da barra (abaixo do lg) nada envia sozinho: a lista espera o Aplicar', () => {
+    // A gaveta é `fixed` só quando é gaveta; no computador ela é a própria linha de filtros.
+    assert.equal(esperaOAplicar(true, 'fixed'), true);
+    assert.equal(esperaOAplicar(true, 'static'), false);
+    // O campo fora da gaveta (a barra sem `x-ui.filter-bar`) segue enviando ao mudar.
+    assert.equal(esperaOAplicar(false, 'fixed'), false);
 });

@@ -12,7 +12,11 @@
  *   para o link ser limpo e o controller não distinguir "vazio" de
  *   "não veio";
  * - mudar um filtro volta à primeira página: um `page` que esteja no
- *   formulário (campo escondido) é descartado.
+ *   formulário (campo escondido) é descartado;
+ * - **na gaveta da `x-ui.filter-bar`** (abaixo do `lg`, `data-filtros-gaveta`),
+ *   nada envia sozinho: escolhe-se com calma e a lista vem no "Aplicar" — que,
+ *   como o Enter, passa pelo mesmo envio limpo (sem os vazios, com o
+ *   `por_pagina`).
  *
  * Quem escuta o envio no servidor é o mesmo controller da listagem.
  */
@@ -47,7 +51,22 @@ export function enviaAoMudar(campo) {
         || 'periodoFim' in campo.dataset;
 }
 
-function enviar(formulario) {
+/**
+ * Se a mudança espera o "Aplicar": o campo está na gaveta da barra, e a
+ * gaveta está sendo gaveta — `position: fixed`, que é como ela fica abaixo do
+ * `lg`. No computador ela é a própria linha de filtros (`static`), e tudo
+ * envia ao mudar, como antes. Quem decide a largura é o CSS, uma vez só.
+ */
+export function esperaOAplicar(dentroDaGaveta, posicaoDaGaveta) {
+    return dentroDaGaveta && posicaoDaGaveta === 'fixed';
+}
+
+/**
+ * Prepara o formulário para ir: os campos vazios desligados (saem da URL) e o
+ * `por_pagina` da URL junto. Serve ao envio automático e ao do botão ou do
+ * Enter; repetir não muda nada. Devolve o que desligou e o que acrescentou.
+ */
+function prepararEnvio(formulario) {
     /*
      * Desligar o campo vazio no instante do envio o tira da URL; no
      * `pageshow` (voltar pelo histórico) eles voltam a ligar, e o
@@ -71,6 +90,12 @@ function enviar(formulario) {
     if (porPagina) {
         formulario.append(porPagina);
     }
+
+    return { desligados, porPagina };
+}
+
+function enviar(formulario) {
+    const { desligados, porPagina } = prepararEnvio(formulario);
 
     formulario.requestSubmit();
 
@@ -114,7 +139,18 @@ export function ligarFiltros(raiz = document) {
         const espera = Number(formulario.dataset.filtrosEspera) || ESPERA_PADRAO;
         let agendado = null;
 
+        // A gaveta da `x-ui.filter-bar`, quando há: abaixo do `lg`, a lista espera o "Aplicar".
+        const gaveta = formulario.querySelector('[data-filtros-gaveta]');
+        const naGaveta = (campo) => esperaOAplicar(
+            gaveta !== null && gaveta.contains(campo),
+            gaveta === null ? '' : window.getComputedStyle(gaveta).position,
+        );
+
         formulario.addEventListener('change', (evento) => {
+            if (naGaveta(evento.target)) {
+                return;
+            }
+
             if (enviaAoMudar(evento.target)) {
                 clearTimeout(agendado);
                 enviar(formulario);
@@ -128,12 +164,19 @@ export function ligarFiltros(raiz = document) {
                 return;
             }
 
+            if (naGaveta(campo)) {
+                return;
+            }
+
             clearTimeout(agendado);
             agendado = setTimeout(() => enviar(formulario), espera);
         });
 
-        // Enter na busca envia na hora, sem esperar o atraso.
-        formulario.addEventListener('submit', () => clearTimeout(agendado));
+        // Enter na busca (ou o "Aplicar" da gaveta) envia na hora, sem esperar o atraso, e pelo mesmo envio limpo.
+        formulario.addEventListener('submit', () => {
+            clearTimeout(agendado);
+            prepararEnvio(formulario);
+        });
     });
 
     window.addEventListener('pageshow', () => {

@@ -1289,22 +1289,34 @@ o que chegou — o envelope ou o item novo — adianta isso e acerta os botões 
 pontas. As regras estão em `indiceAoSoltar`, `reordenar`, `passoPelaTecla`,
 `ladoDoAlvo` e `ordemDe`.
 
-## Listagem: filtros que se enviam sozinhos
+## Listagem: a barra de filtros
 
 ```blade
-<form method="GET" action="{{ route('clients.index') }}" data-filtros class="flex flex-wrap items-end gap-3">
+<x-ui.filter-bar :action="route('clients.index')" :clear="$filtros->any() ? route('clients.index') : null">
     <x-ui.filter-field kind="wide"><x-ui.input type="search" name="busca" label="Buscar" size="sm" /></x-ui.filter-field>
     <x-ui.filter-field kind="select"><x-ui.select name="status" label="Situação" size="sm" placeholder="Todas" :options="$status" /></x-ui.filter-field>
-    <x-ui.button type="submit" variant="secondary" size="sm">Buscar</x-ui.button>
-</form>
+</x-ui.filter-bar>
 ```
 
-Com `data-filtros`, um select, uma data, um período ou uma caixa enviam o
-formulário ao mudar; a busca (`type="search"`, ou o campo com
-`data-filtro-busca`) espera a pessoa parar de digitar (`data-filtros-espera`,
-400 ms por padrão); os campos vazios e o `page` ficam fora da URL, e o
-`por_pagina` escolhido no seletor da paginação vai junto. Sem JavaScript,
-vale o botão "Buscar".
+**A mesma barra em toda listagem.** No computador (a partir do `lg`) é a linha
+de campos lado a lado, e o "Limpar" no fim quando `clear` tem o endereço. **Não
+há botão "Buscar"**: tudo envia sozinho. No celular e no tablet (abaixo do
+`lg`) os campos vão para uma gaveta pela direita, aberta pelo botão "Filtros"
+(com um ponto quando há filtro em uso); ali nada envia ao mudar, e a lista vem
+no "Aplicar" do rodapé. É um formulário só: o CSS decide onde os campos ficam,
+e nada se duplica. `top` é o que fica acima da linha (o "Agrupar por" de um
+relatório); `id` muda o da gaveta, para duas barras na mesma página; os outros
+atributos vão para o `<form>`.
+
+O comportamento é o do `data-filtros` (`ligarFiltros`), que a barra põe no
+formulário: um select, uma data, um período ou uma caixa enviam ao mudar; a
+busca (`type="search"`, ou o campo com `data-filtro-busca`) espera a pessoa
+parar de digitar (`data-filtros-espera`, 400 ms por padrão); os campos vazios e
+o `page` ficam fora da URL, e o `por_pagina` escolhido no seletor da paginação
+vai junto — também no "Aplicar" e no Enter. Dentro da gaveta
+(`data-filtros-gaveta`, enquanto ela for `position: fixed`), a mudança espera o
+"Aplicar". O `data-filtros` continua servindo a um formulário solto que não é
+barra de listagem (um período no cabeçalho de um painel).
 
 ## Modal e gaveta: `static` e os eventos
 
@@ -1663,6 +1675,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.8** — A barra de filtros das listagens, `x-ui.filter-bar`: a linha de
+  sempre no computador, sem botão "Buscar"; abaixo do `lg`, os mesmos campos
+  numa gaveta pela direita, aberta pelo botão "Filtros", com "Aplicar" e
+  "Limpar". Na gaveta a barra `data-filtros` espera o "Aplicar"; o envio pelo
+  botão ou pelo Enter também sai sem os campos vazios e com o `por_pagina`.
 - **1.15.5** — O `x-ui.avatar-cell` define o tamanho do nome (`text-sm`, o da
   tabela). Ele herdava, e fora de tabela — a lista das últimas vendas de um
   painel — saía com os 16px da página, maior que o resto.

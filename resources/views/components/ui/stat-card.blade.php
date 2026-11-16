@@ -98,17 +98,25 @@
     $corDoNumero = in_array($color, $cores, true) ? $color : 'neutral';
 
     $classesDoTamanho = match ($size) {
-        'sm' => 'text-2xl font-bold tracking-tight',
+        // No celular, o pequeno fica compacto: os cards das listagens vão em duas colunas.
+        'sm' => 'text-lg font-bold tracking-tight sm:text-2xl',
         'lg' => 'text-4xl font-bold tracking-tight',
         default => 'text-3xl font-bold tracking-tight',
     };
 
     // No `loading`, a altura da linha do número, para o esqueleto ocupar o mesmo lugar.
     $alturaDoNumero = match ($size) {
-        'sm' => 'h-8',
+        'sm' => 'h-7 sm:h-8',
         'lg' => 'h-10',
         default => 'h-9',
     };
+
+    /*
+     * O pequeno é o card apertado: no celular, as listagens o põem em duas
+     * colunas, e ele fica compacto — menos respiro, rótulo e ícone menores.
+     * Do `sm` em diante, igual aos outros.
+     */
+    $compacto = $size === 'sm';
 
     // O gráfico na cor do número; o card sem cor usa a de ação.
     $corDoGrafico = in_array($color, ['danger', 'warning', 'success', 'info'], true) ? $color : 'primary';
@@ -127,7 +135,9 @@
          * acima do resto fazia os indicadores parecerem um bloco de
          * outra tela, e não o topo desta.
          */
-        'rounded-xl border border-neutral-300 bg-white p-4',
+        'rounded-xl border border-neutral-300 bg-white',
+        'p-3 sm:p-4' => $compacto,
+        'p-4' => ! $compacto,
         // Coluna: numa grade, o card estica até a altura da linha, e o gráfico fica no pé.
         'flex flex-col',
         /*
@@ -159,9 +169,9 @@
     @if ($href !== null) href="{{ $href }}" @endif
     @if ($loading) aria-busy="true" @endif
     {{ $attributes->class($classes) }}>
-    <div class="flex items-start justify-between gap-3">
+    <div @class(['flex items-start justify-between', 'gap-2 sm:gap-3' => $compacto, 'gap-3' => ! $compacto])>
         <div class="min-w-0">
-            <p class="truncate text-sm font-medium text-neutral-900 dark:text-white">{{ $label }}</p>
+            <p @class(['truncate font-medium text-neutral-900 dark:text-white', 'text-xs sm:text-sm' => $compacto, 'text-sm' => ! $compacto])>{{ $label }}</p>
 
             @if ($loading)
                 <div class="mt-1 flex items-center {{ $alturaDoNumero }}">
@@ -188,13 +198,13 @@
                 </span>
             </x-ui.tooltip>
         @elseif ($icon !== null)
-            <x-ui.icon :name="$icon" class="size-5 shrink-0 text-neutral-400" />
+            <x-ui.icon :name="$icon" :class="$compacto ? 'size-4 sm:size-5 shrink-0 text-neutral-400' : 'size-5 shrink-0 text-neutral-400'" />
         @endif
     </div>
 
     @if ($loading)
         {{-- A dica no mesmo lugar da de verdade: logo abaixo do número com gráfico, no pé sem ele. --}}
-        <div @class(['mt-2' => $trend !== null, 'mt-auto pt-3' => $trend === null])>
+        <div @class(['mt-2' => $trend !== null, 'mt-auto pt-2 sm:pt-3' => $trend === null && $compacto, 'mt-auto pt-3' => $trend === null && ! $compacto])>
             {{-- A altura da linha do `text-xs`, por dentro: com o `pt-3` na mesma caixa, o `h-4` contaria o respiro. --}}
             <div class="flex h-4 items-center">
                 <x-ui.skeleton class="h-3 w-32 max-w-full" />
@@ -207,7 +217,7 @@
             grade que estica o card, o número fica em cima e elas embaixo,
             alinhadas com as dos cards vizinhos.
         --}}
-        <div @class(['min-w-0', 'mt-2' => $trend !== null, 'mt-auto pt-3' => $trend === null])>
+        <div @class(['min-w-0', 'mt-2' => $trend !== null, 'mt-auto pt-2 sm:pt-3' => $trend === null && $compacto, 'mt-auto pt-3' => $trend === null && ! $compacto])>
             @if (is_array($hint))
                 <ul class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
                     @foreach ($hint as $item)
@@ -226,16 +236,17 @@
     @endif
 
     @if ($trend !== null && $loading)
-        <div class="-mx-4 -mb-4 mt-auto pt-3">
+        <div @class(['mt-auto pt-3', '-mx-3 -mb-3 sm:-mx-4 sm:-mb-4' => $compacto, '-mx-4 -mb-4' => ! $compacto])>
             <x-ui.skeleton class="w-full rounded-none rounded-b-[11px]" :style="'height: '.(int) $trendHeight.'px'" />
         </div>
     @elseif ($trend !== null)
         {{--
-            Margens negativas do tamanho do padding do card (`p-4`): o
+            Margens negativas do tamanho do padding do card (`p-4`, ou `p-3`
+            no pequeno no celular): o
             gráfico encosta na base e nas laterais. O canto de baixo do
             desenho acompanha o do card — um ponto a menos, pela borda.
         --}}
-        <div class="-mx-4 -mb-4 mt-auto pt-3 [&_svg]:rounded-b-[11px]" data-tendencia>
+        <div @class(['mt-auto pt-3 [&_svg]:rounded-b-[11px]', '-mx-3 -mb-3 sm:-mx-4 sm:-mb-4' => $compacto, '-mx-4 -mb-4' => ! $compacto]) data-tendencia>
             <x-ui.chart type="area" sparkline :height="$trendHeight"
                         :series="$seriesDoGrafico"
                         :labels="array_values($trendLabels)"

@@ -39,7 +39,12 @@
      * tem como dizer. É o que uma lista curta de escolhas (os depósitos
      * do PDV, os papéis de uma pessoa) pede sem o peso de um select.
      */
-    $nome = rtrim($name, '[]');
+    /*
+     * Só o sufixo `[]`, se vier. O `rtrim($name, '[]')` de antes tirava
+     * qualquer `[` ou `]` do fim: `window[days]` virava `window[days`, as
+     * caixas saíam `window[days[]` e o servidor não recebia os valores.
+     */
+    $nome = str_ends_with($name, '[]') ? substr($name, 0, -2) : $name;
     $chave = \Targos\Ui\FieldName::key($nome);
     $id ??= \Targos\Ui\FieldName::id($nome);
 

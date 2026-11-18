@@ -171,6 +171,11 @@ pintura pelo `<x-ui.theme-script />`.
   é a largura: `w-64 recolhida:w-16` na barra e `lg:ps-64 recolhida:ps-16` no
   conteúdo (o modelo `layouts/panel` já vem assim).
 - O slot `symbol` do `x-ui.sidebar` recebe o logo reduzido.
+- O slot `top` recebe um atalho acima da lista: o `<x-ui.sidebar-action
+  icon="monitor" :href="...">Abrir PDV</x-ui.sidebar-action>` é o link com a
+  cara do botão primário, maior que os itens; recolhida a barra, fica o ícone.
+- O slot `footer` fica preso embaixo, fora da rolagem (a versão do sistema, por
+  exemplo): a lista rola por cima dele.
 - No celular, a barra mora num `<x-ui.sidebar-drawer id="menu-painel">`: a
   mesma barra deslizando da esquerda, com largura fixa (`w-72`, nunca mais de
   85% da tela), um X discreto no canto e o fundo escuro que fecha ao toque.
@@ -1676,6 +1681,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.12** — Barra lateral: o slot `footer` do `x-ui.sidebar`, preso embaixo e fora
+  da rolagem, e o `x-ui.sidebar-action`, o atalho em destaque do slot `top` (link com a
+  cara do botão primário, que recolhe para o ícone).
 - **1.15.9** — A gaveta da `x-ui.filter-bar` enviava o formulário vazio: ao abrir, ela vai
   para o fim do `<body>`, fora do `<form>`. Os campos dela passam a ficar ligados ao
   formulário pelo atributo `form`, e ela volta ao lugar ao fechar. Embaixo do botão

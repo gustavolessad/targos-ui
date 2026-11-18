@@ -3,9 +3,11 @@
 
     Acompanha o tema: branca no claro, preta no escuro. O projeto entra
     com o conteúdo: o slot `logo`, o slot `symbol` (o logo reduzido, para
-    a barra recolhida), o slot `top` (opcional: um atalho acima da lista)
-    e, no slot principal, os itens (`ui.nav-item` e `ui.nav-group`). O
-    modelo `admin/sidebar` do pacote é um exemplo completo.
+    a barra recolhida), o slot `top` (opcional: um atalho acima da lista,
+    como o `ui.sidebar-action`), o slot `footer` (opcional: preso embaixo,
+    fora da rolagem — a versão do sistema, por exemplo) e, no slot
+    principal, os itens (`ui.nav-item` e `ui.nav-group`). O modelo
+    `admin/sidebar` do pacote é um exemplo completo.
 
     Cada bloco de itens é uma `div` com `space-y-0.5`; os blocos se
     separam só pelo espaço, sem título.
@@ -48,4 +50,11 @@
     <div class="scroll-discreto flex-1 space-y-2 overflow-y-auto px-3 py-2">
         {{ $slot }}
     </div>
+
+    {{-- O rodapé fica preso embaixo: a lista rola por cima dele, e ele não sai do lugar. --}}
+    @isset($footer)
+        <div class="shrink-0 border-t border-neutral-100 px-3 py-2 dark:border-neutral-800">
+            {{ $footer }}
+        </div>
+    @endisset
 </nav>

@@ -173,7 +173,8 @@ pintura pelo `<x-ui.theme-script />`.
 - O slot `symbol` do `x-ui.sidebar` recebe o logo reduzido.
 - O slot `top` recebe um atalho acima da lista: o `<x-ui.sidebar-action
   icon="monitor" :href="...">Abrir PDV</x-ui.sidebar-action>` é o link com a
-  cara do botão primário, maior que os itens; recolhida a barra, fica o ícone.
+  cara e o tamanho do botão primário, na largura da barra; recolhida a barra,
+  fica o ícone.
 - O slot `footer` fica preso embaixo, fora da rolagem (a versão do sistema, por
   exemplo): a lista rola por cima dele.
 - No celular, a barra mora num `<x-ui.sidebar-drawer id="menu-painel">`: a
@@ -1681,6 +1682,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.15.13** — O `x-ui.sidebar-action` no tamanho do botão `md` (40px de altura, ícone
+  de 16px, sem o quadro em volta do ícone), centrado na largura da barra.
 - **1.15.12** — Barra lateral: o slot `footer` do `x-ui.sidebar`, preso embaixo e fora
   da rolagem, e o `x-ui.sidebar-action`, o atalho em destaque do slot `top` (link com a
   cara do botão primário, que recolhe para o ícone).

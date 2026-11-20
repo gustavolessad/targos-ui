@@ -102,8 +102,8 @@
 
     $espaco = match (true) {
         $soIcone => $size === 'lg' ? 'p-1.5' : 'p-1',
-        $size === 'lg' => 'px-2.5 py-0.5 text-sm',
-        default => 'px-2 py-0.5 text-xs',
+        $size === 'lg' => 'px-2 py-0.5 text-sm',
+        default => 'px-1.5 py-0.25 text-xs',
     };
 @endphp
 

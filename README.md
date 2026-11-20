@@ -682,7 +682,7 @@ destaque (o resumo de totais):
 ```
 
 `radius` é o arredondamento dos cantos: `none`, `sm` (4px), `md` (6px), `lg`
-(8px), `xl` (12px) ou `2xl` (16px, o padrão). Prop, e não classe: um
+(8px, o padrão — o raio de todo o pacote), `xl` (12px) ou `2xl` (16px). Prop, e não classe: um
 `rounded-*` passado de fora conviveria com o do card, e quem venceria seria a
 ordem no CSS gerado. O rodapé (`footer`) acompanha o canto sozinho:
 
@@ -1682,6 +1682,30 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.16.0** — Visual mais perto do shadcn, só nas classes (nenhum componente muda de
+  nome, atributo ou script):
+  - **Tamanhos um degrau menores:** botão e campo com 32px no `sm`, 36px no `md`, 40px no
+    `lg` e 48px no `xl` (eram 36, 40, 48 e 56); os quadrados de ícone acompanham. Caixa
+    de marcar e rádio de 16px no `md`, interruptor de 20×36px.
+  - **Um raio só:** 8px (`rounded-lg`) em todo controle e superfície — card, tabela,
+    modal, menu, tooltip, cards de números, campos —; 6px (`rounded-md`) só no que fica
+    dentro de painel com respiro (opções do select, itens de menu, abas). O `radius`
+    padrão do `x-ui.card` passa a `lg`.
+  - **Superfícies mais leves:** bordas `neutral-200` com `shadow-xs` (card, tabela, cards
+    de números, botão secundário); painéis que abrem com `shadow-md`; modal com borda
+    fina e `shadow-lg`.
+  - **Tabela:** cabeçalho de 40px na cor do texto, célula `px-3 py-3`, divisórias
+    `neutral-200`.
+  - **Abas:** o controle segmentado (fundo cinza, a aberta em branco com sombra), no
+    lugar da pílula verde.
+  - **Itens de menu e do select** com 28px e 2px entre eles.
+  - **Aviso** com fundo bem claro (`50/60`); **selo** sem anel, `px-1.5 py-0.25`.
+  - **Texto** meio pixel menor: `text-sm` 13,5px (linha 19px) e `text-xs` 11,5px (linha
+    15px), no `@theme`.
+  - **Barra de rolagem discreta em toda área que rola**, sem as setas do Windows (o
+    `.scroll-discreto` continua aceito e não muda nada).
+  - **`x-ui.content`** sem o canto arredondado de cima.
+  Quem tinha tela alinhada às alturas antigas confere ao atualizar.
 - **1.15.13** — O `x-ui.sidebar-action` no tamanho do botão `md` (40px de altura, ícone
   de 16px, sem o quadro em volta do ícone), centrado na largura da barra.
 - **1.15.12** — Barra lateral: o slot `footer` do `x-ui.sidebar`, preso embaixo e fora

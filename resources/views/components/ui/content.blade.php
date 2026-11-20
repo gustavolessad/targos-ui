@@ -10,7 +10,7 @@
 --}}
 <main {{ $attributes->class([
     // 3.5rem: a altura do x-ui.topbar (h-14).
-    'min-h-[calc(100vh-3.5rem)] bg-painel p-6 lg:p-8',
+    'min-h-[calc(100vh-3.5rem)] bg-painel p-6 lg:p-10',
     'lg:shadow-[inset_6px_6px_12px_-8px_rgb(0_0_0_/_0.10)]',
     'dark:bg-painel-dark dark:lg:shadow-none',
 ]) }}>

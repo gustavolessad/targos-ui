@@ -28,19 +28,19 @@
     'bodyClass' => '',
     /*
      * O arredondamento dos cantos: `none`, `sm` (4px), `md` (6px), `lg`
-     * (8px), `xl` (12px) ou `2xl` (16px, o padrão). Prop, e não classe
+     * (8px), `xl` (12px, o padrão) ou `2xl` (16px). Prop, e não classe
      * de fora, pelo mesmo motivo do `tone`: um `rounded-lg` passado
      * conviveria com o `rounded-2xl` daqui, e quem venceria seria a
      * ordem no CSS gerado. E o rodapé acompanha o canto (ver abaixo).
      */
-    'radius' => '2xl',
+    'radius' => 'xl',
 ])
 
 @php
     // A borda entra no tom: nos tingidos, ela acompanha o fundo.
     $tons = [
-        'raised' => 'border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900',
-        'sunken' => 'border-neutral-300 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900',
+        'raised' => 'border-neutral-200 bg-white shadow-xs dark:border-neutral-800 dark:bg-neutral-900',
+        'sunken' => 'border-neutral-200 bg-neutral-100/70 dark:border-neutral-800 dark:bg-neutral-900',
         'success' => 'border-success-200 bg-success-50/60 dark:border-success-500/30 dark:bg-success-500/10',
         'info' => 'border-info-200 bg-info-50/60 dark:border-info-500/30 dark:bg-info-500/10',
         'warning' => 'border-warning-200 bg-warning-50/60 dark:border-warning-500/30 dark:bg-warning-500/10',
@@ -101,7 +101,7 @@
             As ações na linha do título, encostadas à direita. O título
             pode quebrar linha; os botões, não (`shrink-0`).
         --}}
-        <div class="flex items-center justify-between gap-4 border-b border-neutral-300 px-5 py-4 dark:border-neutral-800">
+        <div class="flex items-center justify-between gap-4 border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
             <div class="min-w-0">
                 @if ($title)
                     <h2 class="font-semibold text-neutral-900 dark:text-white">{{ $title }}</h2>
@@ -115,7 +115,7 @@
             <div class="flex shrink-0 items-center gap-2">{{ $actions }}</div>
         </div>
     @elseif ($title || $subtitle)
-        <div class="border-b border-neutral-300 px-5 py-4 dark:border-neutral-800">
+        <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
             @if ($title)
                 <h2 class="font-semibold text-neutral-900 dark:text-white">{{ $title }}</h2>
             @endif
@@ -144,7 +144,7 @@
     --}}
     <div @class([
         $cantoDoRodape,
-        'border-t border-neutral-300 bg-neutral-50 dark:border-neutral-800 dark:bg-white/5',
+        'border-t border-neutral-200 bg-neutral-50/70 dark:border-neutral-800 dark:bg-white/5',
         $respiros[$padding] ?? $respiros['md'],
     ])>{{ $footer }}</div>
 @endif

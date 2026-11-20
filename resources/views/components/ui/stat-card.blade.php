@@ -99,9 +99,9 @@
 
     $classesDoTamanho = match ($size) {
         // No celular, o pequeno fica compacto: os cards das listagens vão em duas colunas.
-        'sm' => 'text-lg font-bold tracking-tight sm:text-2xl',
-        'lg' => 'text-4xl font-bold tracking-tight',
-        default => 'text-3xl font-bold tracking-tight',
+        'sm' => 'text-lg font-semibold tracking-tight tabular-nums sm:text-xl',
+        'lg' => 'text-3xl font-semibold tracking-tight tabular-nums',
+        default => 'text-2xl font-semibold tracking-tight tabular-nums',
     };
 
     // No `loading`, a altura da linha do número, para o esqueleto ocupar o mesmo lugar.
@@ -135,7 +135,7 @@
          * acima do resto fazia os indicadores parecerem um bloco de
          * outra tela, e não o topo desta.
          */
-        'rounded-xl border border-neutral-300 bg-white',
+        'rounded-xl border border-neutral-200 bg-white',
         'p-3 sm:p-4' => $compacto,
         'p-4' => ! $compacto,
         // Coluna: numa grade, o card estica até a altura da linha, e o gráfico fica no pé.
@@ -146,7 +146,7 @@
          * `min-w-0`, o card ficava preso nela e vazava da tela estreita.
          */
         'min-w-0',
-        'dark:border-neutral-800 dark:bg-neutral-900' => $variant !== 'filled',
+        'shadow-xs dark:border-neutral-800 dark:bg-neutral-900' => $variant !== 'filled',
         /*
          * Cheio: fundo e borda na cor de ação, e tudo o que é texto ou
          * ícone dentro (rótulo, número, dica, ícone) no contraste dela.

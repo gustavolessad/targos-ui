@@ -52,7 +52,7 @@
      * A caixa acompanha a escala dos campos: `xs` ao lado de um rótulo
      * `text-xs` não pode ser maior que a letra.
      */
-    $tamanhos = ['xs' => 'size-3.5', 'sm' => 'size-4', 'md' => 'size-5', 'lg' => 'size-6'];
+    $tamanhos = ['xs' => 'size-3.5', 'sm' => 'size-4', 'md' => 'size-4', 'lg' => 'size-5'];
 
     // Numa lista (`nome[]`), cada caixa é um item, e não o campo inteiro.
     $lista = $name !== null && str_ends_with($name, '[]');
@@ -103,12 +103,12 @@
 
     $classes = [
         // `peer`: o rótulo ao lado acompanha a caixa desligada (`peer-disabled:`), sem JavaScript.
-        'peer cursor-pointer rounded border-neutral-300',
+        'peer cursor-pointer rounded-[4px] border-neutral-300 shadow-xs',
         /*
          * `ring-offset-0`: sem ele o anel de foco nasce descolado da
          * caixa, com um halo branco no meio.
          */
-        'focus:ring-2 focus:ring-offset-0',
+        'focus:ring-3 focus:ring-offset-0',
         'dark:border-neutral-600 dark:bg-neutral-900',
         'disabled:cursor-not-allowed disabled:opacity-60',
         $cores[$color] ?? $cores['primary'],

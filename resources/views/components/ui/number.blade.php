@@ -79,9 +79,9 @@
      */
     $tamanhos = [
         'xs' => ['h-7 ps-2.5 pe-14 text-xs', 'px-1', 'size-3.5'],
-        'sm' => ['h-9 ps-3 pe-16 text-sm', 'px-1.5', 'size-4'],
-        'md' => ['h-10 ps-3 pe-16 text-sm', 'px-1.5', 'size-4'],
-        'lg' => ['h-12 ps-4 pe-20 text-base', 'px-2', 'size-5'],
+        'sm' => ['h-8 ps-3 pe-16 text-sm', 'px-1.5', 'size-4'],
+        'md' => ['h-9 ps-3 pe-16 text-sm', 'px-1.5', 'size-4'],
+        'lg' => ['h-10 ps-4 pe-20 text-base', 'px-2', 'size-5'],
     ];
 
     $naCelula = $size === 'cell';
@@ -121,7 +121,7 @@
            {{ $attributes->merge(['autocomplete' => 'off', ...$naCelulaAcessivel])->class([
                'rounded-md border bg-transparent text-neutral-900 transition',
                'placeholder:text-neutral-400',
-               'focus:ring-2 focus:outline-none',
+               'focus:ring-3 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',
                'read-only:cursor-not-allowed read-only:text-neutral-400',
                'dark:text-white dark:placeholder:text-neutral-500',
@@ -151,8 +151,8 @@
                    data-step="{{ $step }}"
                    @if ($nullable) data-nullable @endif
                    {{ $attributes->merge(['autocomplete' => 'off'])->class([
-                       'block w-full rounded-lg border text-neutral-900',
-                       'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
+                       'block w-full rounded-lg border text-neutral-900 shadow-xs',
+                       'placeholder:text-neutral-400 focus:outline-none focus:ring-3',
                        // Desligado: cinza e sem cursor de escrita, para se ler sem se tentar editar.
                        'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                        'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',

@@ -85,14 +85,14 @@
 
     $tamanhos = [
         'xs' => 'h-7 px-2.5 text-xs',
-        'sm' => 'h-9 px-3 text-sm',
-        'md' => 'h-10 px-3 text-sm',
-        'lg' => 'h-12 px-4 text-base',
+        'sm' => 'h-8 px-3 text-sm',
+        'md' => 'h-9 px-3 text-sm',
+        'lg' => 'h-10 px-4 text-base',
     ];
 
     $caixa = [
-        'block w-full rounded-lg border text-neutral-900 bg-white',
-        'focus:outline-none focus:ring-2',
+        'block w-full rounded-lg border text-neutral-900 shadow-xs bg-white',
+        'focus:outline-none focus:ring-3',
         'dark:bg-neutral-900 dark:text-white',
         // Desligado: cinza e sem cursor de clique, como o select.
         'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',

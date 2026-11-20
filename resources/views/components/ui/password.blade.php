@@ -17,9 +17,9 @@
     // Mesma tabela do <x-ui.input>, com espaço à direita para o olho.
     $tamanhos = [
         'xs' => 'h-7 px-2.5 pe-8 text-xs',
-        'sm' => 'h-9 px-3 pe-9 text-sm',
-        'md' => 'h-10 px-3 pe-10 text-sm',
-        'lg' => 'h-12 px-4 pe-11 text-base',
+        'sm' => 'h-8 px-3 pe-9 text-sm',
+        'md' => 'h-9 px-3 pe-10 text-sm',
+        'lg' => 'h-10 px-4 pe-11 text-base',
     ];
 @endphp
 
@@ -49,8 +49,8 @@
                name="{{ $name }}"
                @required($required)
                {{ $attributes->class([
-                   'block w-full rounded-lg border text-neutral-900',
-                   'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
+                   'block w-full rounded-lg border text-neutral-900 shadow-xs',
+                   'placeholder:text-neutral-400 focus:outline-none focus:ring-3',
                    'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                    'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',
                    'read-only:cursor-not-allowed read-only:bg-neutral-100 read-only:text-neutral-500',

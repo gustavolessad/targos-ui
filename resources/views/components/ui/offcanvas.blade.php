@@ -87,7 +87,7 @@
              ]) }}
              role="dialog" aria-modal="true"
              @if ($title) aria-label="{{ $title }}" aria-labelledby="{{ $id }}-titulo" @endif>
-            <div class="flex items-start justify-between gap-4 border-b border-neutral-300 px-5 py-4
+            <div class="flex items-start justify-between gap-4 border-b border-neutral-200 px-4 py-3
                         dark:border-neutral-800">
                 <div>
                     @if ($title)
@@ -113,12 +113,12 @@
             </div>
 
             {{-- Só o corpo rola: o cabeçalho e o rodapé ficam à vista. --}}
-            <div class="scroll-discreto flex-1 overflow-y-auto px-5 py-5">
+            <div class="scroll-discreto flex-1 overflow-y-auto p-4">
                 {{ $slot }}
             </div>
 
             @isset($footer)
-                <div class="border-t border-neutral-300 px-5 py-4 dark:border-neutral-800">
+                <div class="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
                     {{ $footer }}
                 </div>
             @endisset

@@ -28,12 +28,12 @@
         <div class="flex flex-wrap items-end gap-3">
             @isset($aside)
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">{{ $title }}</h1>
+                    <h1 class="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{{ $title }}</h1>
 
                     <div {{ $aside->attributes->class(['flex flex-wrap items-center gap-2']) }} data-cabecalho-selos>{{ $aside }}</div>
                 </div>
             @else
-                <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">{{ $title }}</h1>
+                <h1 class="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{{ $title }}</h1>
             @endisset
 
             @if (count($breadcrumbs) > 0)

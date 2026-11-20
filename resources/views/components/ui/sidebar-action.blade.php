@@ -16,7 +16,7 @@
 <a href="{{ $href }}"
    data-barra-dica="{{ trim(strip_tags((string) $slot)) }}"
    {{ $attributes->class([
-       'flex h-10 items-center justify-center gap-2 rounded-lg border border-transparent bg-primary-600 px-4 text-sm font-medium text-primary-contrast transition',
+       'flex h-9 items-center justify-center gap-2 rounded-lg border border-transparent bg-primary-600 px-4 text-sm font-medium text-primary-contrast shadow-xs transition',
        'hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-500/30',
        'recolhida:px-0',
    ]) }}>

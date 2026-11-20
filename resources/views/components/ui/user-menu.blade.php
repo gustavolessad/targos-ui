@@ -60,8 +60,8 @@
         classe passada a cada um — vale também para os itens do slot.
     --}}
     <div id="menu-usuario" data-menu
-         class="absolute end-0 z-30 mt-1.5 hidden {{ $width }} max-w-[calc(100vw-2rem)] origin-top-right rounded-xl
-                bg-white p-1 shadow-lg ring-1 ring-neutral-200
+         class="absolute end-0 z-30 mt-1.5 hidden {{ $width }} max-w-[calc(100vw-2rem)] origin-top-right rounded-lg
+                bg-white p-1 shadow-md ring-1 ring-neutral-200
                 dark:bg-neutral-900 dark:ring-neutral-800
                 scale-95 opacity-0 transition duration-150 ease-out
                 [&[data-aberto]]:scale-100 [&[data-aberto]]:opacity-100

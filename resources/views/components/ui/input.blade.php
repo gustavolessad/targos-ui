@@ -178,17 +178,17 @@
     $tamanhos = [
         /*
          * Altura fixa, a mesma do botão, da senha e do select em cada
-         * degrau (xs 28px, sm 36px, md 40px, lg 48px): lado a lado não
+         * degrau (xs 28px, sm 32px, md 36px, lg 40px): lado a lado não
          * há degrau, e `type="month"` ou `number` não crescem pela
          * altura de linha de cada navegador.
          */
         'xs' => 'h-7 px-2.5 text-xs',
-        'sm' => 'h-9 px-3 text-sm',
-        'md' => 'h-10 px-3 text-sm',
+        'sm' => 'h-8 px-3 text-sm',
+        'md' => 'h-9 px-3 text-sm',
         // As telas de acesso: um formulário curto, num card, sem mais nada.
-        'lg' => 'h-12 px-4 text-base',
+        'lg' => 'h-10 px-4 text-base',
         // O campo que é o centro da tela: a busca do balcão, que se usa de pé e de longe.
-        'xl' => 'h-14 px-4 text-base',
+        'xl' => 'h-12 px-4 text-base',
         'cell' => 'px-2 py-1 text-sm',
     ];
 
@@ -206,13 +206,13 @@
     $adornos = [
         'xs' => ['caixa' => 'h-7 text-xs', 'inicio' => 'ps-2.5', 'fim' => 'pe-2.5', 'comIcone' => 'ps-8', 'comIndicador' => 'pe-8',
             'icone' => 'start-2.5 size-3.5', 'indicador' => 'end-2.5', 'tamanho' => 'size-3.5'],
-        'sm' => ['caixa' => 'h-9 text-sm', 'inicio' => 'ps-3', 'fim' => 'pe-3', 'comIcone' => 'ps-9', 'comIndicador' => 'pe-9',
+        'sm' => ['caixa' => 'h-8 text-sm', 'inicio' => 'ps-3', 'fim' => 'pe-3', 'comIcone' => 'ps-9', 'comIndicador' => 'pe-9',
             'icone' => 'start-3 size-4', 'indicador' => 'end-3', 'tamanho' => 'size-4'],
-        'md' => ['caixa' => 'h-10 text-sm', 'inicio' => 'ps-3', 'fim' => 'pe-3', 'comIcone' => 'ps-9', 'comIndicador' => 'pe-9',
+        'md' => ['caixa' => 'h-9 text-sm', 'inicio' => 'ps-3', 'fim' => 'pe-3', 'comIcone' => 'ps-9', 'comIndicador' => 'pe-9',
             'icone' => 'start-3 size-4', 'indicador' => 'end-3', 'tamanho' => 'size-4'],
-        'lg' => ['caixa' => 'h-12 text-base', 'inicio' => 'ps-4', 'fim' => 'pe-4', 'comIcone' => 'ps-11', 'comIndicador' => 'pe-11',
+        'lg' => ['caixa' => 'h-10 text-base', 'inicio' => 'ps-4', 'fim' => 'pe-4', 'comIcone' => 'ps-11', 'comIndicador' => 'pe-11',
             'icone' => 'start-4 size-5', 'indicador' => 'end-4', 'tamanho' => 'size-5'],
-        'xl' => ['caixa' => 'h-14 text-base', 'inicio' => 'ps-4', 'fim' => 'pe-4', 'comIcone' => 'ps-12', 'comIndicador' => 'pe-12',
+        'xl' => ['caixa' => 'h-12 text-base', 'inicio' => 'ps-4', 'fim' => 'pe-4', 'comIcone' => 'ps-12', 'comIndicador' => 'pe-12',
             'icone' => 'start-4 size-6', 'indicador' => 'end-4', 'tamanho' => 'size-6'],
     ];
 
@@ -258,7 +258,7 @@
                 */
                $radius.' border bg-transparent text-neutral-900 transition',
                'placeholder:text-neutral-400',
-               'focus:ring-2 focus:outline-none',
+               'focus:ring-3 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',
                'read-only:cursor-not-allowed read-only:text-neutral-400',
                'dark:text-white dark:placeholder:text-neutral-500',
@@ -349,8 +349,8 @@
                {{ $attributes->class([
                    // `peer`: o indicador, irmão logo depois, aparece pelo `data-carregando` daqui.
                    'peer' => $comIndicador,
-                   'block w-full rounded-lg border text-neutral-900',
-                   'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
+                   'block w-full rounded-lg border text-neutral-900 shadow-xs',
+                   'placeholder:text-neutral-400 focus:outline-none focus:ring-3',
                    // Desligado: cinza e sem cursor de escrita, para se ler sem se tentar editar.
                    'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                    'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',

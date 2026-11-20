@@ -416,7 +416,7 @@ export class Calendario {
 // --- O painel ---
 
 // `animate-surgir`: a entrada do design system (resources/css/app.css), a mesma do dropdown.
-const CAIXA_DO_PAINEL = 'rounded-xl bg-white p-3 shadow-lg ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-neutral-800 origin-top animate-surgir';
+const CAIXA_DO_PAINEL = 'rounded-lg bg-white p-3 shadow-md ring-1 ring-neutral-200 dark:bg-neutral-900 dark:ring-neutral-800 origin-top animate-surgir';
 const FOLHA_DO_CELULAR = 'fixed inset-x-0 bottom-0 z-[65] max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white p-4 pb-6 shadow-xl dark:bg-neutral-900 origin-bottom animate-surgir';
 
 export const noCelular = () => window.matchMedia('(max-width: 639px)').matches;

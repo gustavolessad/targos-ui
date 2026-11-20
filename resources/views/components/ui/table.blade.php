@@ -82,7 +82,7 @@
     fora dela. Quem arredonda agora é o `rounded-xl` de cada parte.
 --}}
 <div {{ $attributes->class([
-    'rounded-xl bg-white ring-1 ring-neutral-200',
+    'rounded-xl bg-white shadow-xs ring-1 ring-neutral-200',
     'dark:bg-neutral-900 dark:ring-neutral-800',
     /*
      * O canto de cada ponta, já que não há mais recorte para arredondar.
@@ -113,7 +113,7 @@
         --}}
         <thead @class([
             'text-left',
-            'border-b border-neutral-300 dark:border-neutral-800' => ! $sticky,
+            'border-b border-neutral-200 dark:border-neutral-800' => ! $sticky,
         ])>
             <tr>
                 @foreach ($headers as $header)
@@ -126,9 +126,9 @@
 
                     <th scope="col"
                         @class([
-                            'px-4 py-3 font-medium text-neutral-500 dark:text-neutral-400',
+                            'h-10 px-3 font-medium text-neutral-900 dark:text-white',
                             // Opaco nos dois temas, o mesmo fundo do cartão: as linhas passam por baixo sem aparecer.
-                            'sticky top-0 z-10 bg-white shadow-[inset_0_-1px_0_var(--color-neutral-300)]' => $sticky,
+                            'sticky top-0 z-10 bg-white shadow-[inset_0_-1px_0_var(--color-neutral-200)]' => $sticky,
                             'dark:bg-neutral-900 dark:shadow-[inset_0_-1px_0_var(--color-neutral-800)]' => $sticky,
                             'text-end' => $aoFim,
                             'text-center' => ($header['align'] ?? '') === 'center',
@@ -144,7 +144,7 @@
                             --}}
                             <a href="{{ $linkDeOrdem($indice) }}"
                                class="inline-flex items-center gap-1 transition
-                                      hover:text-neutral-900 dark:hover:text-white">
+                                      hover:text-neutral-500 dark:hover:text-neutral-400">
                                 {{ $header['label'] ?? '' }}
 
                                 {{-- A seta só na coluna ativa: nas outras seria ruído. --}}
@@ -179,7 +179,7 @@
                 {{-- `data-ultima` também aqui: sem linha, o canto de baixo é o desta. --}}
                 <tr data-ultima>
                     <td colspan="{{ max(count($headers), 1) }}"
-                        class="bg-white px-4 py-12 text-center text-neutral-500
+                        class="bg-white px-3 py-10 text-center text-neutral-500
                                dark:bg-neutral-900 dark:text-neutral-400">
                         {{ $empty }}
                     </td>
@@ -195,7 +195,7 @@
             canto de baixo arredondar no lugar certo.
         --}}
         @if (isset($foot) && $temLinhas)
-            <tfoot {{ $foot->attributes->class(['border-t border-neutral-300 font-medium dark:border-neutral-700']) }}>
+            <tfoot {{ $foot->attributes->class(['border-t border-neutral-200 bg-neutral-50 font-medium dark:border-neutral-800 dark:bg-white/5']) }}>
                 {{ $foot }}
             </tfoot>
         @endif

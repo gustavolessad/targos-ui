@@ -72,15 +72,15 @@
                    @if ($form) form="{{ $form }}" @endif
                    {{ $attributes->except('id')->class(['peer sr-only']) }}>
 
-            <span class="h-6 w-11 rounded-full bg-neutral-300 transition-colors
+            <span class="h-5 w-9 rounded-full bg-neutral-300 shadow-xs transition-colors
                          peer-checked:bg-primary-600
-                         peer-focus-visible:ring-4 peer-focus-visible:ring-primary-500/30
+                         peer-focus-visible:ring-3 peer-focus-visible:ring-primary-500/30
                          dark:bg-neutral-700"></span>
 
             {{-- A bolinha, que corre para a direita quando liga. --}}
-            <span class="pointer-events-none absolute start-0.5 size-5 rounded-full bg-white
-                         ring-1 ring-black/5 transition-transform peer-checked:translate-x-5
-                         rtl:peer-checked:-translate-x-5"></span>
+            <span class="pointer-events-none absolute start-0.5 size-4 rounded-full bg-white
+                         ring-1 ring-black/5 transition-transform peer-checked:translate-x-4
+                         rtl:peer-checked:-translate-x-4"></span>
         </label>
 
         @if ($label)

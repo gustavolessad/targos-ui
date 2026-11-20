@@ -68,7 +68,7 @@
      * `mostrarToast` clona o <template> abaixo, então os dois saem do
      * mesmo HTML (o mesmo botão de fechar, a mesma animação).
      */
-    $base = 'pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-xl py-2 ps-4 pe-2 text-sm shadow-lg '
+    $base = 'pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-lg py-2 ps-4 pe-2 text-sm shadow-lg '
         .'translate-y-3 opacity-0 transition duration-300 ease-out '
         .'[&[data-visivel]]:translate-y-0 [&[data-visivel]]:opacity-100';
 

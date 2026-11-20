@@ -57,9 +57,9 @@
               rows="{{ $rows }}"
               @required($required)
               {{ $attributes->except('id')->class([
-                  'block w-full rounded-lg border text-neutral-900',
+                  'block w-full rounded-lg border text-neutral-900 shadow-xs',
                   $tamanhos[$size] ?? $tamanhos['md'],
-                  'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
+                  'placeholder:text-neutral-400 focus:outline-none focus:ring-3',
                   'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                   'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',
                   'read-only:cursor-not-allowed read-only:bg-neutral-100 read-only:text-neutral-500',

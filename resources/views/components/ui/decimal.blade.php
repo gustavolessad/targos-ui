@@ -79,9 +79,9 @@
     // A mesma tabela do `x-ui.percent`: altura, recuos sem e com símbolo, onde o símbolo fica, a letra dele.
     $tamanhos = [
         'xs' => ['h-7 text-xs', 'ps-2.5', 'pe-2.5', 'ps-8', 'pe-8', 'ps-2.5', 'pe-2.5', 'text-sm'],
-        'sm' => ['h-9 text-sm', 'ps-3', 'pe-3', 'ps-9', 'pe-9', 'ps-3', 'pe-3', 'text-sm'],
-        'md' => ['h-10 text-sm', 'ps-3', 'pe-3', 'ps-10', 'pe-10', 'ps-3', 'pe-3', 'text-sm'],
-        'lg' => ['h-12 text-base', 'ps-4', 'pe-4', 'ps-11', 'pe-11', 'ps-4', 'pe-4', 'text-sm'],
+        'sm' => ['h-8 text-sm', 'ps-3', 'pe-3', 'ps-9', 'pe-9', 'ps-3', 'pe-3', 'text-sm'],
+        'md' => ['h-9 text-sm', 'ps-3', 'pe-3', 'ps-10', 'pe-10', 'ps-3', 'pe-3', 'text-sm'],
+        'lg' => ['h-10 text-base', 'ps-4', 'pe-4', 'ps-11', 'pe-11', 'ps-4', 'pe-4', 'text-sm'],
         'cell' => ['py-1 text-sm', 'ps-2', 'pe-2', 'ps-6', 'pe-7', 'ps-1.5', 'pe-1.5', 'text-xs'],
     ];
 
@@ -96,7 +96,7 @@
     $caixa = $naCelula ? [
         'block w-full rounded-md border bg-transparent text-neutral-900 transition',
         'placeholder:text-neutral-400',
-        'focus:ring-2 focus:outline-none',
+        'focus:ring-3 focus:outline-none',
         'disabled:cursor-not-allowed disabled:text-neutral-400',
         'read-only:cursor-not-allowed read-only:text-neutral-400',
         'dark:text-white dark:placeholder:text-neutral-500',
@@ -104,8 +104,8 @@
         'border-neutral-300 hover:border-neutral-400 focus:border-primary-500 focus:ring-primary-500/20 dark:border-neutral-800 dark:hover:border-neutral-600' => ! $temErro,
         'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 dark:border-danger-500' => $temErro,
     ] : [
-        'block w-full rounded-lg border text-neutral-900 bg-white',
-        'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
+        'block w-full rounded-lg border text-neutral-900 shadow-xs bg-white',
+        'placeholder:text-neutral-400 focus:outline-none focus:ring-3',
         'dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500',
         'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
         'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',

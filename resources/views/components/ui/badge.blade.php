@@ -91,7 +91,7 @@
     $cheios['violet'] = $cheios['accent'];
 
     $pintura = match ($variant) {
-        'outline' => 'bg-transparent '.($contornos[$color] ?? $contornos['neutral']),
+        'outline' => 'bg-transparent ring-1 ring-inset '.($contornos[$color] ?? $contornos['neutral']),
         'filled' => $cheios[$color] ?? $cheios['neutral'],
         default => $cores[$color] ?? $cores['neutral'],
     };
@@ -102,13 +102,13 @@
 
     $espaco = match (true) {
         $soIcone => $size === 'lg' ? 'p-1.5' : 'p-1',
-        $size === 'lg' => 'px-3 py-1 text-sm',
+        $size === 'lg' => 'px-2.5 py-0.5 text-sm',
         default => 'px-2 py-0.5 text-xs',
     };
 @endphp
 
 <span {{ $attributes->class([
-    'inline-flex items-center rounded-full font-medium ring-1 ring-inset',
+    'inline-flex items-center rounded-full font-medium',
     'gap-1' => $icon !== null && ! $soIcone,
     $espaco,
     $pintura,

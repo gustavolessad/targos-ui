@@ -76,9 +76,9 @@
      * desenha.
      */
     $tamanhos = [
-        'sm' => ['h-9 px-3 text-sm', 'size-4'],
-        'md' => ['h-10 px-4 text-sm', 'size-4'],
-        'lg' => ['h-12 px-5 text-base', 'size-5'],
+        'sm' => ['h-8 px-3 text-sm', 'size-4'],
+        'md' => ['h-9 px-4 text-sm', 'size-4'],
+        'lg' => ['h-10 px-5 text-sm', 'size-4'],
     ];
     [$medidas, $icone] = $tamanhos[$size] ?? $tamanhos['md'];
 @endphp

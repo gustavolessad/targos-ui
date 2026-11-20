@@ -89,9 +89,9 @@
     --}}
     <div data-modal-fundo class="fixed inset-0 flex overflow-y-auto p-4">
         <div {{ $attributes->class([
-                 'relative m-auto w-full rounded-2xl bg-white p-6 shadow-xl',
+                 'relative m-auto w-full rounded-xl border border-neutral-200 bg-white p-6 shadow-lg',
                  $width,
-                 'dark:bg-painel-dark dark:ring-1 dark:ring-neutral-800',
+                 'dark:border-neutral-800 dark:bg-painel-dark',
                  'translate-y-3 scale-95 opacity-0 transition duration-200 ease-out',
                  '[[data-aberto]_&]:translate-y-0 [[data-aberto]_&]:scale-100 [[data-aberto]_&]:opacity-100',
              ]) }}
@@ -105,7 +105,7 @@
                     o usa. O nome acessível da caixa vem daqui
                     (`aria-labelledby`), e acompanha o texto trocado.
                 --}}
-                <h2 id="{{ $id }}-titulo" class="mb-5 text-lg font-semibold text-neutral-900 dark:text-white"
+                <h2 id="{{ $id }}-titulo" class="mb-4 text-lg font-semibold text-neutral-900 dark:text-white"
                     data-camada-titulo data-modal-titulo>{{ $title }}</h2>
             @endif
 

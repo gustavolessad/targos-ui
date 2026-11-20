@@ -32,7 +32,7 @@
     {{ $attributes->class([
         'bg-white transition hover:bg-neutral-50',
         'dark:bg-neutral-900 dark:hover:bg-neutral-800',
-        'border-b border-neutral-100 dark:border-neutral-800/70' => ! $last,
+        'border-b border-neutral-200 dark:border-neutral-800' => ! $last,
         'cursor-pointer' => $href,
     ]) }}>
     {{ $slot }}

@@ -29,7 +29,7 @@
 
 @php
     // Os mesmos degraus do `x-ui.checkbox`: o rádio e a caixa lado a lado não destoam.
-    $tamanhos = ['xs' => 'size-3.5', 'sm' => 'size-4', 'md' => 'size-5', 'lg' => 'size-6'];
+    $tamanhos = ['xs' => 'size-3.5', 'sm' => 'size-4', 'md' => 'size-4', 'lg' => 'size-5'];
 
     // `items[0][tipo]` no HTML é `items.0.tipo` para old().
     $chave = \Targos\Ui\FieldName::key($name);
@@ -51,8 +51,8 @@
 
     $classes = [
         // `peer`: o rótulo ao lado acompanha o rádio desligado (`peer-disabled:`), sem JavaScript.
-        'peer shrink-0 cursor-pointer rounded-full border-neutral-300',
-        'focus:ring-2 focus:ring-offset-0',
+        'peer shrink-0 cursor-pointer rounded-full border-neutral-300 shadow-xs',
+        'focus:ring-3 focus:ring-offset-0',
         'dark:border-neutral-600 dark:bg-neutral-900',
         'disabled:cursor-not-allowed disabled:opacity-60',
         $cores[$color] ?? $cores['primary'],
@@ -71,7 +71,7 @@
     $temRotulo = $slot->isNotEmpty() || filled($label);
 
     // A dica alinha com o texto do rótulo: a largura do rádio mais o `ms-2`.
-    $recuos = ['xs' => 'ms-5.5', 'sm' => 'ms-6', 'md' => 'ms-7', 'lg' => 'ms-8'];
+    $recuos = ['xs' => 'ms-5.5', 'sm' => 'ms-6', 'md' => 'ms-6', 'lg' => 'ms-7'];
 @endphp
 
 {{--

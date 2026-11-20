@@ -39,7 +39,7 @@ const ESPERA = 120;
  * para a coluna de ícones responder do mesmo jeito em toda a altura: o
  * que muda de um para o outro é só o conteúdo.
  */
-const CARTAO = 'fixed z-50 rounded-xl bg-white text-sm shadow-lg ring-1 ring-neutral-200'
+const CARTAO = 'fixed z-50 rounded-lg bg-white text-sm shadow-md ring-1 ring-neutral-200'
     + ' dark:bg-neutral-900 dark:ring-neutral-800 origin-left animate-surgir';
 
 // O nome do item, no peso e na cor em que ele aparece com a barra aberta.

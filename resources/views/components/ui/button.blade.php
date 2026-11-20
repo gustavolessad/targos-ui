@@ -27,14 +27,14 @@
      */
     $variantes = [
         // A ação da tela: salvar, comprar, entrar. Uma por tela.
-        'primary' => 'border-transparent bg-primary-600 text-primary-contrast hover:bg-primary-700 focus:ring-primary-500/30',
+        'primary' => 'border-transparent bg-primary-600 text-primary-contrast shadow-xs hover:bg-primary-700 focus:ring-primary-500/30',
         // O que acompanha a ação: cancelar, voltar.
-        'secondary' => 'border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50 focus:ring-neutral-400/30'
+        'secondary' => 'border-neutral-200 bg-white text-neutral-900 shadow-xs hover:bg-neutral-100 focus:ring-neutral-400/30'
             .' dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800'
             .' atual:border-primary-500 atual:bg-primary-50 atual:text-primary-700 atual:hover:bg-primary-100'
             .' dark:atual:border-primary-500 dark:atual:bg-primary-500/15 dark:atual:text-primary-300 dark:atual:hover:bg-primary-500/25',
         // Contorno sobre branco: se destaca do fundo do painel sem competir com a ação.
-        'outline' => 'border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50 focus:ring-neutral-400/30'
+        'outline' => 'border-neutral-200 bg-white text-neutral-900 shadow-xs hover:bg-neutral-100 focus:ring-neutral-400/30'
             .' dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800'
             .' atual:border-primary-500 atual:bg-primary-50 atual:text-primary-700 atual:hover:bg-primary-100'
             .' dark:atual:border-primary-500 dark:atual:bg-primary-500/15 dark:atual:text-primary-300 dark:atual:hover:bg-primary-500/25',
@@ -84,17 +84,17 @@
 
     // Altura fixa, a mesma do campo de cada degrau; o botão só de ícone é quadrado nessa altura.
     $tamanhos = [
-        'xs' => 'h-7 px-2.5 text-xs',
-        'sm' => 'h-9 px-3 text-sm',
-        'md' => 'h-10 px-4 text-sm',
-        'lg' => 'h-12 px-5 text-base',
+        'xs' => 'h-7 gap-1.5 px-2.5 text-xs',
+        'sm' => 'h-8 gap-1.5 px-3 text-sm',
+        'md' => 'h-9 px-4 text-sm',
+        'lg' => 'h-10 px-5 text-sm',
         // A chamada de uma landing: o botão que a página inteira prepara.
-        'xl' => 'h-14 px-8 text-base',
+        'xl' => 'h-12 px-8 text-base',
         // Quadrado, para o botão que só tem ícone.
-        'icon-xl' => 'size-14 p-0',
-        'icon-lg' => 'size-12 p-0',
-        'icon' => 'size-10 p-0',
-        'icon-sm' => 'size-9 p-0',
+        'icon-xl' => 'size-12 p-0',
+        'icon-lg' => 'size-10 p-0',
+        'icon' => 'size-9 p-0',
+        'icon-sm' => 'size-8 p-0',
         'icon-xs' => 'size-7 p-0',
         /*
          * Altura livre, com o conteúdo empilhado: o ícone em cima, o texto,
@@ -108,7 +108,7 @@
 
     $classes = [
         'inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border font-medium',
-        'transition focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-60',
+        'transition-all focus:outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50',
         $variantes[$variant] ?? $variantes['primary'],
         $tamanhos[$size] ?? $tamanhos['md'],
     ];
@@ -124,8 +124,8 @@
 
     // O ícone acompanha o botão: `size-4` no comum, `size-5` no grande, `size-6` no quadrado maior e no empilhado.
     $tamanhoDoIcone = match (true) {
-        in_array($size, ['icon-xl', 'stacked'], true) => 'size-6',
-        in_array($size, ['lg', 'xl', 'icon-lg'], true) => 'size-5',
+        in_array($size, ['icon-xl', 'stacked'], true) => 'size-5',
+        in_array($size, ['xl', 'icon-lg'], true) => 'size-5',
         default => 'size-4',
     };
 @endphp

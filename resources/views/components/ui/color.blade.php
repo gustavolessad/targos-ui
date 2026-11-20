@@ -77,9 +77,9 @@
 
     $tamanhos = [
         'xs' => ['campo' => 'h-7 pe-2.5 ps-8 text-xs', 'amostra' => 'size-4 ms-2'],
-        'sm' => ['campo' => 'h-9 pe-3 ps-10 text-sm', 'amostra' => 'size-5 ms-2.5'],
-        'md' => ['campo' => 'h-10 pe-3 ps-11 text-sm', 'amostra' => 'size-6 ms-2.5'],
-        'lg' => ['campo' => 'h-12 pe-4 ps-12 text-base', 'amostra' => 'size-7 ms-3'],
+        'sm' => ['campo' => 'h-8 pe-3 ps-10 text-sm', 'amostra' => 'size-5 ms-2.5'],
+        'md' => ['campo' => 'h-9 pe-3 ps-11 text-sm', 'amostra' => 'size-6 ms-2.5'],
+        'lg' => ['campo' => 'h-10 pe-4 ps-12 text-base', 'amostra' => 'size-7 ms-3'],
     ];
 
     $tamanho = $tamanhos[$size] ?? $tamanhos['md'];
@@ -119,7 +119,7 @@
                {{ $attributes->only($doCampo) }}
                @class([
                    'block w-full rounded-lg border bg-white font-mono text-neutral-900 tabular-nums',
-                   'placeholder:text-neutral-400 focus:outline-none focus:ring-2',
+                   'placeholder:text-neutral-400 focus:outline-none focus:ring-3',
                    'dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500',
                    'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
                    'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',

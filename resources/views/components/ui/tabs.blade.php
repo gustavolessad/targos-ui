@@ -181,7 +181,7 @@
         vence depende da ordem do CSS, e a aba podia aparecer escondida.
     --}}
     <div>
-        <nav class="-m-0.5 flex gap-1 overflow-x-auto p-0.5" @unless ($navegacao) role="tablist" @endunless>
+        <nav class="flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg bg-neutral-100 p-[3px] dark:bg-neutral-800/70" @unless ($navegacao) role="tablist" @endunless>
             @foreach ($tabs as $chave => $rotulo)
                 @if ($navegacao)
                     {{--
@@ -197,12 +197,12 @@
                         <a href="{{ $links[$chave] }}"
                            @if ($chave === $atual) aria-current="page" @endif
                            @class([
-                               'cursor-pointer whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition',
+                               'cursor-pointer whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition',
                                'text-neutral-600 dark:text-neutral-400',
-                               'not-aria-[current=page]:hover:bg-neutral-200/70 not-aria-[current=page]:hover:text-neutral-900',
-                               'dark:not-aria-[current=page]:hover:bg-white/5 dark:not-aria-[current=page]:hover:text-white',
-                               'aria-[current=page]:bg-primary-100 aria-[current=page]:text-primary-900 aria-[current=page]:ring-1 aria-[current=page]:ring-inset aria-[current=page]:ring-primary-300',
-                               'dark:aria-[current=page]:bg-primary-500/15 dark:aria-[current=page]:text-primary-300 dark:aria-[current=page]:ring-primary-500/30',
+                               'not-aria-[current=page]:hover:text-neutral-900',
+                               'dark:not-aria-[current=page]:hover:text-white',
+                               'aria-[current=page]:bg-white aria-[current=page]:text-neutral-900 aria-[current=page]:shadow-sm',
+                               'dark:aria-[current=page]:bg-neutral-950 dark:aria-[current=page]:text-white',
                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30',
                                'hidden' => in_array($chave, $hidden, strict: true),
                            ])>
@@ -211,7 +211,7 @@
                     @else
                         <span aria-disabled="true"
                               @class([
-                                  'whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium',
+                                  'whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium',
                                   'text-neutral-500 opacity-50 dark:text-neutral-400',
                                   'hidden' => in_array($chave, $hidden, strict: true),
                               ])>
@@ -242,12 +242,12 @@
                             aria-selected="{{ $chave === $atual ? 'true' : 'false' }}"
                             aria-controls="painel-{{ $chave }}"
                             @class([
-                                'cursor-pointer whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition',
+                                'cursor-pointer whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition',
                                 'text-neutral-600 dark:text-neutral-400',
-                                'not-aria-selected:hover:bg-neutral-200/70 not-aria-selected:hover:text-neutral-900',
-                                'dark:not-aria-selected:hover:bg-white/5 dark:not-aria-selected:hover:text-white',
-                                'aria-selected:bg-primary-100 aria-selected:text-primary-900 aria-selected:ring-1 aria-selected:ring-inset aria-selected:ring-primary-300',
-                                'dark:aria-selected:bg-primary-500/15 dark:aria-selected:text-primary-300 dark:aria-selected:ring-primary-500/30',
+                                'not-aria-selected:hover:text-neutral-900',
+                                'dark:not-aria-selected:hover:text-white',
+                                'aria-selected:bg-white aria-selected:text-neutral-900 aria-selected:shadow-sm',
+                                'dark:aria-selected:bg-neutral-950 dark:aria-selected:text-white',
                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30',
                                 'hidden' => in_array($chave, $hidden, strict: true),
                             ])>

@@ -286,9 +286,9 @@
      */
     $tamanhos = [
         'xs' => 'h-7 px-2.5 text-xs',
-        'sm' => 'h-9 px-3 text-sm',
-        'md' => 'h-10 px-3 text-sm',
-        'lg' => 'h-12 px-4 text-base',
+        'sm' => 'h-8 px-3 text-sm',
+        'md' => 'h-9 px-3 text-sm',
+        'lg' => 'h-10 px-4 text-base',
         'cell' => 'px-2 py-1 text-sm',
     ];
 
@@ -300,9 +300,9 @@
     if ($multiple) {
         $tamanhos = [
             'xs' => 'min-h-7 px-2.5 py-0.5 text-xs',
-            'sm' => 'min-h-9 px-3 py-1 text-sm',
-            'md' => 'min-h-10 px-3 py-1.5 text-sm',
-            'lg' => 'min-h-12 px-4 py-2 text-base',
+            'sm' => 'min-h-8 px-3 py-0.5 text-sm',
+            'md' => 'min-h-9 px-3 py-1 text-sm',
+            'lg' => 'min-h-10 px-4 py-1.5 text-base',
             'cell' => 'px-2 py-1 text-sm',
         ];
     }
@@ -312,17 +312,17 @@
     $classeDoTirar = '-me-0.5 cursor-pointer rounded-full px-0.5 leading-none text-neutral-400 hover:text-neutral-700 dark:hover:text-white';
 
     // O gatilho é um botão: ao abrir, o foco vai para o painel. Aberto (aria-expanded) mantém a cara de foco, como o campo de data.
-    $foco = 'focus:border-primary-500 focus:ring-primary-500/20 aria-expanded:ring-2 aria-expanded:border-primary-500 aria-expanded:ring-primary-500/20';
+    $foco = 'focus:border-primary-500 focus:ring-primary-500/20 aria-expanded:ring-3 aria-expanded:border-primary-500 aria-expanded:ring-primary-500/20';
 
     $caixa = [
-        'block w-full rounded-lg border text-neutral-900',
+        'block w-full rounded-lg border text-neutral-900 shadow-xs',
         $tamanhos[$size] ?? $tamanhos['md'],
-        'focus:outline-none focus:ring-2',
+        'focus:outline-none focus:ring-3',
         'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
         'dark:disabled:bg-neutral-900/50 dark:disabled:text-neutral-500',
         'bg-white dark:bg-neutral-900 dark:text-white',
         'border-neutral-300 dark:border-neutral-700 '.$foco => ! $temErro,
-        'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 aria-expanded:ring-2 aria-expanded:border-danger-500 aria-expanded:ring-danger-500/20 dark:border-danger-500' => $temErro,
+        'border-danger-400 focus:border-danger-500 focus:ring-danger-500/20 aria-expanded:ring-3 aria-expanded:border-danger-500 aria-expanded:ring-danger-500/20 dark:border-danger-500' => $temErro,
     ];
 
     /*
@@ -487,7 +487,7 @@
     --}}
     <div id="{{ $idDoPainel }}" hidden
          data-seletor-painel
-         class="absolute z-40 mt-1.5 w-full min-w-48 rounded-xl bg-white p-1 shadow-lg ring-1 ring-neutral-200
+         class="absolute z-40 mt-1.5 w-full min-w-48 rounded-lg bg-white p-1 shadow-md ring-1 ring-neutral-200
                 dark:bg-neutral-900 dark:ring-neutral-800 origin-top animate-surgir">
         @if ($buscavel)
             <x-ui.input type="search"

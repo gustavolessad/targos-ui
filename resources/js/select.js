@@ -490,7 +490,7 @@ function montarSeletor(campo) {
         botao.setAttribute('aria-selected', String(escolhida));
         botao.disabled = opcao.disabled;
         botao.className = [
-            'flex w-full cursor-pointer items-center gap-2 rounded-md py-1.5 pe-2 text-start text-sm',
+            'flex w-full cursor-pointer items-center gap-2 rounded-md py-1 pe-2 text-start text-sm',
             'text-neutral-700 hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none',
             'dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800',
             'disabled:cursor-not-allowed disabled:opacity-40',

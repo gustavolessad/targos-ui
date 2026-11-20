@@ -89,7 +89,7 @@
     --}}
     <div data-modal-fundo class="fixed inset-0 flex overflow-y-auto p-4">
         <div {{ $attributes->class([
-                 'relative m-auto w-full rounded-xl border border-neutral-200 bg-white p-6 shadow-lg',
+                 'relative m-auto w-full rounded-lg border border-neutral-200 bg-white p-6 shadow-lg',
                  $width,
                  'dark:border-neutral-800 dark:bg-painel-dark',
                  'translate-y-3 scale-95 opacity-0 transition duration-200 ease-out',

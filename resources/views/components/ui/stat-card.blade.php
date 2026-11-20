@@ -135,7 +135,7 @@
          * acima do resto fazia os indicadores parecerem um bloco de
          * outra tela, e não o topo desta.
          */
-        'rounded-xl border border-neutral-200 bg-white',
+        'rounded-lg border border-neutral-200 bg-white',
         'p-3 sm:p-4' => $compacto,
         'p-4' => ! $compacto,
         // Coluna: numa grade, o card estica até a altura da linha, e o gráfico fica no pé.

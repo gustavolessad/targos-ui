@@ -7,7 +7,7 @@
     dali. Sem isso, a tela vazia parece defeito em vez de começo.
 --}}
 <div {{ $attributes->class([
-    'flex flex-col items-center rounded-xl border border-dashed border-neutral-300 px-6 py-12 text-center',
+    'flex flex-col items-center rounded-lg border border-dashed border-neutral-300 px-6 py-12 text-center',
     'dark:border-neutral-800',
 ]) }}>
     @if ($icon)

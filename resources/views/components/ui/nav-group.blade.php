@@ -34,7 +34,7 @@
     --}}
     <summary data-barra-rotulo="{{ $label }}" aria-haspopup="true"
              @class([
-                 'group flex cursor-pointer list-none items-center gap-2.5 rounded-md px-2.5 py-1.5',
+                 'group flex cursor-pointer list-none items-center gap-2.5 rounded-lg px-2.5 py-1.5',
                  // O hover com o fundo do item ativo, como no `x-ui.nav-item`.
                  'text-sm font-medium text-neutral-900 transition hover:bg-primary-50',
                  'hover:text-neutral-950 dark:text-white dark:hover:bg-primary-500/15',

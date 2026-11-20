@@ -9,7 +9,7 @@
  */
 import { BOTAO_TEXTO, Calendario, avisar, exibir, noCelular, painelDoCalendario } from './calendar.js';
 
-const BOTAO_ATALHO = 'w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-start text-sm text-neutral-700 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white';
+const BOTAO_ATALHO = 'w-full cursor-pointer rounded-md px-2 py-1 text-start text-sm text-neutral-700 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white';
 const BOTAO_APLICAR = 'cursor-pointer rounded-lg bg-primary-600 px-3 py-1.5 text-sm font-medium text-primary-contrast transition hover:bg-primary-700 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:hover:bg-primary-600';
 
 const intervalo = (inicio, fim) => (inicio && fim ? `${exibir(inicio)} até ${exibir(fim)}` : '');
@@ -74,7 +74,7 @@ function montar(raiz) {
 
         colunaAtalhos.className = 'flex flex-col gap-3 border-neutral-200 pb-3 sm:w-40 sm:border-e sm:pe-3 sm:pb-0 dark:border-neutral-800 max-sm:border-b';
         colunaAtalhos.innerHTML = grupos.map((grupo) => `<div class="space-y-0.5">${
-            grupos.length > 1 && grupo ? `<p class="px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">${grupo}</p>` : ''
+            grupos.length > 1 && grupo ? `<p class="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">${grupo}</p>` : ''
         }${atalhos.map((atalho, indice) => (atalho.group === grupo
             ? `<button type="button" data-atalho="${indice}" class="${BOTAO_ATALHO}"></button>`
             : '')).join('')}</div>`).join('');

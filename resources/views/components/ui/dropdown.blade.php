@@ -82,7 +82,7 @@
     --}}
     <div id="{{ $id }}" data-menu
          @class([
-             'absolute end-0 z-20 hidden rounded-lg bg-white p-1',
+             'absolute end-0 z-20 hidden space-y-0.5 rounded-lg bg-white p-1',
              $width,
              'shadow-md ring-1 ring-neutral-200',
              'dark:bg-neutral-900 dark:ring-neutral-800',

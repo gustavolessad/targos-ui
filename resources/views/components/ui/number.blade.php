@@ -119,7 +119,7 @@
            data-step="{{ $step }}"
            @if ($nullable) data-nullable @endif
            {{ $attributes->merge(['autocomplete' => 'off', ...$naCelulaAcessivel])->class([
-               'rounded-md border bg-transparent text-neutral-900 transition',
+               'rounded-lg border bg-transparent text-neutral-900 transition',
                'placeholder:text-neutral-400',
                'focus:ring-3 focus:outline-none',
                'disabled:cursor-not-allowed disabled:text-neutral-400',

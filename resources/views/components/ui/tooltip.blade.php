@@ -93,7 +93,7 @@
     <div @if (! $ehMenu) role="tooltip" @endif
          data-lado="{{ $lado }}"
          @class([
-             'absolute z-50 hidden rounded-md shadow-md ring-1 animate-surgir',
+             'absolute z-50 hidden rounded-lg shadow-md ring-1 animate-surgir',
              $posicao,
              $origem,
              $aparece,

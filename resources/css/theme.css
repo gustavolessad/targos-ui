@@ -136,6 +136,17 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
+    /*
+     * O texto do painel meio pixel menor que o do Tailwind (20/11/2026): o
+     * `text-sm` em 13,5px (linha de 19px) e o `text-xs` em 11,5px (linha de
+     * 15px), no lugar de 14/20 e 12/16 — a mesma proporção entre o tamanho
+     * e a linha, num desenho mais compacto.
+     */
+    --text-xs: 0.71875rem;
+    --text-xs--line-height: calc(0.9375 / 0.71875);
+    --text-sm: 0.84375rem;
+    --text-sm--line-height: calc(1.1875 / 0.84375);
+
     /* primary — a cor de ação: o azul da Targos (#3A6FE0 no 600). */
     --color-primary-50: #eef3fd;
     --color-primary-100: #dde7fb;
@@ -236,38 +247,60 @@
  * gavetas, o painel de log. Fina e com trilha transparente.
  */
 @layer base {
-    .scroll-discreto {
-        scrollbar-width: thin;
-        scrollbar-color: var(--color-neutral-300) transparent;
+    /*
+     * A barra de rolagem discreta é a de toda área que rola — a página, a
+     * lista que abre, o modal, a tabela larga —, e não só a que pedia
+     * `.scroll-discreto` (a classe continua aceita, e não muda nada).
+     *
+     * No Chrome, no Edge e no Safari, pelo `::-webkit-scrollbar`: um trilho
+     * transparente e um polegar de 4px, sem as setas. As propriedades
+     * padrão (`scrollbar-width`, `scrollbar-color`) ficam só para quem não
+     * tem o `::-webkit-scrollbar` (o Firefox): no Chrome elas venceriam, e o
+     * Windows voltaria a desenhar as setas.
+     */
+    @supports not selector(::-webkit-scrollbar) {
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-neutral-300) transparent;
+        }
+
+        .dark,
+        .dark * {
+            scrollbar-color: var(--color-neutral-700) transparent;
+        }
     }
 
-    .dark .scroll-discreto {
-        scrollbar-color: var(--color-neutral-700) transparent;
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
     }
 
-    .scroll-discreto::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-
-    .scroll-discreto::-webkit-scrollbar-track {
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
         background: transparent;
     }
 
-    .scroll-discreto::-webkit-scrollbar-thumb {
+    ::-webkit-scrollbar-button {
+        display: none;
+    }
+
+    /* A borda transparente (com `background-clip`) afina o polegar sem afinar a área de pegar. */
+    ::-webkit-scrollbar-thumb {
         background-color: var(--color-neutral-300);
+        background-clip: padding-box;
+        border: 3px solid transparent;
         border-radius: 9999px;
     }
 
-    .dark .scroll-discreto::-webkit-scrollbar-thumb {
-        background-color: var(--color-neutral-700);
-    }
-
-    .scroll-discreto:hover::-webkit-scrollbar-thumb {
+    ::-webkit-scrollbar-thumb:hover {
         background-color: var(--color-neutral-400);
     }
 
-    .dark .scroll-discreto:hover::-webkit-scrollbar-thumb {
+    .dark ::-webkit-scrollbar-thumb {
+        background-color: var(--color-neutral-700);
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
         background-color: var(--color-neutral-600);
     }
 }

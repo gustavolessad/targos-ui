@@ -79,10 +79,10 @@
 {{--
     Sem `overflow-hidden`: ele arredondaria os cantos recortando o que
     passa da borda — e o menu de ações da última linha nasce justamente
-    fora dela. Quem arredonda agora é o `rounded-xl` de cada parte.
+    fora dela. Quem arredonda agora é o `rounded-lg` de cada parte.
 --}}
 <div {{ $attributes->class([
-    'rounded-xl bg-white shadow-xs ring-1 ring-neutral-200',
+    'rounded-lg bg-white shadow-xs ring-1 ring-neutral-200',
     'dark:bg-neutral-900 dark:ring-neutral-800',
     /*
      * O canto de cada ponta, já que não há mais recorte para arredondar.
@@ -93,9 +93,9 @@
      * o seletor conta os irmãos, não os visíveis —, então quem marca a
      * linha certa é o Blade, com `data-ultima`.
      */
-    '[&_thead_th:first-child]:rounded-ss-xl [&_thead_th:last-child]:rounded-se-xl',
-    '[&_tr[data-ultima]_td:first-child]:rounded-es-xl',
-    '[&_tr[data-ultima]_td:last-child]:rounded-ee-xl',
+    '[&_thead_th:first-child]:rounded-ss-lg [&_thead_th:last-child]:rounded-se-lg',
+    '[&_tr[data-ultima]_td:first-child]:rounded-es-lg',
+    '[&_tr[data-ultima]_td:last-child]:rounded-ee-lg',
 ]) }}>
     {{--
         Sem embrulho de rolagem: `overflow-x` liga o `overflow-y` junto,

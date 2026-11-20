@@ -8,7 +8,7 @@
      * arredondado do menu.
      */
     $classes = [
-        'flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-start text-sm transition',
+        'flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-start text-sm transition',
         'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800' => ! $danger,
         // A exclusão é vermelha já na lista: quem vai clicar precisa ver antes.
         'text-danger-600 hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-500/10' => $danger,

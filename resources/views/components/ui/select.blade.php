@@ -499,7 +499,7 @@
                         data-seletor-filtro />
         @endif
 
-        <div class="max-h-64 overflow-y-auto" role="listbox" @if ($multiple) aria-multiselectable="true" @endif data-seletor-lista></div>
+        <div class="max-h-64 space-y-0.5 overflow-y-auto" role="listbox" @if ($multiple) aria-multiselectable="true" @endif data-seletor-lista></div>
 
         <p class="hidden px-2.5 py-2 text-sm text-neutral-500 dark:text-neutral-400" data-seletor-vazio>
             Nada encontrado.

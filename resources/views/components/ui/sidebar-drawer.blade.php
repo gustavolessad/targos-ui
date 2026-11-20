@@ -31,7 +31,7 @@
          ]) }}
          role="dialog" aria-modal="true" aria-label="Menu">
         <button type="button" data-fecha-offcanvas aria-label="Fechar o menu"
-                class="absolute end-2 top-2 z-10 rounded-md p-1.5 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700
+                class="absolute end-2 top-2 z-10 rounded-lg p-1.5 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700
                        dark:hover:bg-neutral-800 dark:hover:text-neutral-200">
             <x-ui.icon name="x" class="size-5" />
         </button>

@@ -28,12 +28,12 @@
     'bodyClass' => '',
     /*
      * O arredondamento dos cantos: `none`, `sm` (4px), `md` (6px), `lg`
-     * (8px), `xl` (12px, o padrão) ou `2xl` (16px). Prop, e não classe
+     * (8px, o padrão — o raio de todo o pacote), `xl` (12px) ou `2xl` (16px). Prop, e não classe
      * de fora, pelo mesmo motivo do `tone`: um `rounded-lg` passado
      * conviveria com o `rounded-2xl` daqui, e quem venceria seria a
      * ordem no CSS gerado. E o rodapé acompanha o canto (ver abaixo).
      */
-    'radius' => 'xl',
+    'radius' => 'lg',
 ])
 
 @php

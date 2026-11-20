@@ -94,7 +94,7 @@
     $recuo = [$prefixo !== null ? $comPrefixo : $inicio, $sufixo !== null ? $comSufixo : $fim];
 
     $caixa = $naCelula ? [
-        'block w-full rounded-md border bg-transparent text-neutral-900 transition',
+        'block w-full rounded-lg border bg-transparent text-neutral-900 transition',
         'placeholder:text-neutral-400',
         'focus:ring-3 focus:outline-none',
         'disabled:cursor-not-allowed disabled:text-neutral-400',

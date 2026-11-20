@@ -70,7 +70,7 @@
      * discreto (`rounded-md`); a busca dentro de um painel suspenso pede
      * o mesmo `rounded-lg` do painel em volta.
      */
-    'radius' => 'rounded-md',
+    'radius' => 'rounded-lg',
     /*
      * A largura do campo **com o seu envelope** — rótulo, erro e dica.
      *

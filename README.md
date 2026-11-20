@@ -1682,6 +1682,8 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.16.1** — `x-ui.radio-group`: 2px entre as opções (o hover de uma não encosta na
+  escolhida) e a sombra leve dos campos.
 - **1.16.0** — Visual mais perto do shadcn, só nas classes (nenhum componente muda de
   nome, atributo ou script):
   - **Tamanhos um degrau menores:** botão e campo com 32px no `sm`, 36px no `md`, 40px no

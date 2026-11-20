@@ -78,7 +78,7 @@
     @endif
 
     {{-- Fundo branco, como os campos; no escuro, o mesmo fundo deles. --}}
-    <div @if ($id) id="{{ $id }}" @endif {{ $attributes->except('id')->class(['inline-flex' => ! $full, 'flex w-full' => $full, 'rounded-lg border border-neutral-300 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900']) }}>
+    <div @if ($id) id="{{ $id }}" @endif {{ $attributes->except('id')->class(['inline-flex' => ! $full, 'flex w-full' => $full, 'gap-0.5 rounded-lg border border-neutral-300 bg-white p-1 shadow-xs dark:border-neutral-700 dark:bg-neutral-900']) }}>
         @foreach ($options as $valor => $rotulo)
             <label @class(['cursor-pointer', 'flex-1' => $full])>
                 <input type="radio"

@@ -24,8 +24,12 @@
     Compacta: os itens com `py-1.5` e o ícone de 16px (`size-4`), e os
     blocos a `space-y-2` um do outro — o menu de uma loja inteira cabe
     numa tela de notebook sem rolar.
+
+    No claro, uma linha fina na borda direita, a mesma da barra superior
+    (21/11/2026): sem a sombra do conteúdo, só o branco sobre o cinza-claro
+    mal separava as duas. No escuro, o contraste basta.
 --}}
-<nav data-barra {{ $attributes->class(['flex h-full flex-col bg-white text-sm dark:bg-neutral-900']) }}>
+<nav data-barra {{ $attributes->class(['flex h-full flex-col border-e border-neutral-200 bg-white text-sm dark:border-e-0 dark:bg-neutral-900']) }}>
     @isset($logo)
         <div class="flex h-20 shrink-0 items-center px-5 recolhida:justify-center recolhida:overflow-hidden recolhida:px-0">
             {{-- `contents`: o envelope não entra no layout; existe só para o logo poder sumir. --}}

@@ -1,9 +1,9 @@
 {{--
     A área de conteúdo do painel, abaixo da barra superior.
 
-    O conteúdo emerge da moldura pela sombra de dentro, a partir do lg,
-    onde há barra lateral para ele encostar; sem canto arredondado
-    (20/11/2026), no raio único do pacote.
+    O mesmo fundo da barra superior, que fica fixa em cima dela; a linha
+    fina da barra e a da barra lateral separam as três partes, sem sombra
+    (21/11/2026; antes, o conteúdo emergia da moldura pela sombra de dentro).
 
     Por dentro, a largura toda: listagens e tabelas aproveitam o monitor
     largo. Quem precisa de coluna mais estreita divide a tela em grade.
@@ -11,8 +11,7 @@
 <main {{ $attributes->class([
     // 3.5rem: a altura do x-ui.topbar (h-14).
     'min-h-[calc(100vh-3.5rem)] bg-painel p-6 lg:p-10',
-    'lg:shadow-[inset_6px_6px_12px_-8px_rgb(0_0_0_/_0.10)]',
-    'dark:bg-painel-dark dark:lg:shadow-none',
+    'dark:bg-painel-dark',
 ]) }}>
     <div class="w-full">
         {{ $slot }}

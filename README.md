@@ -1682,6 +1682,11 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.16.2** — `x-ui.topbar` fixa no topo (`sticky`), com o fundo da área de conteúdo e
+  uma linha fina embaixo; o `transparent` tira o fundo e a linha, para a barra dentro de
+  uma moldura (aí é a moldura que fica fixa). O `x-ui.content` perde a sombra de dentro,
+  e o `x-ui.sidebar` ganha a linha fina na borda direita no tema claro. A página que rola
+  até um campo para abaixo da barra (`scroll-padding-top`).
 - **1.16.1** — `x-ui.radio-group`: 2px entre as opções (o hover de uma não encosta na
   escolhida) e a sombra leve dos campos.
 - **1.16.0** — Visual mais perto do shadcn, só nas classes (nenhum componente muda de

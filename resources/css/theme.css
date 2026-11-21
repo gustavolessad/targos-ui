@@ -243,6 +243,16 @@
 }
 
 /*
+ * A barra superior fica fixa no topo (21/11/2026): o que a página rola até
+ * — o campo com erro, a âncora — para abaixo dela, e não por baixo.
+ */
+@layer base {
+    html:has([data-barra-superior]) {
+        scroll-padding-top: 4.5rem;
+    }
+}
+
+/*
  * A barra de rolagem das áreas internas — a lista da barra lateral, as
  * gavetas, o painel de log. Fina e com trilha transparente.
  */

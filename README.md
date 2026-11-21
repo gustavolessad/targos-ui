@@ -1682,6 +1682,9 @@ página.
 
 Versionamento por tag do Git.
 
+- **1.16.3** — `x-ui.radio-group`: o texto da opção não quebra mais em duas linhas (a
+  segunda saía cortada pela altura fixa). Quando as opções não cabem lado a lado, a que
+  sobra desce inteira para a linha de baixo; cabendo, o `full` segue dividindo por igual.
 - **1.16.2** — `x-ui.topbar` fixa no topo (`sticky`), com o fundo da área de conteúdo e
   uma linha fina embaixo; o `transparent` tira o fundo e a linha, para a barra dentro de
   uma moldura (aí é a moldura que fica fixa). O `x-ui.content` perde a sombra de dentro,

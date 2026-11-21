@@ -67,7 +67,12 @@
     Um grupo de opções lado a lado, no estilo de botão segmentado.
 
     O `peer-checked:` do Tailwind pinta o rótulo conforme o rádio irmão,
-    então a seleção não precisa de JavaScript nenhum. Para reagir à
+    então a seleção não precisa de JavaScript nenhum.
+
+    O texto da opção não quebra (a opção tem altura fixa, e a segunda linha
+    sairia cortada): quando as opções não cabem lado a lado, a que sobra
+    desce inteira para a linha de baixo (`flex-wrap`). Cabendo, o `full`
+    continua dividindo a largura por igual. Para reagir à
     troca, a tela liga um `onchange` no grupo (ou usa `data-alternancia`).
     A opção não escolhida ganha o fundo cinza sutil dos hovers do painel.
 --}}
@@ -78,7 +83,7 @@
     @endif
 
     {{-- Fundo branco, como os campos; no escuro, o mesmo fundo deles. --}}
-    <div @if ($id) id="{{ $id }}" @endif {{ $attributes->except('id')->class(['inline-flex' => ! $full, 'flex w-full' => $full, 'gap-0.5 rounded-lg border border-neutral-300 bg-white p-1 shadow-xs dark:border-neutral-700 dark:bg-neutral-900']) }}>
+    <div @if ($id) id="{{ $id }}" @endif {{ $attributes->except('id')->class(['inline-flex' => ! $full, 'flex w-full' => $full, 'flex-wrap gap-0.5 rounded-lg border border-neutral-300 bg-white p-1 shadow-xs dark:border-neutral-700 dark:bg-neutral-900']) }}>
         @foreach ($options as $valor => $rotulo)
             <label @class(['cursor-pointer', 'flex-1' => $full])>
                 <input type="radio"
@@ -90,7 +95,7 @@
                        class="peer sr-only">
 
                 <span @class([
-                    'flex items-center rounded-md font-medium text-neutral-600 transition dark:text-neutral-400',
+                    'flex items-center whitespace-nowrap rounded-md font-medium text-neutral-600 transition dark:text-neutral-400',
                     'justify-center' => $full,
                     $tamanho['opcao'],
                     'peer-not-checked:hover:bg-neutral-100 peer-not-checked:hover:text-neutral-900',
